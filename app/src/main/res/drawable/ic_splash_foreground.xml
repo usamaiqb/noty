@@ -5,16 +5,15 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- "ny" text for monochrome/themed icons (Android 13+) -->
-    <!-- Uses black fill - system will tint based on wallpaper colors -->
+    <!-- "ny" text for splash screen - uses white, will be tinted by theme -->
 
     <!-- Letter "n" - lowercase with rounded corners -->
     <path
-        android:fillColor="#000000"
+        android:fillColor="#FFFFFF"
         android:pathData="M 30,65 L 30,45 L 35,45 L 35,47 C 36,44.5 39,43 43,43 C 49,43 52,46 52,52 L 52,65 L 47,65 L 47,53 C 47,49 45,47 42,47 C 38.5,47 35,49.5 35,53 L 35,65 Z"/>
 
     <!-- Letter "y" - lowercase with descender -->
     <path
-        android:fillColor="#000000"
+        android:fillColor="#FFFFFF"
         android:pathData="M 57,45 L 62.5,45 L 68,59 L 73.5,45 L 79,45 L 69,70 C 67,75 64,77 59,77 L 57,77 L 57,73 L 59,73 C 62,73 63.5,72 64.5,69 L 65,68 Z"/>
 </vector>

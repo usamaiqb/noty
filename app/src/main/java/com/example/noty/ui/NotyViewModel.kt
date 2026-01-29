@@ -1,6 +1,8 @@
 package com.example.noty.ui
 
 import android.app.Application
+import android.content.Intent
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -8,12 +10,10 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.noty.data.AppDatabase
 import com.example.noty.data.NotyRepository
-import com.example.noty.data.Task
+import com.example.noty.data.Note
 import com.example.noty.utils.NotificationHelper
+import com.example.noty.utils.StickyService
 import com.example.noty.utils.ThemeManager
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class NotyViewModel(application: Application) : AndroidViewModel(application) {
@@ -23,40 +23,48 @@ class NotyViewModel(application: Application) : AndroidViewModel(application) {
     private val notificationHelper: NotificationHelper
 
     init {
-        val taskDao = AppDatabase.getDatabase(application).taskDao()
-        repository = NotyRepository(taskDao)
+        val noteDao = AppDatabase.getDatabase(application).noteDao()
+        repository = NotyRepository(noteDao)
         themeManager = ThemeManager(application)
         notificationHelper = NotificationHelper(application)
     }
 
-    val allTasks = repository.allTasks.asLiveData()
-    
+    val allNotes = repository.getAllNotes().asLiveData()
+
     val themeFlow = themeManager.themeFlow
 
-    // Monitor tasks to manage service
+    // Track service state to prevent start/stop thrashing
+    private var isServiceRunning = false
+
+    // Monitor notes to manage service
     init {
         viewModelScope.launch {
-            repository.allTasks.collect { tasks ->
-                if (tasks.isNotEmpty()) {
-                    val intent = android.content.Intent(application, com.example.noty.utils.StickyService::class.java)
-                    application.startService(intent)
-                } else {
-                    val intent = android.content.Intent(application, com.example.noty.utils.StickyService::class.java)
+            repository.getAllNotes().collect { notes ->
+                val shouldRun = notes.isNotEmpty()
+                if (shouldRun && !isServiceRunning) {
+                    val intent = Intent(application, StickyService::class.java)
+                    ContextCompat.startForegroundService(application, intent)
+                    isServiceRunning = true
+                } else if (!shouldRun && isServiceRunning) {
+                    val intent = Intent(application, StickyService::class.java)
                     application.stopService(intent)
+                    isServiceRunning = false
                 }
             }
         }
     }
 
-    fun insert(task: Task) = viewModelScope.launch {
-        val id = repository.insert(task)
-        val taskWithId = task.copy(id = id)
-        notificationHelper.showNotification(taskWithId)
+    fun insert(note: Note) = viewModelScope.launch {
+        val id = repository.insert(note)
+        if (id > 0) {
+            val noteWithId = note.copy(id = id)
+            notificationHelper.showNotification(noteWithId)
+        }
     }
 
-    fun delete(task: Task) = viewModelScope.launch {
-        repository.delete(task)
-        notificationHelper.cancelNotification(task.id.toInt())
+    fun delete(note: Note) = viewModelScope.launch {
+        repository.delete(note)
+        notificationHelper.cancelNotification(note.id.toInt())
     }
 
     fun setTheme(mode: ThemeManager.ThemeMode) = viewModelScope.launch {

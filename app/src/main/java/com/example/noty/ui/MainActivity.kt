@@ -8,22 +8,31 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.noty.R
-import com.example.noty.data.Task
-import com.example.noty.data.TaskType
+import com.example.noty.data.Note
+import com.example.noty.data.NoteType
 import com.example.noty.databinding.ActivityMainBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.google.android.material.color.DynamicColors
 
 
 class MainActivity : AppCompatActivity() {
 
+    companion object {
+        private const val REQUEST_NOTIFICATION_PERMISSION = 101
+    }
+
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: NotyViewModel
-    private lateinit var adapter: TaskAdapter
+    private lateinit var adapter: NoteAdapter
+    private var previousNoteCount = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
+        DynamicColors.applyToActivityIfAvailable(this)
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -51,42 +60,43 @@ class MainActivity : AppCompatActivity() {
                 androidx.core.app.ActivityCompat.requestPermissions(
                     this,
                     arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
-                    101
+                    REQUEST_NOTIFICATION_PERMISSION
                 )
             }
         }
     }
 
     private fun setupRecyclerView() {
-        adapter = TaskAdapter { task ->
-            showDeleteConfirmation(task)
+        adapter = NoteAdapter { note ->
+            showDeleteConfirmation(note)
         }
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.adapter = adapter
 
-        viewModel.allTasks.observe(this) { tasks ->
-            adapter.submitList(tasks)
-            binding.emptyState.visibility = if (tasks.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
-            
-            // Scroll to bottom when new task is added
-            if (tasks.isNotEmpty()) {
-                 binding.recyclerView.smoothScrollToPosition(tasks.size - 1)
+        viewModel.allNotes.observe(this) { notes ->
+            adapter.submitList(notes)
+            binding.emptyState.visibility = if (notes.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
+
+            // Scroll to bottom only when a new note is added (not on delete)
+            if (notes.size > previousNoteCount && notes.isNotEmpty()) {
+                 binding.recyclerView.smoothScrollToPosition(notes.size - 1)
             }
+            previousNoteCount = notes.size
         }
     }
 
     private fun setupInput() {
-        binding.fabAddTask.setOnClickListener {
-            showAddTaskDialog()
+        binding.fabAddNote.setOnClickListener {
+            showAddNoteDialog()
         }
     }
 
-    private fun showAddTaskDialog() {
+    private fun showAddNoteDialog() {
         val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(this)
-        val dialogView = layoutInflater.inflate(R.layout.dialog_add_task, null)
-        
-        val editTitle = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.editTaskTitle)
-        val editDescription = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.editTaskDescription)
+        val dialogView = layoutInflater.inflate(R.layout.dialog_add_note, null)
+
+        val editTitle = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.editNoteTitle)
+        val editDescription = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.editNoteDescription)
 
         dialogView.findViewById<android.widget.Button>(R.id.buttonCancel).setOnClickListener {
             dialog.dismiss()
@@ -97,10 +107,10 @@ class MainActivity : AppCompatActivity() {
             val description = editDescription.text.toString().trim()
 
             if (title.isNotEmpty()) {
-                viewModel.insert(Task(
+                viewModel.insert(Note(
                     title = title,
                     description = if (description.isEmpty()) null else description,
-                    type = TaskType.TASK
+                    type = NoteType.NOTE
                 ))
                 dialog.dismiss()
             } else {
@@ -112,12 +122,12 @@ class MainActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    private fun showDeleteConfirmation(task: Task) {
+    private fun showDeleteConfirmation(note: Note) {
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.delete_confirmation)
-            .setMessage("Are you sure you want to delete '${task.title}'?")
+            .setMessage("Are you sure you want to delete '${note.title}'?")
             .setPositiveButton(R.string.delete) { _, _ ->
-                viewModel.delete(task)
+                viewModel.delete(note)
             }
             .setNegativeButton(R.string.action_cancel, null)
             .show()
@@ -141,9 +151,9 @@ class MainActivity : AppCompatActivity() {
     private fun showThemeSelectionDialog() {
         val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(this)
         val view = layoutInflater.inflate(R.layout.dialog_theme_selection, null)
-        
+
         val radioGroup = view.findViewById<android.widget.RadioGroup>(R.id.radioGroupTheme)
-        
+
         lifecycleScope.launch {
             val currentTheme = viewModel.themeFlow.first()
             when(currentTheme) {
@@ -163,7 +173,7 @@ class MainActivity : AppCompatActivity() {
             viewModel.setTheme(newMode)
             dialog.dismiss()
         }
-        
+
         dialog.setContentView(view)
         dialog.show()
     }

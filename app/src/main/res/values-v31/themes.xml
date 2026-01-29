@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Splash Screen Theme for Android 12+ with Dynamic Colors -->
+    <style name="Theme.Noty.Splash" parent="Theme.SplashScreen">
+        <!-- Use dynamic primary color for background -->
+        <item name="windowSplashScreenBackground">?attr/colorPrimary</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_foreground</item>
+        <!-- Icon will be tinted with onPrimary color -->
+        <item name="windowSplashScreenIconBackgroundColor">?attr/colorPrimaryContainer</item>
+        <item name="postSplashScreenTheme">@style/Theme.Noty</item>
+    </style>
+
+</resources>

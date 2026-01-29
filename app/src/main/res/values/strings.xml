@@ -1,20 +1,20 @@
 <resources>
     <string name="app_name">Noty</string>
     <string name="title_notes">Notes</string>
-    <string name="hint_add_task">Add a new task...</string>
+    <string name="hint_add_note">Add a new note...</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_settings">Appearance</string>
     <string name="pref_theme">Theme</string>
     <string name="pref_theme_system">Device / System</string>
     <string name="pref_theme_light">Light</string>
     <string name="pref_theme_dark">Dark</string>
-    <string name="dialog_add_task_title">New Task</string>
+    <string name="dialog_add_note_title">New Note</string>
     <string name="action_save">Save</string>
     <string name="action_cancel">Cancel</string>
-    <string name="label_task_title">Task Title</string>
-    <string name="type_task">Task</string>
+    <string name="label_note_title">Note Title</string>
+    <string name="type_note">Note</string>
     <string name="type_reminder">Reminder</string>
     <string name="type_work">Work</string>
-    <string name="delete_confirmation">Delete this task?</string>
+    <string name="delete_confirmation">Delete this note?</string>
     <string name="delete">Delete</string>
 </resources>

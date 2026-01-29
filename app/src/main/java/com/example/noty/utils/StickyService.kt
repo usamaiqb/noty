@@ -7,11 +7,13 @@ import android.os.Build
 import android.os.IBinder
 import androidx.core.app.ServiceCompat
 
-import com.example.noty.data.Task
+import com.example.noty.data.Note
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 import kotlinx.coroutines.flow.first
 
@@ -25,25 +27,31 @@ class StickyService : Service() {
         // Start foreground immediately
         startForegroundService()
 
-        // Sync notifications
+        // Sync notifications with timeout to prevent indefinite hangs
         serviceScope.launch(Dispatchers.IO) {
             val database = com.example.noty.data.AppDatabase.getDatabase(applicationContext)
             val notificationHelper = NotificationHelper(applicationContext)
-            
-            database.taskDao().getAllTasks().first().let { tasksList ->
-                notificationHelper.syncNotifications(tasksList)
+
+            val notesList = withTimeoutOrNull(5000L) {
+                database.noteDao().getAllNotes().first()
             }
+            notesList?.let { notificationHelper.syncNotifications(it) }
         }
-        
+
         return START_STICKY
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        serviceScope.cancel()
     }
 
     private fun startForegroundService() {
         val notificationHelper = NotificationHelper(this)
         // We need a base notification for the service itself
-        //Ideally, this would summarize "X active tasks"
+        //Ideally, this would summarize "X active notes"
         val notification = notificationHelper.createBaseNotification("Noty Service", "Running in background")
-        
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             ServiceCompat.startForeground(
                 this,

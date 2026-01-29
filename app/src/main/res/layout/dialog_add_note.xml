@@ -22,7 +22,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:text="@string/dialog_add_task_title"
+        android:text="@string/dialog_add_note_title"
         android:textAppearance="?attr/textAppearanceHeadlineSmall"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -41,10 +41,10 @@
         app:layout_constraintTop_toBottomOf="@+id/titleDialog">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/editTaskTitle"
+            android:id="@+id/editNoteTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/label_task_title"
+            android:hint="@string/label_note_title"
             android:inputType="textCapSentences" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -61,7 +61,7 @@
         app:layout_constraintTop_toBottomOf="@+id/inputLayoutTitle">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/editTaskDescription"
+            android:id="@+id/editNoteDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Tell us more (optional)"

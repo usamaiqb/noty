@@ -40,7 +40,7 @@
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
                 android:paddingBottom="88dp"
-                tools:listitem="@layout/item_task" />
+                tools:listitem="@layout/item_note" />
 
             <LinearLayout
                 android:id="@+id/emptyState"
@@ -80,7 +80,7 @@
     </androidx.core.widget.NestedScrollView>
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/fabAddTask"
+        android:id="@+id/fabAddNote"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
@@ -90,6 +90,6 @@
         app:backgroundTint="?attr/colorPrimary"
         app:iconTint="?attr/colorOnPrimary"
         android:textColor="?attr/colorOnPrimary"
-        android:contentDescription="@string/hint_add_task" />
+        android:contentDescription="@string/hint_add_note" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

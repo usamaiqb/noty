@@ -2,29 +2,23 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="64dp"
     android:height="64dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
+    android:viewportWidth="64"
+    android:viewportHeight="64">
 
-    <!-- Three horizontal lines icon for notification large icon -->
-    <group
-        android:translateX="54"
-        android:translateY="54"
-        android:scaleX="1.2"
-        android:scaleY="1.2">
+    <!-- "ny" large notification icon with background -->
 
-        <!-- Top line -->
-        <path
-            android:fillColor="?attr/colorPrimary"
-            android:pathData="M-20,-18 L20,-18 Q24,-18 24,-14 Q24,-10 20,-10 L-20,-10 Q-24,-10 -24,-14 Q-24,-18 -20,-18 Z"/>
+    <!-- Black circular background -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M 32,32 m -30,0 a 30,30 0 1,1 60,0 a 30,30 0 1,1 -60,0"/>
 
-        <!-- Middle line -->
-        <path
-            android:fillColor="?attr/colorPrimary"
-            android:pathData="M-20,-4 L20,-4 Q24,-4 24,0 Q24,4 20,4 L-20,4 Q-24,4 -24,0 Q-24,-4 -20,-4 Z"/>
+    <!-- Letter "n" - white -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 12,40 L 12,24 L 17,24 L 17,26 C 18,24.5 20,23.5 23,23.5 C 27,23.5 30,26 30,30 L 30,40 L 25,40 L 25,31 C 25,28.5 23.5,27 21.5,27 C 19,27 17,28.5 17,31 L 17,40 Z"/>
 
-        <!-- Bottom line -->
-        <path
-            android:fillColor="?attr/colorPrimary"
-            android:pathData="M-20,10 L8,10 Q12,10 12,14 Q12,18 8,18 L-20,18 Q-24,18 -24,14 Q-24,10 -20,10 Z"/>
-    </group>
+    <!-- Letter "y" - white -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 33,24 L 38,24 L 42,34 L 46,24 L 51,24 L 43,43 C 42,46 40,48 36,48 L 34,48 L 34,44 L 36,44 C 38,44 39,43.5 39.5,42 L 40,41 Z"/>
 </vector>

@@ -7,36 +7,37 @@ import com.example.noty.data.AppDatabase
 import com.example.noty.data.NotyRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
 class NotificationReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == NotificationHelper.ACTION_DELETE) {
-            val taskId = intent.getLongExtra(NotificationHelper.EXTRA_TASK_ID, -1)
-            if (taskId != -1L) {
-                // Perform delete in background
+        val pendingResult = goAsync()
+
+        CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
+            try {
+                val noteId = intent.getLongExtra(NotificationHelper.EXTRA_NOTE_ID, -1)
+                if (noteId == -1L) return@launch
+
                 val database = AppDatabase.getDatabase(context)
-                val repository = NotyRepository(database.taskDao())
                 val notificationHelper = NotificationHelper(context)
-                
-                CoroutineScope(Dispatchers.IO).launch {
-                    repository.deleteById(taskId)
-                    notificationHelper.cancelNotification(taskId.toInt())
+
+                when (intent.action) {
+                    NotificationHelper.ACTION_DELETE -> {
+                        val repository = NotyRepository(database.noteDao())
+                        repository.deleteById(noteId)
+                        notificationHelper.cancelNotification(noteId.toInt())
+                    }
+                    NotificationHelper.ACTION_DISMISSED -> {
+                        val note = database.noteDao().getNoteById(noteId)
+                        if (note != null) {
+                            // Resurrect the notification
+                            notificationHelper.showNotification(note)
+                        }
+                    }
                 }
-            }
-        } else if (intent.action == NotificationHelper.ACTION_DISMISSED) {
-            val taskId = intent.getLongExtra(NotificationHelper.EXTRA_TASK_ID, -1)
-            if (taskId != -1L) {
-                 val database = AppDatabase.getDatabase(context)
-                 val notificationHelper = NotificationHelper(context)
-                 
-                 CoroutineScope(Dispatchers.IO).launch {
-                     val task = database.taskDao().getTaskById(taskId)
-                     if (task != null) {
-                         // Resurrect the notification
-                         notificationHelper.showNotification(task)
-                     }
-                 }
+            } finally {
+                pendingResult.finish()
             }
         }
     }
