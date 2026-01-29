@@ -1,0 +1,15 @@
+# Handle line endings automatically for files detected as text 
+# and leave binary files untouched.
+* text=auto
+
+# Standard terminal types
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+
+# Ensure LF for scripts
+*.sh text eol=lf
+*.bat text eol=crlf

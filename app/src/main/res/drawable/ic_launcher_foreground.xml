@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Three horizontal lines icon centered in viewport -->
+    <!-- Total height: 8+6+8+6+8 = 36dp -->
+    <!-- Vertical center: (108-36)/2 = 36dp from top -->
+    <!-- Lines are now 40dp and 28dp wide -->
+
+    <!-- Top line: 40dp wide x 8dp tall -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 30,36 L 70,36 Q 74,36 74,40 Q 74,44 70,44 L 30,44 Q 26,44 26,40 Q 26,36 30,36 Z"/>
+
+    <!-- Middle line: 40dp wide x 8dp tall, 6dp gap from top -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 30,50 L 70,50 Q 74,50 74,54 Q 74,58 70,58 L 30,58 Q 26,58 26,54 Q 26,50 30,50 Z"/>
+
+    <!-- Bottom line: 28dp wide x 8dp tall, 6dp gap from middle -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 30,64 L 58,64 Q 62,64 62,68 Q 62,72 58,72 L 30,72 Q 26,72 26,68 Q 26,64 30,64 Z"/>
+</vector>

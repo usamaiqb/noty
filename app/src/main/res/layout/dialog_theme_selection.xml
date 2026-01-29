@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingHorizontal="24dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="32dp">
+
+    <View
+        android:layout_width="32dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:background="?attr/colorSurfaceVariant" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="16dp"
+        android:text="@string/pref_theme"
+        android:textAppearance="?attr/textAppearanceHeadlineSmall"
+        android:textStyle="bold" />
+
+    <RadioGroup
+        android:id="@+id/radioGroupTheme"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/radioSystem"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="@string/pref_theme_system"
+            android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/radioLight"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="@string/pref_theme_light"
+            android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/radioDark"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="@string/pref_theme_dark"
+            android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+    </RadioGroup>
+
+</LinearLayout>

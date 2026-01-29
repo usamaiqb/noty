@@ -1,0 +1,27 @@
+# Built artifacts
+bin/
+gen/
+out/
+build/
+.gradle/
+
+# Android Studio / IntelliJ files
+.idea/
+*.iml
+*.iws
+*.ipr
+/captures/
+.externalNativeBuild
+.cxx
+local.properties
+
+# Log files
+*.log
+
+# System files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Device specific files
+*.hprof

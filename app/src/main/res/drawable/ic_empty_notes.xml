@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Three horizontal lines icon scaled up for empty state -->
+    <group
+        android:translateX="54"
+        android:translateY="54"
+        android:scaleX="1.5"
+        android:scaleY="1.5">
+
+        <!-- Top line: 40dp wide x 8dp tall -->
+        <path
+            android:fillColor="?attr/colorPrimaryContainer"
+            android:pathData="M-20,-18 L20,-18 Q24,-18 24,-14 Q24,-10 20,-10 L-20,-10 Q-24,-10 -24,-14 Q-24,-18 -20,-18 Z"/>
+
+        <!-- Middle line: 40dp wide x 8dp tall -->
+        <path
+            android:fillColor="?attr/colorPrimaryContainer"
+            android:pathData="M-20,-4 L20,-4 Q24,-4 24,0 Q24,4 20,4 L-20,4 Q-24,4 -24,0 Q-24,-4 -20,-4 Z"/>
+
+        <!-- Bottom line: 28dp wide x 8dp tall (shorter) -->
+        <path
+            android:fillColor="?attr/colorPrimaryContainer"
+            android:pathData="M-20,10 L8,10 Q12,10 12,14 Q12,18 8,18 L-20,18 Q-24,18 -24,14 Q-24,10 -20,10 Z"/>
+    </group>
+</vector>
