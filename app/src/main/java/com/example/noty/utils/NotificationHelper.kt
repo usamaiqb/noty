@@ -105,16 +105,17 @@ class NotificationHelper(private val context: Context) {
 
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(icon)
-            .setLargeIcon(getIconBitmap(R.drawable.ic_notification_large))
             .setContentTitle(note.title)
             .setContentText(note.description)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)
             .setOngoing(true)
             .setContentIntent(pendingIntent)
-            .setDeleteIntent(dismissPendingIntent) // Triggered on swipe dismiss
+            .setDeleteIntent(dismissPendingIntent)
             .addAction(R.drawable.ic_delete, "Delete", deletePendingIntent)
             .setAutoCancel(false)
+            .setLocalOnly(true)
 
         notificationManager.notify(note.id.toInt(), builder.build())
     }

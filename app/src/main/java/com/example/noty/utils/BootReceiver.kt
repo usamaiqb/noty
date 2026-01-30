@@ -11,24 +11,13 @@ import kotlinx.coroutines.launch
 
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
-            val pendingResult = goAsync()
-            val database = AppDatabase.getDatabase(context)
-            val notificationHelper = NotificationHelper(context)
-
-            // We use a coroutine to perform the database operation asynchronously
-            // and keep the receiver alive until it completes.
-            kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
-                try {
-                    // Sync notifications directly
-                    val notesList = database.noteDao().getAllNotes().first()
-                    notificationHelper.syncNotifications(notesList)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                } finally {
-                    pendingResult.finish()
-                }
+            // Start the foreground service on boot
+            // The service will handle the sync once it starts
+            val serviceIntent = Intent(context, NotyService::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(serviceIntent)
+            } else {
+                context.startService(serviceIntent)
             }
-        }
     }
 }

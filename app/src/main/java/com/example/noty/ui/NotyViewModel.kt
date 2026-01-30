@@ -27,19 +27,38 @@ class NotyViewModel(application: Application) : AndroidViewModel(application) {
         repository = NotyRepository(noteDao)
         themeManager = ThemeManager(application)
         notificationHelper = NotificationHelper(application)
+    }
 
+    val allNotes = repository.getAllNotes().asLiveData()
+    val themeFlow = themeManager.themeFlow
+
+    // Track service state to prevent start/stop thrashing
+    private var isServiceRunning = false
+
+    init {
         // Restore all notifications on app start
         viewModelScope.launch {
             val notes = repository.getAllNotes().first()
             notificationHelper.syncNotifications(notes)
         }
+
+        // Manage background service lifecycle based on note existence
+        // android:stopWithTask="false" in manifest ensures this stays alive after swipe
+        viewModelScope.launch {
+            repository.getAllNotes().collect { notes ->
+                val shouldRun = notes.isNotEmpty()
+                if (shouldRun && !isServiceRunning) {
+                    val intent = Intent(application, com.example.noty.utils.NotyService::class.java)
+                    application.startService(intent)
+                    isServiceRunning = true
+                } else if (!shouldRun && isServiceRunning) {
+                    val intent = Intent(application, com.example.noty.utils.NotyService::class.java)
+                    application.stopService(intent)
+                    isServiceRunning = false
+                }
+            }
+        }
     }
-
-    val allNotes = repository.getAllNotes().asLiveData()
-
-    val themeFlow = themeManager.themeFlow
-
-    // No longer need to manage a background service
 
 
     fun insert(note: Note) = viewModelScope.launch {
