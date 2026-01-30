@@ -56,7 +56,7 @@ class NotificationHelper(private val context: Context) {
             // Channel for Notes
             val name = "Persistent Notes"
             val descriptionText = "Shows your active notes"
-            val importance = NotificationManager.IMPORTANCE_LOW
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
             val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
                 description = descriptionText
             }
@@ -108,7 +108,8 @@ class NotificationHelper(private val context: Context) {
             .setLargeIcon(getIconBitmap(R.drawable.ic_notification_large))
             .setContentTitle(note.title)
             .setContentText(note.description)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setOngoing(true)
             .setContentIntent(pendingIntent)
             .setDeleteIntent(dismissPendingIntent) // Triggered on swipe dismiss
