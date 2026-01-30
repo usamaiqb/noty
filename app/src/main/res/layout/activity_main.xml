@@ -16,11 +16,13 @@
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:layout_width="match_parent"
             android:layout_height="?attr/collapsingToolbarLayoutLargeSize"
+            android:fitsSystemWindows="true"
             app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
             app:contentScrim="?attr/colorSurface"
             app:titleCollapseMode="scale"
             app:title="@string/title_notes"
-            app:expandedTitleGravity="center"
+            app:expandedTitleGravity="center_horizontal|bottom"
+            app:expandedTitleMarginBottom="28dp"
             app:collapsedTitleGravity="start"
             style="@style/Widget.Material3.CollapsingToolbar.Large">
 
@@ -28,6 +30,7 @@
                 android:id="@+id/topAppBar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
+                android:fitsSystemWindows="false"
                 app:layout_collapseMode="pin"
                 app:menu="@menu/top_app_bar"
                 style="@style/Widget.Material3.Toolbar.Surface" />
@@ -62,7 +65,7 @@
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:padding="32dp"
+                android:padding="24dp"
                 android:visibility="gone"
                 tools:visibility="visible">
 
@@ -77,7 +80,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="32dp"
                     android:text="Capture your thoughts"
-                    android:textAppearance="?attr/textAppearanceDisplaySmall"
+                    android:textAppearance="?attr/textAppearanceHeadlineMedium"
                     android:textStyle="bold"
                     android:textColor="?attr/colorOnSurface"
                     android:textAlignment="center"/>
@@ -88,7 +91,7 @@
                     android:layout_marginTop="16dp"
                     android:text="Tap the + button to create your first note and stay organized."
                     android:textAlignment="center"
-                    android:textAppearance="?attr/textAppearanceBodyLarge"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
                     android:textColor="?attr/colorOnSurfaceVariant" />
 
             </LinearLayout>
