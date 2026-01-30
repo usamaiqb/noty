@@ -12,7 +12,6 @@ import com.example.noty.data.AppDatabase
 import com.example.noty.data.NotyRepository
 import com.example.noty.data.Note
 import com.example.noty.utils.NotificationHelper
-import com.example.noty.utils.StickyService
 import com.example.noty.utils.ThemeManager
 import kotlinx.coroutines.launch
 
@@ -33,26 +32,8 @@ class NotyViewModel(application: Application) : AndroidViewModel(application) {
 
     val themeFlow = themeManager.themeFlow
 
-    // Track service state to prevent start/stop thrashing
-    private var isServiceRunning = false
+    // No longer need to manage a background service
 
-    // Monitor notes to manage service
-    init {
-        viewModelScope.launch {
-            repository.getAllNotes().collect { notes ->
-                val shouldRun = notes.isNotEmpty()
-                if (shouldRun && !isServiceRunning) {
-                    val intent = Intent(application, StickyService::class.java)
-                    ContextCompat.startForegroundService(application, intent)
-                    isServiceRunning = true
-                } else if (!shouldRun && isServiceRunning) {
-                    val intent = Intent(application, StickyService::class.java)
-                    application.stopService(intent)
-                    isServiceRunning = false
-                }
-            }
-        }
-    }
 
     fun insert(note: Note) = viewModelScope.launch {
         val id = repository.insert(note)

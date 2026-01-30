@@ -31,7 +31,7 @@ class NotificationReceiver : BroadcastReceiver() {
                     NotificationHelper.ACTION_DISMISSED -> {
                         val note = database.noteDao().getNoteById(noteId)
                         if (note != null) {
-                            // Resurrect the notification
+                            // Resurrect the notification because user wants them persistent
                             notificationHelper.showNotification(note)
                         }
                     }
