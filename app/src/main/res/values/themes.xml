@@ -19,6 +19,11 @@
         <item name="colorOnSecondary">@color/onSecondary</item>
         <item name="colorSecondaryContainer">@color/secondaryContainer</item>
         <item name="colorOnSecondaryContainer">@color/onSecondaryContainer</item>
+        
+        <item name="colorTertiary">@color/tertiary</item>
+        <item name="colorOnTertiary">@color/onTertiary</item>
+        <item name="colorTertiaryContainer">@color/tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/onTertiaryContainer</item>
 
         <item name="android:windowBackground">@color/background</item>
         <item name="colorSurface">@color/surface</item>
@@ -30,6 +35,35 @@
         <item name="android:statusBarColor">?attr/colorSurface</item>
         <item name="android:navigationBarColor">?attr/colorSurface</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+
+        <!-- M3 Expressive Typography Overrides (Optional, standard M3 is good base, but we can make it punchier) -->
+        <!-- Using default M3 typescale for now, can customize later -->
+        
+        <!-- M3 Expressive Shapes -->
+        <item name="shapeAppearanceCornerExtraLarge">@style/ShapeAppearance.Material3.Expressive.Corner.ExtraLarge</item>
+        <item name="shapeAppearanceCornerLarge">@style/ShapeAppearance.Material3.Expressive.Corner.Large</item>
+        <item name="shapeAppearanceCornerMedium">@style/ShapeAppearance.Material3.Expressive.Corner.Medium</item>
+        <item name="shapeAppearanceCornerSmall">@style/ShapeAppearance.Material3.Expressive.Corner.Small</item>
+    </style>
+
+    <style name="ShapeAppearance.Material3.Expressive.Corner.ExtraLarge" parent="ShapeAppearance.Material3.Corner.ExtraLarge">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">48dp</item> <!-- Larger, expressive curves -->
+    </style>
+
+    <style name="ShapeAppearance.Material3.Expressive.Corner.Large" parent="ShapeAppearance.Material3.Corner.Large">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">28dp</item>
+    </style>
+
+    <style name="ShapeAppearance.Material3.Expressive.Corner.Medium" parent="ShapeAppearance.Material3.Corner.Medium">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+    
+    <style name="ShapeAppearance.Material3.Expressive.Corner.Small" parent="ShapeAppearance.Material3.Corner.Small">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">8dp</item>
     </style>
 
     <style name="Theme.Noty.Light" parent="Theme.Material3.Light.NoActionBar">

@@ -1,26 +1,39 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme for Dark mode. -->
+    <!-- Base application theme for Dark mode. -->
     <style name="Theme.Noty" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Main colors -->
-        <item name="colorPrimary">@color/primary</item>
-        <item name="colorOnPrimary">@color/onPrimary</item>
-        <item name="colorPrimaryContainer">@color/primaryContainer</item>
-        <item name="colorOnPrimaryContainer">@color/onPrimaryContainer</item>
+        <!-- Main colors for Dark Mode (Often lighter versions of Primary/Secondary) -->
+        <item name="colorPrimary">#BFC2FF</item>
+        <item name="colorOnPrimary">#162590</item>
+        <item name="colorPrimaryContainer">#2D3C9D</item>
+        <item name="colorOnPrimaryContainer">#E0E2FF</item>
         
-        <item name="colorSecondary">@color/secondary</item>
-        <item name="colorOnSecondary">@color/onSecondary</item>
-        <item name="colorSecondaryContainer">@color/secondaryContainer</item>
-        <item name="colorOnSecondaryContainer">@color/onSecondaryContainer</item>
+        <item name="colorSecondary">#4CDADA</item>
+        <item name="colorOnSecondary">#003737</item>
+        <item name="colorSecondaryContainer">#004F4F</item>
+        <item name="colorOnSecondaryContainer">#6FF7F7</item>
 
-        <item name="android:windowBackground">#121212</item>
-        <item name="colorSurface">#121212</item>
-        <item name="colorOnSurface">#FFFFFF</item>
-        <item name="colorSurfaceVariant">#1F1F1F</item>
-        <item name="colorOnSurfaceVariant">#CAC4D0</item>
+        <item name="colorTertiary">#FFB2BC</item>
+        <item name="colorOnTertiary">#5F1526</item>
+        <item name="colorTertiaryContainer">#7E293B</item>
+        <item name="colorOnTertiaryContainer">#FFD9DE</item>
+
+        <item name="android:windowBackground">#1A1B1E</item>
+        <item name="colorSurface">#1A1B1E</item>
+        <item name="colorOnSurface">#E4E2E6</item>
+        <item name="colorSurfaceVariant">#44474E</item>
+        <item name="colorOnSurfaceVariant">#C5C6D0</item>
+        <item name="colorOutline">#8F9099</item>
 
         <!-- Status bar and navigation bar -->
         <item name="android:statusBarColor">?attr/colorSurface</item>
         <item name="android:navigationBarColor">?attr/colorSurface</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+        
+         <!-- M3 Expressive Shapes (Copy from default or inherit if not overridden) -->
+         <item name="shapeAppearanceCornerExtraLarge">@style/ShapeAppearance.Material3.Expressive.Corner.ExtraLarge</item>
+         <item name="shapeAppearanceCornerLarge">@style/ShapeAppearance.Material3.Expressive.Corner.Large</item>
+         <item name="shapeAppearanceCornerMedium">@style/ShapeAppearance.Material3.Expressive.Corner.Medium</item>
+         <item name="shapeAppearanceCornerSmall">@style/ShapeAppearance.Material3.Expressive.Corner.Small</item>
     </style>
 </resources>

@@ -1,24 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Primary - Indigo Based -->
-    <color name="primary">#3F51B5</color>
+    <!-- Primary - Indigo Based (More Vibrant) -->
+    <color name="primary">#4F5CD3</color>
     <color name="onPrimary">#FFFFFF</color>
-    <color name="primaryContainer">#E8EAF6</color>
-    <color name="onPrimaryContainer">#1A237E</color>
+    <color name="primaryContainer">#E0E2FF</color>
+    <color name="onPrimaryContainer">#051066</color>
 
-    <!-- Secondary - Sage/Slate Based -->
-    <color name="secondary">#5C6BC0</color>
+    <!-- Secondary - Teal Based (Expressive Contrast) -->
+    <color name="secondary">#006A6A</color>
     <color name="onSecondary">#FFFFFF</color>
-    <color name="secondaryContainer">#C5CAE9</color>
-    <color name="onSecondaryContainer">#283593</color>
+    <color name="secondaryContainer">#6FF7F7</color>
+    <color name="onSecondaryContainer">#002020</color>
+
+    <!-- Tertiary - Coral/Pink (For accents) -->
+    <color name="tertiary">#9B4052</color>
+    <color name="onTertiary">#FFFFFF</color>
+    <color name="tertiaryContainer">#FFD9DE</color>
+    <color name="onTertiaryContainer">#400010</color>
 
     <!-- Neutral Colors -->
-    <color name="background">#FAFAFA</color>
-    <color name="onBackground">#1C1B1F</color>
-    <color name="surface">#FFFFFF</color>
-    <color name="onSurface">#1C1B1F</color>
+    <color name="background">#FDFBFF</color>
+    <color name="onBackground">#1A1B1E</color>
+    <color name="surface">#FDFBFF</color>
+    <color name="onSurface">#1A1B1E</color>
     <color name="surfaceVariant">#E1E2EC</color>
     <color name="onSurfaceVariant">#44474E</color>
+    <color name="outline">#757780</color>
+    
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
 </resources>

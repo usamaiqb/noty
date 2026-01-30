@@ -34,10 +34,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         app:boxBackgroundMode="outline"
-        app:boxCornerRadiusBottomEnd="12dp"
-        app:boxCornerRadiusBottomStart="12dp"
-        app:boxCornerRadiusTopEnd="12dp"
-        app:boxCornerRadiusTopStart="12dp"
+        app:shapeAppearance="?attr/shapeAppearanceCornerLarge"
         app:layout_constraintTop_toBottomOf="@+id/titleDialog">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -54,10 +51,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         app:boxBackgroundMode="outline"
-        app:boxCornerRadiusBottomEnd="12dp"
-        app:boxCornerRadiusBottomStart="12dp"
-        app:boxCornerRadiusTopEnd="12dp"
-        app:boxCornerRadiusTopStart="12dp"
+        app:shapeAppearance="?attr/shapeAppearanceCornerLarge"
         app:layout_constraintTop_toBottomOf="@+id/inputLayoutTitle">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -77,7 +71,7 @@
         android:layout_height="56dp"
         android:layout_marginTop="32dp"
         android:text="@string/action_save"
-        app:cornerRadius="16dp"
+        app:shapeAppearance="?attr/shapeAppearanceCornerLarge"
         app:layout_constraintTop_toBottomOf="@+id/inputLayoutDescription" />
 
     <com.google.android.material.button.MaterialButton
