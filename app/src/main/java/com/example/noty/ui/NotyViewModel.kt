@@ -49,7 +49,7 @@ class NotyViewModel(application: Application) : AndroidViewModel(application) {
                 val shouldRun = notes.isNotEmpty()
                 if (shouldRun && !isServiceRunning) {
                     val intent = Intent(application, com.example.noty.utils.NotyService::class.java)
-                    application.startService(intent)
+                    ContextCompat.startForegroundService(application, intent)
                     isServiceRunning = true
                 } else if (!shouldRun && isServiceRunning) {
                     val intent = Intent(application, com.example.noty.utils.NotyService::class.java)
