@@ -19,8 +19,9 @@
             app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
             app:contentScrim="?attr/colorSurface"
             app:titleCollapseMode="scale"
-            app:expandedTitleGravity="center_horizontal|bottom"
-            app:collapsedTitleGravity="center_horizontal"
+            app:title="@string/title_notes"
+            app:expandedTitleGravity="center"
+            app:collapsedTitleGravity="start"
             style="@style/Widget.Material3.CollapsingToolbar.Large">
 
             <com.google.android.material.appbar.MaterialToolbar
@@ -28,7 +29,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:layout_collapseMode="pin"
-                app:title="@string/title_notes"
                 app:menu="@menu/top_app_bar"
                 style="@style/Widget.Material3.Toolbar.Surface" />
         
