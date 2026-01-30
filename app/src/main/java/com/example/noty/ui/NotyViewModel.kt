@@ -13,6 +13,7 @@ import com.example.noty.data.NotyRepository
 import com.example.noty.data.Note
 import com.example.noty.utils.NotificationHelper
 import com.example.noty.utils.ThemeManager
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class NotyViewModel(application: Application) : AndroidViewModel(application) {
@@ -26,6 +27,12 @@ class NotyViewModel(application: Application) : AndroidViewModel(application) {
         repository = NotyRepository(noteDao)
         themeManager = ThemeManager(application)
         notificationHelper = NotificationHelper(application)
+
+        // Restore all notifications on app start
+        viewModelScope.launch {
+            val notes = repository.getAllNotes().first()
+            notificationHelper.syncNotifications(notes)
+        }
     }
 
     val allNotes = repository.getAllNotes().asLiveData()

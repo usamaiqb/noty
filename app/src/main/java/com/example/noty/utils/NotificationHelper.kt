@@ -135,8 +135,16 @@ class NotificationHelper(private val context: Context) {
     }
 
     fun syncNotifications(notes: List<Note>) {
+        val activeNotifications = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            notificationManager.activeNotifications.map { it.id }.toSet()
+        } else {
+            emptySet()
+        }
+
         notes.forEach { note ->
-            showNotification(note)
+            if (!activeNotifications.contains(note.id.toInt())) {
+                showNotification(note)
+            }
         }
     }
 }
