@@ -44,10 +44,10 @@ import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.MoreVert
-import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.SearchOff
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
@@ -84,6 +84,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -95,24 +96,23 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.noty.app.data.Note
 import com.noty.app.data.NoteType
-import com.noty.app.utils.ThemeManager
 
 // ─── Theme ───────────────────────────────────────────────────────────────────
 
 @Composable
 fun NotyTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
@@ -149,7 +149,7 @@ fun NotyApp(
     var showAddSheet by remember { mutableStateOf(false) }
     var noteToEdit by remember { mutableStateOf<Note?>(null) }
     var noteToDelete by remember { mutableStateOf<Note?>(null) }
-    var showThemeSheet by remember { mutableStateOf(false) }
+    var showSettings by rememberSaveable { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
     var searchActive by remember { mutableStateOf(false) }
     val filteredNotes by remember(notes, searchQuery) {
@@ -162,6 +162,7 @@ fun NotyApp(
         }
     }
     val displayedNotes = if (searchActive) filteredNotes else notes
+    val defaultPin by viewModel.defaultPinFlow.collectAsState(initial = true)
 
     val haptics = LocalHapticFeedback.current
     val listState = rememberLazyListState()
@@ -176,86 +177,104 @@ fun NotyApp(
     // Open add sheet when triggered from Quick Settings tile
     LaunchedEffect(triggerAddNote) {
         if (triggerAddNote) {
+            showSettings = false
             showAddSheet = true
             onAddNoteTriggered()
         }
     }
 
-    BackHandler(enabled = searchActive) {
+    BackHandler(enabled = showSettings) {
+        showSettings = false
+    }
+
+    BackHandler(enabled = !showSettings && searchActive) {
         searchActive = false
         searchQuery = ""
     }
 
-    Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-        topBar = {
-            AnimatedContent(
-                targetState = searchActive,
-                transitionSpec = { fadeIn(tween(150)) togetherWith fadeOut(tween(150)) },
-                label = "topBar"
-            ) { active ->
-                if (active) {
-                    SearchTopBar(
-                        query = searchQuery,
-                        onQueryChange = { searchQuery = it },
-                        onClose = {
-                            searchActive = false
-                            searchQuery = ""
-                        },
-                        focusRequester = searchFocusRequester
+    AnimatedContent(
+        targetState = showSettings,
+        transitionSpec = { fadeIn(tween(220)) togetherWith fadeOut(tween(150)) },
+        label = "screens"
+    ) { settings ->
+        if (settings) {
+            SettingsScreen(
+                viewModel = viewModel,
+                onNavigateBack = { showSettings = false }
+            )
+        } else {
+            Scaffold(
+                modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                topBar = {
+                    AnimatedContent(
+                        targetState = searchActive,
+                        transitionSpec = { fadeIn(tween(150)) togetherWith fadeOut(tween(150)) },
+                        label = "topBar"
+                    ) { active ->
+                        if (active) {
+                            SearchTopBar(
+                                query = searchQuery,
+                                onQueryChange = { searchQuery = it },
+                                onClose = {
+                                    searchActive = false
+                                    searchQuery = ""
+                                },
+                                focusRequester = searchFocusRequester
+                            )
+                        } else {
+                            LargeTopAppBar(
+                                title = { Text("Noty") },
+                                actions = {
+                                    IconButton(onClick = {
+                                        haptics.performHapticFeedback(HapticFeedbackType.Confirm)
+                                        searchActive = true
+                                    }) {
+                                        Icon(Icons.Rounded.Search, contentDescription = "Search notes")
+                                    }
+                                    IconButton(onClick = {
+                                        haptics.performHapticFeedback(HapticFeedbackType.Confirm)
+                                        showSettings = true
+                                    }) {
+                                        Icon(Icons.Rounded.Settings, contentDescription = "Settings")
+                                    }
+                                },
+                                colors = TopAppBarDefaults.largeTopAppBarColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                                    scrolledContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                                ),
+                                scrollBehavior = scrollBehavior
+                            )
+                        }
+                    }
+                },
+                floatingActionButton = {
+                    ExtendedFloatingActionButton(
+                        text = { Text("New Note") },
+                        icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
+                        expanded = fabExpanded,
+                        onClick = {
+                            haptics.performHapticFeedback(HapticFeedbackType.Confirm)
+                            showAddSheet = true
+                        }
                     )
-                } else {
-                    LargeTopAppBar(
-                        title = { Text("Noty") },
-                        actions = {
-                            IconButton(onClick = {
-                                haptics.performHapticFeedback(HapticFeedbackType.Confirm)
-                                searchActive = true
-                            }) {
-                                Icon(Icons.Rounded.Search, contentDescription = "Search notes")
-                            }
-                            IconButton(onClick = {
-                                haptics.performHapticFeedback(HapticFeedbackType.Confirm)
-                                showThemeSheet = true
-                            }) {
-                                Icon(Icons.Rounded.Palette, contentDescription = "Change theme")
-                            }
-                        },
-                        colors = TopAppBarDefaults.largeTopAppBarColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-                            scrolledContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-                        ),
-                        scrollBehavior = scrollBehavior
+                }
+            ) { innerPadding ->
+                when {
+                    displayedNotes.isEmpty() -> EmptyStateContent(
+                        modifier = Modifier.padding(innerPadding),
+                        searchQuery = if (searchActive) searchQuery else ""
+                    )
+                    else -> NotesList(
+                        notes = displayedNotes,
+                        listState = listState,
+                        onEditClick = { noteToEdit = it },
+                        onPinClick = { viewModel.update(it.copy(isPinned = !it.isPinned)) },
+                        onDeleteClick = { noteToDelete = it },
+                        modifier = Modifier.padding(innerPadding)
                     )
                 }
             }
-        },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                text = { Text("New Note") },
-                icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
-                expanded = fabExpanded,
-                onClick = {
-                    haptics.performHapticFeedback(HapticFeedbackType.Confirm)
-                    showAddSheet = true
-                }
-            )
-        }
-    ) { innerPadding ->
-        when {
-            displayedNotes.isEmpty() -> EmptyStateContent(
-                modifier = Modifier.padding(innerPadding),
-                searchQuery = if (searchActive) searchQuery else ""
-            )
-            else -> NotesList(
-                notes = displayedNotes,
-                listState = listState,
-                onEditClick = { noteToEdit = it },
-                onPinClick = { viewModel.update(it.copy(isPinned = !it.isPinned)) },
-                onDeleteClick = { noteToDelete = it },
-                modifier = Modifier.padding(innerPadding)
-            )
         }
     }
 
@@ -266,6 +285,7 @@ fun NotyApp(
     // Add note bottom sheet
     if (showAddSheet) {
         NoteBottomSheet(
+            defaultPinned = defaultPin,
             onDismiss = { showAddSheet = false },
             onSave = { title, description, isPinned ->
                 viewModel.insert(
@@ -323,13 +343,6 @@ fun NotyApp(
         )
     }
 
-    // Theme selection bottom sheet
-    if (showThemeSheet) {
-        ThemeSelectionSheet(
-            viewModel = viewModel,
-            onDismiss = { showThemeSheet = false }
-        )
-    }
 }
 
 // ─── Search top bar ───────────────────────────────────────────────────────────
@@ -610,13 +623,14 @@ fun NoteCard(
 @Composable
 fun NoteBottomSheet(
     note: Note? = null,
+    defaultPinned: Boolean = true,
     onDismiss: () -> Unit,
     onSave: (title: String, description: String, isPinned: Boolean) -> Unit
 ) {
     val isEditing = note != null
     var title by remember { mutableStateOf(note?.title ?: "") }
     var description by remember { mutableStateOf(note?.description ?: "") }
-    var isPinned by remember { mutableStateOf(note?.isPinned ?: true) }
+    var isPinned by remember { mutableStateOf(note?.isPinned ?: defaultPinned) }
     var titleError by remember { mutableStateOf(false) }
     val haptics = LocalHapticFeedback.current
 
@@ -748,110 +762,6 @@ fun NoteBottomSheet(
                 ) {
                     Text(if (isEditing) "Update" else "Save")
                 }
-            }
-        }
-    }
-}
-
-// ─── Theme selection bottom sheet ─────────────────────────────────────────────
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ThemeSelectionSheet(
-    viewModel: NotyViewModel,
-    onDismiss: () -> Unit
-) {
-    val currentTheme by viewModel.themeFlow.collectAsState(initial = ThemeManager.ThemeMode.SYSTEM)
-    val haptics = LocalHapticFeedback.current
-
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-    ) {
-        Text(
-            text = "Theme",
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
-        )
-        Column(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            ThemeOption(
-                label = "System",
-                description = "Follow device setting",
-                selected = currentTheme == ThemeManager.ThemeMode.SYSTEM,
-                onClick = {
-                    haptics.performHapticFeedback(HapticFeedbackType.Confirm)
-                    viewModel.setTheme(ThemeManager.ThemeMode.SYSTEM)
-                    onDismiss()
-                }
-            )
-            ThemeOption(
-                label = "Light",
-                description = "Always use light theme",
-                selected = currentTheme == ThemeManager.ThemeMode.LIGHT,
-                onClick = {
-                    haptics.performHapticFeedback(HapticFeedbackType.Confirm)
-                    viewModel.setTheme(ThemeManager.ThemeMode.LIGHT)
-                    onDismiss()
-                }
-            )
-            ThemeOption(
-                label = "Dark",
-                description = "Always use dark theme",
-                selected = currentTheme == ThemeManager.ThemeMode.DARK,
-                onClick = {
-                    haptics.performHapticFeedback(HapticFeedbackType.Confirm)
-                    viewModel.setTheme(ThemeManager.ThemeMode.DARK)
-                    onDismiss()
-                }
-            )
-        }
-        Spacer(modifier = Modifier.height(24.dp))
-    }
-}
-
-@Composable
-private fun ThemeOption(
-    label: String,
-    description: String,
-    selected: Boolean,
-    onClick: () -> Unit
-) {
-    Surface(
-        onClick = onClick,
-        shape = RoundedCornerShape(20.dp),
-        color = if (selected) MaterialTheme.colorScheme.primaryContainer
-                else MaterialTheme.colorScheme.surfaceContainer,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 18.dp)
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = if (selected) FontWeight.Bold else null,
-                    color = if (selected) MaterialTheme.colorScheme.onPrimaryContainer
-                            else MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = if (selected) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
-                            else MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            if (selected) {
-                Icon(
-                    imageVector = Icons.Rounded.Check,
-                    contentDescription = "Selected",
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer
-                )
             }
         }
     }
