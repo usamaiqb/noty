@@ -14,6 +14,10 @@ import kotlinx.coroutines.launch
 
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action != Intent.ACTION_BOOT_COMPLETED &&
+            intent.action != Intent.ACTION_MY_PACKAGE_REPLACED
+        ) return
+
         val pendingResult = goAsync()
 
         CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
@@ -27,6 +31,8 @@ class BootReceiver : BroadcastReceiver() {
                         context.startService(serviceIntent)
                     }
                 }
+                // Alarms are cleared on reboot and app update — re-register them
+                ReminderScheduler.rescheduleAll(context)
             } finally {
                 pendingResult.finish()
             }

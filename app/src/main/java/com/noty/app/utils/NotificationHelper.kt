@@ -16,6 +16,8 @@ class NotificationHelper(private val context: Context) {
     companion object {
         const val CHANNEL_ID = "noty_persistent_channel"
         const val CHANNEL_ID_SERVICE = "noty_service_channel"
+        const val CHANNEL_ID_REMINDERS = "noty_reminders_channel"
+        const val TAG_REMINDER = "reminder"
         const val ACTION_DELETE = "com.noty.app.ACTION_DELETE"
         const val ACTION_DISMISSED = "com.noty.app.ACTION_DISMISSED"
         const val ACTION_UNPIN = "com.noty.app.ACTION_UNPIN"
@@ -71,6 +73,16 @@ class NotificationHelper(private val context: Context) {
                 description = serviceDescription
             }
             notificationManager.createNotificationChannel(serviceChannel)
+
+            // Channel for scheduled reminders (alerting)
+            val remindersChannel = NotificationChannel(
+                CHANNEL_ID_REMINDERS,
+                "Reminders",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Alerts for note reminders"
+            }
+            notificationManager.createNotificationChannel(remindersChannel)
         }
     }
 
@@ -121,6 +133,7 @@ class NotificationHelper(private val context: Context) {
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
             .setOngoing(true)
+            .setOnlyAlertOnce(true)
             .setContentIntent(pendingIntent)
             .setDeleteIntent(dismissPendingIntent)
             .setLocalOnly(true)
@@ -145,8 +158,37 @@ class NotificationHelper(private val context: Context) {
             .build()
     }
 
+    fun showReminderNotification(note: Note) {
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            // Distinct data URI keeps this PendingIntent separate from the pinned-note one
+            data = android.net.Uri.parse("noty://reminder/${note.id}")
+        }
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(
+            context, note.id.toInt(), intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        val builder = NotificationCompat.Builder(context, CHANNEL_ID_REMINDERS)
+            .setSmallIcon(R.drawable.ic_stat_noty)
+            .setContentTitle(note.title)
+            .setContentText(note.description ?: "Reminder")
+            .setStyle(NotificationCompat.BigTextStyle().bigText(note.description ?: "Reminder"))
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)
+            .setAutoCancel(true)
+            .setContentIntent(pendingIntent)
+
+        // Separate tag keeps reminder ids from colliding with pinned-note notification ids
+        notificationManager.notify(TAG_REMINDER, note.id.toInt(), builder.build())
+    }
+
     fun cancelNotification(noteId: Int) {
         notificationManager.cancel(noteId)
+    }
+
+    fun cancelReminderNotification(noteId: Int) {
+        notificationManager.cancel(TAG_REMINDER, noteId)
     }
 
     fun syncNotifications(notes: List<Note>) {

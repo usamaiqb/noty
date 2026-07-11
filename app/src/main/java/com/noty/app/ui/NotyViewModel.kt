@@ -12,6 +12,7 @@ import com.noty.app.data.AppDatabase
 import com.noty.app.data.NotyRepository
 import com.noty.app.data.Note
 import com.noty.app.utils.NotificationHelper
+import com.noty.app.utils.ReminderScheduler
 import com.noty.app.utils.ThemeManager
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -65,9 +66,14 @@ class NotyViewModel(application: Application) : AndroidViewModel(application) {
 
     fun insert(note: Note) = viewModelScope.launch {
         val id = repository.insert(note)
-        if (id > 0 && note.isPinned) {
+        if (id > 0) {
             val noteWithId = note.copy(id = id)
-            notificationHelper.showNotification(noteWithId)
+            if (noteWithId.isPinned) {
+                notificationHelper.showNotification(noteWithId)
+            }
+            if (noteWithId.reminderAt != null) {
+                ReminderScheduler.schedule(getApplication(), noteWithId)
+            }
         }
     }
 
@@ -78,11 +84,18 @@ class NotyViewModel(application: Application) : AndroidViewModel(application) {
         } else {
             notificationHelper.cancelNotification(note.id.toInt())
         }
+        if (note.reminderAt != null) {
+            ReminderScheduler.schedule(getApplication(), note)
+        } else {
+            ReminderScheduler.cancel(getApplication(), note.id)
+        }
     }
 
     fun delete(note: Note) = viewModelScope.launch {
         repository.delete(note)
         notificationHelper.cancelNotification(note.id.toInt())
+        ReminderScheduler.cancel(getApplication(), note.id)
+        notificationHelper.cancelReminderNotification(note.id.toInt())
     }
 
     fun setTheme(mode: ThemeManager.ThemeMode) = viewModelScope.launch {

@@ -39,6 +39,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.Notes
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Alarm
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Delete
@@ -50,6 +51,11 @@ import androidx.compose.material.icons.rounded.SearchOff
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -102,6 +108,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.noty.app.data.Note
 import com.noty.app.data.NoteType
+import java.util.Calendar
+import java.util.TimeZone
 
 // ─── Theme ───────────────────────────────────────────────────────────────────
 
@@ -287,13 +295,14 @@ fun NotyApp(
         NoteBottomSheet(
             defaultPinned = defaultPin,
             onDismiss = { showAddSheet = false },
-            onSave = { title, description, isPinned ->
+            onSave = { title, description, isPinned, reminderAt ->
                 viewModel.insert(
                     Note(
                         title = title,
                         description = if (description.isEmpty()) null else description,
                         type = NoteType.NOTE,
-                        isPinned = isPinned
+                        isPinned = isPinned,
+                        reminderAt = reminderAt
                     )
                 )
                 showAddSheet = false
@@ -306,12 +315,13 @@ fun NotyApp(
         NoteBottomSheet(
             note = note,
             onDismiss = { noteToEdit = null },
-            onSave = { title, description, isPinned ->
+            onSave = { title, description, isPinned, reminderAt ->
                 viewModel.update(
                     note.copy(
                         title = title,
                         description = if (description.isEmpty()) null else description,
-                        isPinned = isPinned
+                        isPinned = isPinned,
+                        reminderAt = reminderAt
                     )
                 )
                 noteToEdit = null
@@ -556,11 +566,31 @@ fun NoteCard(
                     )
                 }
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = relativeTime,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = relativeTime,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    note.reminderAt?.let { reminderAt ->
+                        val context = LocalContext.current
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Icon(
+                            imageVector = Icons.Rounded.Alarm,
+                            contentDescription = "Reminder set",
+                            modifier = Modifier.size(14.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = formatReminderTime(context, reminderAt),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
             }
             Box {
                 IconButton(
@@ -625,13 +655,18 @@ fun NoteBottomSheet(
     note: Note? = null,
     defaultPinned: Boolean = true,
     onDismiss: () -> Unit,
-    onSave: (title: String, description: String, isPinned: Boolean) -> Unit
+    onSave: (title: String, description: String, isPinned: Boolean, reminderAt: Long?) -> Unit
 ) {
     val isEditing = note != null
     var title by remember { mutableStateOf(note?.title ?: "") }
     var description by remember { mutableStateOf(note?.description ?: "") }
     var isPinned by remember { mutableStateOf(note?.isPinned ?: defaultPinned) }
+    var reminderAt by remember { mutableStateOf(note?.reminderAt) }
     var titleError by remember { mutableStateOf(false) }
+    var showDatePicker by remember { mutableStateOf(false) }
+    var showTimePicker by remember { mutableStateOf(false) }
+    var pendingDateMillis by remember { mutableStateOf<Long?>(null) }
+    val context = LocalContext.current
     val haptics = LocalHapticFeedback.current
 
     ModalBottomSheet(
@@ -717,6 +752,56 @@ fun NoteBottomSheet(
                     .heightIn(min = 120.dp)
             )
 
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Reminder picker pill
+            Surface(
+                onClick = {
+                    haptics.performHapticFeedback(HapticFeedbackType.ContextClick)
+                    showDatePicker = true
+                },
+                shape = RoundedCornerShape(16.dp),
+                color = if (reminderAt != null) MaterialTheme.colorScheme.secondaryContainer
+                        else MaterialTheme.colorScheme.surfaceContainerHigh,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Alarm,
+                        contentDescription = null,
+                        tint = if (reminderAt != null) MaterialTheme.colorScheme.onSecondaryContainer
+                               else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = reminderAt?.let { formatReminderTime(context, it) } ?: "Add reminder",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (reminderAt != null) MaterialTheme.colorScheme.onSecondaryContainer
+                                else MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.weight(1f)
+                    )
+                    if (reminderAt != null) {
+                        IconButton(
+                            onClick = {
+                                haptics.performHapticFeedback(HapticFeedbackType.ToggleOff)
+                                reminderAt = null
+                            },
+                            modifier = Modifier.size(24.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Close,
+                                contentDescription = "Remove reminder",
+                                modifier = Modifier.size(18.dp),
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.height(20.dp))
 
             // Paired action buttons: mirrored asymmetric corners read as one unit
@@ -746,7 +831,7 @@ fun NoteBottomSheet(
                         val trimmed = title.trim()
                         if (trimmed.isNotEmpty()) {
                             haptics.performHapticFeedback(HapticFeedbackType.Confirm)
-                            onSave(trimmed, description.trim(), isPinned)
+                            onSave(trimmed, description.trim(), isPinned, reminderAt)
                         } else {
                             haptics.performHapticFeedback(HapticFeedbackType.Reject)
                             titleError = true
@@ -765,7 +850,86 @@ fun NoteBottomSheet(
             }
         }
     }
+
+    if (showDatePicker) {
+        val datePickerState = rememberDatePickerState(
+            initialSelectedDateMillis = reminderAt ?: System.currentTimeMillis()
+        )
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        pendingDateMillis = datePickerState.selectedDateMillis
+                        showDatePicker = false
+                        if (pendingDateMillis != null) showTimePicker = true
+                    }
+                ) {
+                    Text("Next")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("Cancel")
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
+
+    if (showTimePicker) {
+        val initialCalendar = remember {
+            Calendar.getInstance().apply { reminderAt?.let { timeInMillis = it } }
+        }
+        val timePickerState = rememberTimePickerState(
+            initialHour = initialCalendar.get(Calendar.HOUR_OF_DAY),
+            initialMinute = initialCalendar.get(Calendar.MINUTE)
+        )
+        AlertDialog(
+            onDismissRequest = { showTimePicker = false },
+            title = { Text("Set time") },
+            text = { TimePicker(state = timePickerState) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        haptics.performHapticFeedback(HapticFeedbackType.Confirm)
+                        // DatePicker returns UTC midnight; combine with the picked
+                        // time in the local timezone
+                        val utc = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+                            timeInMillis = pendingDateMillis ?: System.currentTimeMillis()
+                        }
+                        reminderAt = Calendar.getInstance().apply {
+                            set(
+                                utc.get(Calendar.YEAR),
+                                utc.get(Calendar.MONTH),
+                                utc.get(Calendar.DAY_OF_MONTH),
+                                timePickerState.hour,
+                                timePickerState.minute,
+                                0
+                            )
+                            set(Calendar.MILLISECOND, 0)
+                        }.timeInMillis
+                        showTimePicker = false
+                    }
+                ) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showTimePicker = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 }
+
+private fun formatReminderTime(context: android.content.Context, millis: Long): String =
+    DateUtils.formatDateTime(
+        context, millis,
+        DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME or DateUtils.FORMAT_ABBREV_MONTH
+    )
 
 // ─── Empty state ──────────────────────────────────────────────────────────────
 
