@@ -1,10 +1,10 @@
 package com.noty.app.ui
 
 import android.os.Build
+import android.text.format.DateUtils
 import android.view.HapticFeedbackConstants
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.rememberScrollState
@@ -25,36 +25,36 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.outlined.Notes
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.Palette
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.Notes
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.rounded.Palette
+import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.SearchOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -84,9 +84,6 @@ import androidx.compose.ui.unit.dp
 import com.noty.app.data.Note
 import com.noty.app.data.NoteType
 import com.noty.app.utils.ThemeManager
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 // ─── Theme ───────────────────────────────────────────────────────────────────
 
@@ -164,10 +161,11 @@ fun NotyApp(
     )
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 text = { Text("New Note") },
-                icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
                 onClick = { showAddSheet = true }
             )
         }
@@ -193,21 +191,21 @@ fun NotyApp(
                 leadingIcon = {
                     if (searchActive) {
                         IconButton(onClick = { searchActive = false; searchQuery = "" }) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                            Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back")
                         }
                     } else {
-                        Icon(Icons.Default.Search, contentDescription = null)
+                        Icon(Icons.Rounded.Search, contentDescription = null)
                     }
                 },
                 trailingIcon = {
                     when {
                         searchActive && searchQuery.isNotEmpty() ->
                             IconButton(onClick = { searchQuery = "" }) {
-                                Icon(Icons.Default.Close, contentDescription = "Clear search")
+                                Icon(Icons.Rounded.Close, contentDescription = "Clear search")
                             }
                         !searchActive ->
                             IconButton(onClick = { showThemeSheet = true }) {
-                                Icon(Icons.Outlined.Palette, contentDescription = "Change theme")
+                                Icon(Icons.Rounded.Palette, contentDescription = "Change theme")
                             }
                     }
                 },
@@ -217,21 +215,11 @@ fun NotyApp(
                 when {
                     filteredNotes.isEmpty() ->
                         EmptyStateContent(searchQuery = searchQuery)
-                    else -> LazyColumn(
-                        contentPadding = PaddingValues(
-                            start = 16.dp, end = 16.dp,
-                            top = 8.dp, bottom = 88.dp
-                        ),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(filteredNotes, key = { it.id }) { note ->
-                            NoteCard(
-                                note = note,
-                                onEditClick = { noteToEdit = note },
-                                onDeleteClick = { noteToDelete = note }
-                            )
-                        }
-                    }
+                    else -> NotesList(
+                        notes = filteredNotes,
+                        onEditClick = { noteToEdit = it },
+                        onDeleteClick = { noteToDelete = it }
+                    )
                 }
             }
 
@@ -239,24 +227,12 @@ fun NotyApp(
             when {
                 notes.isEmpty() ->
                     EmptyStateContent(modifier = Modifier.weight(1f))
-                else -> LazyColumn(
-                    contentPadding = PaddingValues(
-                        top = 8.dp,
-                        bottom = 88.dp,
-                        start = 16.dp,
-                        end = 16.dp
-                    ),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                else -> NotesList(
+                    notes = notes,
+                    onEditClick = { noteToEdit = it },
+                    onDeleteClick = { noteToDelete = it },
                     modifier = Modifier.weight(1f)
-                ) {
-                    items(notes, key = { it.id }) { note ->
-                        NoteCard(
-                            note = note,
-                            onEditClick = { noteToEdit = note },
-                            onDeleteClick = { noteToDelete = note }
-                        )
-                    }
-                }
+                )
             }
         }
     }
@@ -330,145 +306,155 @@ fun NotyApp(
     }
 }
 
+// ─── Notes list ───────────────────────────────────────────────────────────────
+
+@Composable
+private fun NotesList(
+    notes: List<Note>,
+    onEditClick: (Note) -> Unit,
+    onDeleteClick: (Note) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(
+        contentPadding = PaddingValues(
+            start = 16.dp, end = 16.dp,
+            top = 8.dp, bottom = 88.dp
+        ),
+        modifier = modifier
+    ) {
+        itemsIndexed(notes, key = { _, note -> note.id }) { index, note ->
+            NoteCard(
+                note = note,
+                position = segmentPositionFor(index, notes.size),
+                onEditClick = { onEditClick(note) },
+                onDeleteClick = { onDeleteClick(note) },
+                modifier = Modifier.padding(bottom = 2.dp)
+            )
+        }
+    }
+}
+
 // ─── Note card ────────────────────────────────────────────────────────────────
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NoteCard(
     note: Note,
+    position: SegmentPosition,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
-    var showContextSheet by remember { mutableStateOf(false) }
     val view = LocalView.current
-    val dateFormat = remember { SimpleDateFormat("MMM dd, yyyy h:mm a", Locale.getDefault()) }
-
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .combinedClickable(
-                onClick = {
-                    view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
-                    onEditClick()
-                },
-                onLongClick = {
-                    view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-                    showContextSheet = true
-                },
-                onLongClickLabel = "Note options"
-            ),
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer
-        )
-    ) {
-        Column(modifier = Modifier.padding(start = 20.dp, end = 8.dp, top = 4.dp, bottom = 20.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = note.title,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.weight(1f)
-                )
-                Box {
-                    IconButton(onClick = {
-                        view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
-                        menuExpanded = true
-                    }) {
-                        Icon(
-                            imageVector = Icons.Default.MoreVert,
-                            contentDescription = "More options"
-                        )
-                    }
-                    DropdownMenu(
-                        expanded = menuExpanded,
-                        onDismissRequest = { menuExpanded = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("Edit") },
-                            leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null) },
-                            onClick = {
-                                view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
-                                menuExpanded = false
-                                onEditClick()
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Delete", color = MaterialTheme.colorScheme.error) },
-                            leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error) },
-                            onClick = {
-                                view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-                                menuExpanded = false
-                                onDeleteClick()
-                            }
-                        )
-                    }
-                }
-            }
-
-            if (!note.description.isNullOrEmpty()) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = note.description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = dateFormat.format(Date(note.timestamp)),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
-            )
-        }
+    val relativeTime = remember(note.timestamp) {
+        DateUtils.getRelativeTimeSpanString(
+            note.timestamp,
+            System.currentTimeMillis(),
+            DateUtils.MINUTE_IN_MILLIS,
+            DateUtils.FORMAT_ABBREV_RELATIVE
+        ).toString()
     }
 
-    if (showContextSheet) {
-        ModalBottomSheet(
-            onDismissRequest = { showContextSheet = false },
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    Surface(
+        shape = segmentShape(position),
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .combinedClickable(
+                    onClick = {
+                        view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+                        onEditClick()
+                    },
+                    onLongClick = {
+                        view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                        menuExpanded = true
+                    },
+                    onLongClickLabel = "Note options"
+                )
+                .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
-            Text(
-                text = note.title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
-            )
-            HorizontalDivider()
-            ListItem(
-                headlineContent = { Text("Edit") },
-                leadingContent = { Icon(Icons.Default.Edit, contentDescription = null) },
-                modifier = Modifier.clickable {
-                    view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
-                    showContextSheet = false
-                    onEditClick()
-                }
-            )
-            ListItem(
-                headlineContent = { Text("Delete", color = MaterialTheme.colorScheme.error) },
-                leadingContent = {
+            Surface(
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                shape = CircleShape,
+                modifier = Modifier.size(48.dp)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
                     Icon(
-                        imageVector = Icons.Default.Delete,
+                        imageVector = Icons.AutoMirrored.Rounded.Notes,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.error
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer
                     )
-                },
-                modifier = Modifier.clickable {
-                    view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-                    showContextSheet = false
-                    onDeleteClick()
                 }
-            )
-            Spacer(Modifier.height(24.dp))
+            }
+            Spacer(modifier = Modifier.width(14.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = note.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                if (!note.description.isNullOrEmpty()) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = note.description,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = relativeTime,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Box {
+                IconButton(
+                    onClick = {
+                        view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
+                        menuExpanded = true
+                    },
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.MoreVert,
+                        contentDescription = "More options",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+                DropdownMenu(
+                    expanded = menuExpanded,
+                    onDismissRequest = { menuExpanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Edit") },
+                        leadingIcon = { Icon(Icons.Rounded.Edit, contentDescription = null) },
+                        onClick = {
+                            view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+                            menuExpanded = false
+                            onEditClick()
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Delete", color = MaterialTheme.colorScheme.error) },
+                        leadingIcon = { Icon(Icons.Rounded.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error) },
+                        onClick = {
+                            view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                            menuExpanded = false
+                            onDeleteClick()
+                        }
+                    )
+                }
+            }
         }
     }
 }
@@ -491,7 +477,8 @@ fun NoteBottomSheet(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
     ) {
         Column(
             modifier = Modifier
@@ -598,17 +585,18 @@ fun ThemeSelectionSheet(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
     ) {
+        Text(
+            text = "Theme",
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
+        )
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .padding(bottom = 32.dp)
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text("Theme", style = MaterialTheme.typography.headlineSmall)
-            Spacer(Modifier.height(16.dp))
-
             ThemeOption(
                 label = "System",
                 description = "Follow device setting",
@@ -640,6 +628,7 @@ fun ThemeSelectionSheet(
                 }
             )
         }
+        Spacer(modifier = Modifier.height(24.dp))
     }
 }
 
@@ -650,22 +639,39 @@ private fun ThemeOption(
     selected: Boolean,
     onClick: () -> Unit
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(20.dp),
+        color = if (selected) MaterialTheme.colorScheme.primaryContainer
+                else MaterialTheme.colorScheme.surfaceContainer,
+        modifier = Modifier.fillMaxWidth()
     ) {
-        RadioButton(selected = selected, onClick = onClick)
-        Spacer(Modifier.width(8.dp))
-        Column {
-            Text(label, style = MaterialTheme.typography.bodyLarge)
-            Text(
-                description,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 18.dp)
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = if (selected) FontWeight.Bold else null,
+                    color = if (selected) MaterialTheme.colorScheme.onPrimaryContainer
+                            else MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (selected) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                            else MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            if (selected) {
+                Icon(
+                    imageVector = Icons.Rounded.Check,
+                    contentDescription = "Selected",
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
         }
     }
 }
@@ -675,50 +681,53 @@ private fun ThemeOption(
 @Composable
 fun EmptyStateContent(modifier: Modifier = Modifier, searchQuery: String = "") {
     Column(
-        modifier = modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Spacer(modifier = Modifier.weight(1f))
         if (searchQuery.isBlank()) {
             Icon(
-                imageVector = Icons.AutoMirrored.Outlined.Notes,
+                imageVector = Icons.AutoMirrored.Rounded.Notes,
                 contentDescription = null,
-                modifier = Modifier.size(140.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                modifier = Modifier.size(128.dp),
+                tint = MaterialTheme.colorScheme.primary
             )
-            Spacer(Modifier.height(16.dp))
             Text(
                 text = "No notes yet",
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(top = 24.dp)
             )
-            Spacer(Modifier.height(8.dp))
             Text(
                 text = "Tap + New Note to create your first note",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 32.dp)
+                modifier = Modifier.padding(top = 8.dp)
             )
         } else {
             Icon(
-                imageVector = Icons.Default.Search,
+                imageVector = Icons.Rounded.SearchOff,
                 contentDescription = null,
-                modifier = Modifier.size(140.dp),
+                modifier = Modifier.size(128.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Spacer(Modifier.height(16.dp))
             Text(
                 text = "No results for \"$searchQuery\"",
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.headlineMedium,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 32.dp)
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(top = 24.dp)
             )
-            Spacer(Modifier.height(8.dp))
             Text(
                 text = "Try a different search term",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 8.dp)
             )
         }
+        Spacer(modifier = Modifier.weight(1.3f))
     }
 }
