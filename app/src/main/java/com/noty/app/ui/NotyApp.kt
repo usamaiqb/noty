@@ -45,6 +45,7 @@ import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Palette
+import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.SearchOff
 import androidx.compose.material3.AlertDialog
@@ -251,6 +252,7 @@ fun NotyApp(
                 notes = displayedNotes,
                 listState = listState,
                 onEditClick = { noteToEdit = it },
+                onPinClick = { viewModel.update(it.copy(isPinned = !it.isPinned)) },
                 onDeleteClick = { noteToDelete = it },
                 modifier = Modifier.padding(innerPadding)
             )
@@ -388,9 +390,13 @@ private fun NotesList(
     notes: List<Note>,
     listState: LazyListState,
     onEditClick: (Note) -> Unit,
+    onPinClick: (Note) -> Unit,
     onDeleteClick: (Note) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val (pinned, others) = notes.partition { it.isPinned }
+    val showHeaders = pinned.isNotEmpty()
+
     LazyColumn(
         state = listState,
         contentPadding = PaddingValues(
@@ -399,11 +405,42 @@ private fun NotesList(
         ),
         modifier = modifier
     ) {
-        itemsIndexed(notes, key = { _, note -> note.id }) { index, note ->
+        if (showHeaders) {
+            item(key = "pinned_header") {
+                Box(modifier = Modifier.animateItem()) {
+                    SectionHeader("Pinned")
+                }
+            }
+        }
+        itemsIndexed(pinned, key = { _, note -> note.id }) { index, note ->
             NoteCard(
                 note = note,
-                position = segmentPositionFor(index, notes.size),
+                position = segmentPositionFor(index, pinned.size),
                 onEditClick = { onEditClick(note) },
+                onPinClick = { onPinClick(note) },
+                onDeleteClick = { onDeleteClick(note) },
+                modifier = Modifier
+                    .animateItem(
+                        fadeInSpec = tween(durationMillis = 180),
+                        fadeOutSpec = tween(durationMillis = 120),
+                        placementSpec = tween(durationMillis = 200)
+                    )
+                    .padding(bottom = 2.dp)
+            )
+        }
+        if (showHeaders && others.isNotEmpty()) {
+            item(key = "others_header") {
+                Box(modifier = Modifier.animateItem().padding(top = 20.dp)) {
+                    SectionHeader("Others")
+                }
+            }
+        }
+        itemsIndexed(others, key = { _, note -> note.id }) { index, note ->
+            NoteCard(
+                note = note,
+                position = segmentPositionFor(index, others.size),
+                onEditClick = { onEditClick(note) },
+                onPinClick = { onPinClick(note) },
                 onDeleteClick = { onDeleteClick(note) },
                 modifier = Modifier
                     .animateItem(
@@ -425,6 +462,7 @@ fun NoteCard(
     note: Note,
     position: SegmentPosition,
     onEditClick: () -> Unit,
+    onPinClick: () -> Unit,
     onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -453,24 +491,36 @@ fun NoteCard(
                         onEditClick()
                     },
                     onLongClick = {
-                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                        menuExpanded = true
+                        haptics.performHapticFeedback(
+                            if (note.isPinned) HapticFeedbackType.ToggleOff
+                            else HapticFeedbackType.ToggleOn
+                        )
+                        onPinClick()
                     },
-                    onLongClickLabel = "Note options"
+                    onLongClickLabel = if (note.isPinned) "Unpin note" else "Pin note"
                 )
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
             Surface(
-                color = MaterialTheme.colorScheme.secondaryContainer,
+                color = if (note.isPinned) MaterialTheme.colorScheme.primaryContainer
+                        else MaterialTheme.colorScheme.secondaryContainer,
                 shape = CircleShape,
                 modifier = Modifier.size(48.dp)
             ) {
                 Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Rounded.Notes,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
+                    AnimatedContent(
+                        targetState = note.isPinned,
+                        transitionSpec = { fadeIn(tween(150)) togetherWith fadeOut(tween(150)) },
+                        label = "noteChipIcon"
+                    ) { pinned ->
+                        Icon(
+                            imageVector = if (pinned) Icons.Rounded.PushPin
+                                          else Icons.AutoMirrored.Rounded.Notes,
+                            contentDescription = null,
+                            tint = if (pinned) MaterialTheme.colorScheme.onPrimaryContainer
+                                   else MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    }
                 }
             }
             Spacer(modifier = Modifier.width(14.dp))
@@ -518,6 +568,18 @@ fun NoteCard(
                     expanded = menuExpanded,
                     onDismissRequest = { menuExpanded = false }
                 ) {
+                    DropdownMenuItem(
+                        text = { Text(if (note.isPinned) "Unpin" else "Pin") },
+                        leadingIcon = { Icon(Icons.Rounded.PushPin, contentDescription = null) },
+                        onClick = {
+                            haptics.performHapticFeedback(
+                                if (note.isPinned) HapticFeedbackType.ToggleOff
+                                else HapticFeedbackType.ToggleOn
+                            )
+                            menuExpanded = false
+                            onPinClick()
+                        }
+                    )
                     DropdownMenuItem(
                         text = { Text("Edit") },
                         leadingIcon = { Icon(Icons.Rounded.Edit, contentDescription = null) },
