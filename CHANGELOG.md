@@ -1,3 +1,11 @@
+## [1.0.1] - 2026-07-14
+
+### Improved
+- Restyled the notes list with an expressive connected-pill design
+
+### Fixed
+- Resolved Room 2.7 API deprecation warnings (explicit exportSchema, updated fallbackToDestructiveMigration call)
+
 ## [1.0.0] - 2026-06-21
 
 ### Added
