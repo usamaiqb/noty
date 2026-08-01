@@ -1,3 +1,13 @@
+## [1.0.2] - 2026-08-01
+
+### Added
+- Expressive haptic feedback for user interactions (confirm, toggle, reject) using Compose UI haptics
+
+### Improved
+- Redesigned top bar with a collapsing header, auto-focus search mode, and responsive FAB scroll behavior
+- Added smooth list animations for note addition, removal, and reordering
+- Updated Compose BOM to 2025.12.00
+
 ## [1.0.1] - 2026-07-14
 
 ### Improved
