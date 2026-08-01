@@ -1,0 +1,2 @@
+• Restyled the notes list with a new expressive, connected-pill look
+• Fixed deprecation warnings from the Room 2.7 database API
