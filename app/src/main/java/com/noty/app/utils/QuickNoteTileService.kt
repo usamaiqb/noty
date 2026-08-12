@@ -8,7 +8,7 @@ import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import androidx.annotation.RequiresApi
 import com.noty.app.R
-import com.noty.app.ui.MainActivity
+import com.noty.app.ui.AddNoteActivity
 
 /**
  * Quick Settings Tile Service for quickly adding notes
@@ -32,6 +32,12 @@ class QuickNoteTileService : TileService() {
         updateTileState()
     }
 
+    private fun createAddNoteIntent(): Intent {
+        return Intent(this, AddNoteActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+    }
+
     // Below API 34 the only available overload is startActivityAndCollapse(Intent);
     // the PendingIntent overload (used on API 34+) does not exist there. The call is
     // correctly version-guarded, so the deprecation warning is suppressed.
@@ -40,26 +46,12 @@ class QuickNoteTileService : TileService() {
     override fun onClick() {
         super.onClick()
 
-        // Create intent to launch MainActivity with add note action
-        val intent = Intent(this, MainActivity::class.java).apply {
-            action = ACTION_ADD_NOTE
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-        }
-
         // Launch the activity
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            // Android 14+ (API 34+): Use startActivityAndCollapse with PendingIntent
-            startActivityAndCollapse(
-                android.app.PendingIntent.getActivity(
-                    this,
-                    0,
-                    intent,
-                    android.app.PendingIntent.FLAG_IMMUTABLE or android.app.PendingIntent.FLAG_UPDATE_CURRENT
-                )
-            )
+            // Android 14+ (API 34+): handled by setActivityLaunchForClick
         } else {
             // Older versions: Direct start
-            startActivityAndCollapse(intent)
+            startActivityAndCollapse(createAddNoteIntent())
         }
     }
 
@@ -77,6 +69,17 @@ class QuickNoteTileService : TileService() {
             // Set subtitle for Android 10+ (API 29+)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 subtitle = "Tap to add"
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                setActivityLaunchForClick(
+                    android.app.PendingIntent.getActivity(
+                        this@QuickNoteTileService,
+                        0,
+                        createAddNoteIntent(),
+                        android.app.PendingIntent.FLAG_IMMUTABLE or android.app.PendingIntent.FLAG_UPDATE_CURRENT
+                    )
+                )
             }
 
             // Update the tile

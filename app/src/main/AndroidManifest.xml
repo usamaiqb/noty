@@ -30,6 +30,16 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".ui.AddNoteActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"
+            android:theme="@style/Theme.Noty.Splash">
+        </activity>
+
         <receiver 
             android:name=".utils.NotificationReceiver" 
             android:exported="false" />

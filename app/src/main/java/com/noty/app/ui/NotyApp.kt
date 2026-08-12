@@ -87,6 +87,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -613,141 +614,180 @@ fun NoteBottomSheet(
     onDismiss: () -> Unit,
     onSave: (title: String, description: String, isPinned: Boolean) -> Unit
 ) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+    ) {
+        NoteForm(
+            note = note,
+            onDismiss = onDismiss,
+            onSave = onSave,
+        )
+    }
+}
+
+// ─── Add / Edit note form ─────────────────────────────────────────────────────
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun NoteForm(
+    note: Note? = null,
+    onDismiss: () -> Unit,
+    onSave: (title: String, description: String, isPinned: Boolean) -> Unit
+) {
     val isEditing = note != null
     var title by remember { mutableStateOf(note?.title ?: "") }
     var description by remember { mutableStateOf(note?.description ?: "") }
     var isPinned by remember { mutableStateOf(note?.isPinned ?: true) }
     var titleError by remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
     val haptics = LocalHapticFeedback.current
 
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+    val titleFocusRequester = remember { FocusRequester() }
+    val descriptionFocusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(isEditing) {
+        // focus title for new notes, description for existing ones
+        if (!isEditing) titleFocusRequester.requestFocus()
+        else descriptionFocusRequester.requestFocus()
+    }
+
+    fun trySave() {
+        val trimmed = title.trim()
+        if (trimmed.isNotEmpty()) {
+            haptics.performHapticFeedback(HapticFeedbackType.Confirm)
+            onSave(trimmed, description.trim(), isPinned)
+        } else {
+            haptics.performHapticFeedback(HapticFeedbackType.Reject)
+            titleFocusRequester.requestFocus()
+            titleError = true
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .imePadding()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 24.dp)
+            .padding(bottom = 24.dp)
     ) {
-        Column(
+        // Header: title + sticky toggle
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = if (isEditing) "Edit Note" else "New Note",
+                style = MaterialTheme.typography.headlineSmall
+            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("Pin note", style = MaterialTheme.typography.bodyMedium)
+                Spacer(Modifier.width(8.dp))
+                Switch(
+                    checked = isPinned,
+                    onCheckedChange = { checked ->
+                        haptics.performHapticFeedback(
+                            if (checked) HapticFeedbackType.ToggleOn
+                            else HapticFeedbackType.ToggleOff
+                        )
+                        isPinned = checked
+                    },
+                    thumbContent = {
+                        AnimatedContent(
+                            targetState = isPinned,
+                            transitionSpec = {
+                                fadeIn(tween(100)) togetherWith fadeOut(tween(100))
+                            },
+                            label = "pinThumbIcon"
+                        ) { checked ->
+                            Icon(
+                                imageVector = if (checked) Icons.Rounded.Check else Icons.Rounded.Close,
+                                contentDescription = null,
+                                modifier = Modifier.size(SwitchDefaults.IconSize)
+                            )
+                        }
+                    }
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        OutlinedTextField(
+            value = title,
+            onValueChange = {
+                title = it
+                titleError = false
+            },
+            label = { Text("Note Title") },
+            isError = titleError,
+            supportingText = if (titleError) {
+                { Text("Title is required") }
+            } else null,
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
             modifier = Modifier
                 .fillMaxWidth()
-                .imePadding()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp)
-                .padding(bottom = 24.dp)
+                .focusRequester(titleFocusRequester)
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        OutlinedTextField(
+            value = description,
+            onValueChange = { description = it },
+            label = { Text("Description (optional)") },
+            maxLines = 5,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(
+                onDone = { trySave() },
+                onPrevious = { focusManager.moveFocus(FocusDirection.Up) },
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(descriptionFocusRequester)
+                .heightIn(min = 120.dp)
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Paired action buttons: mirrored asymmetric corners read as one unit
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
         ) {
-            // Header: title + sticky toggle
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = if (isEditing) "Edit Note" else "New Note",
-                    style = MaterialTheme.typography.headlineSmall
-                )
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Pin note", style = MaterialTheme.typography.bodyMedium)
-                    Spacer(Modifier.width(8.dp))
-                    Switch(
-                        checked = isPinned,
-                        onCheckedChange = { checked ->
-                            haptics.performHapticFeedback(
-                                if (checked) HapticFeedbackType.ToggleOn
-                                else HapticFeedbackType.ToggleOff
-                            )
-                            isPinned = checked
-                        },
-                        thumbContent = {
-                            AnimatedContent(
-                                targetState = isPinned,
-                                transitionSpec = {
-                                    fadeIn(tween(100)) togetherWith fadeOut(tween(100))
-                                },
-                                label = "pinThumbIcon"
-                            ) { checked ->
-                                Icon(
-                                    imageVector = if (checked) Icons.Rounded.Check else Icons.Rounded.Close,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(SwitchDefaults.IconSize)
-                                )
-                            }
-                        }
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            OutlinedTextField(
-                value = title,
-                onValueChange = {
-                    title = it
-                    titleError = false
+            FilledTonalButton(
+                onClick = {
+                    haptics.performHapticFeedback(HapticFeedbackType.Confirm)
+                    onDismiss()
                 },
-                label = { Text("Note Title") },
-                isError = titleError,
-                supportingText = if (titleError) {
-                    { Text("Title is required") }
-                } else null,
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            OutlinedTextField(
-                value = description,
-                onValueChange = { description = it },
-                label = { Text("Description (optional)") },
-                maxLines = 5,
+                shape = RoundedCornerShape(
+                    topStart = 28.dp, topEnd = 12.dp,
+                    bottomStart = 28.dp, bottomEnd = 12.dp
+                ),
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 120.dp)
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Paired action buttons: mirrored asymmetric corners read as one unit
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
+                    .weight(1f)
+                    .fillMaxSize()
             ) {
-                FilledTonalButton(
-                    onClick = {
-                        haptics.performHapticFeedback(HapticFeedbackType.Confirm)
-                        onDismiss()
-                    },
-                    shape = RoundedCornerShape(
-                        topStart = 28.dp, topEnd = 12.dp,
-                        bottomStart = 28.dp, bottomEnd = 12.dp
-                    ),
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxSize()
-                ) {
-                    Text("Cancel")
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(
-                    onClick = {
-                        val trimmed = title.trim()
-                        if (trimmed.isNotEmpty()) {
-                            haptics.performHapticFeedback(HapticFeedbackType.Confirm)
-                            onSave(trimmed, description.trim(), isPinned)
-                        } else {
-                            haptics.performHapticFeedback(HapticFeedbackType.Reject)
-                            titleError = true
-                        }
-                    },
-                    shape = RoundedCornerShape(
-                        topStart = 12.dp, topEnd = 28.dp,
-                        bottomStart = 12.dp, bottomEnd = 28.dp
-                    ),
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxSize()
-                ) {
-                    Text(if (isEditing) "Update" else "Save")
-                }
+                Text("Cancel")
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Button(
+                onClick = { trySave() },
+                shape = RoundedCornerShape(
+                    topStart = 12.dp, topEnd = 28.dp,
+                    bottomStart = 12.dp, bottomEnd = 28.dp
+                ),
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxSize()
+            ) {
+                Text(if (isEditing) "Update" else "Save")
             }
         }
     }
