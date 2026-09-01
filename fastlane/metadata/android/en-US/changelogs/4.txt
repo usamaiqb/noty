@@ -1,0 +1,4 @@
+• Pinned notes now show in their own Pinned section
+• Redesigned the list with rounded icons, connected-pill rows, and relative timestamps
+• New collapsing top bar with built-in search
+• Smoother list animations and haptic feedback when pinning
