@@ -1,3 +1,13 @@
+## [1.0.3] - 2026-09-01
+
+### Added
+- Pinned notes now surface in a dedicated "Pinned" section above the rest (#14)
+
+### Improved
+- Restyled the notes list with a connected-pill design, rounded icon chips, and relative timestamps
+- Added a collapsing top bar with in-app-bar search, list add/remove/reorder animations, and haptic feedback when pinning
+- Upgraded Compose BOM to 2025.12.00
+
 ## [1.0.2] - 2026-08-01
 
 ### Added
