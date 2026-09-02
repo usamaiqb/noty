@@ -7,6 +7,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
+import androidx.core.graphics.createBitmap
+import androidx.core.net.toUri
 import com.noty.app.R
 import com.noty.app.data.Note
 import com.noty.app.ui.MainActivity
@@ -41,11 +43,7 @@ class NotificationHelper(private val context: Context) {
 
         if (drawable.intrinsicWidth <= 0 || drawable.intrinsicHeight <= 0) return null
 
-        val bitmap = android.graphics.Bitmap.createBitmap(
-            drawable.intrinsicWidth,
-            drawable.intrinsicHeight,
-            android.graphics.Bitmap.Config.ARGB_8888
-        )
+        val bitmap = createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight)
         val canvas = android.graphics.Canvas(bitmap)
         drawable.setBounds(0, 0, canvas.width, canvas.height)
         drawable.draw(canvas)
@@ -152,7 +150,7 @@ class NotificationHelper(private val context: Context) {
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
             // Distinct data URI keeps this PendingIntent separate from the pinned-note one
-            data = android.net.Uri.parse("noty://reminder/${note.id}")
+            data = "noty://reminder/${note.id}".toUri()
         }
         val pendingIntent: PendingIntent = PendingIntent.getActivity(
             context, note.id.toInt(), intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
