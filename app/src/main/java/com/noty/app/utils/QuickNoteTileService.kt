@@ -76,7 +76,7 @@ class QuickNoteTileService : TileService() {
 
             // Set subtitle for Android 10+ (API 29+)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                subtitle = "Tap to add"
+                subtitle = getString(R.string.tile_subtitle)
             }
 
             // Update the tile

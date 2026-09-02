@@ -56,8 +56,8 @@ class NotificationHelper(private val context: Context) {
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // Channel for Notes
-            val name = "Persistent Notes"
-            val descriptionText = "Shows your active notes"
+            val name = context.getString(R.string.channel_notes_name)
+            val descriptionText = context.getString(R.string.channel_notes_description)
             val importance = NotificationManager.IMPORTANCE_DEFAULT
             val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
                 description = descriptionText
@@ -65,8 +65,8 @@ class NotificationHelper(private val context: Context) {
             notificationManager.createNotificationChannel(channel)
 
             // Channel for Service (Minimized)
-            val serviceName = "Noty Service"
-            val serviceDescription = "Background service for monitoring notes"
+            val serviceName = context.getString(R.string.channel_service_name)
+            val serviceDescription = context.getString(R.string.channel_service_description)
             val serviceImportance = NotificationManager.IMPORTANCE_MIN
             val serviceChannel = NotificationChannel(CHANNEL_ID_SERVICE, serviceName, serviceImportance).apply {
                 description = serviceDescription
@@ -76,10 +76,10 @@ class NotificationHelper(private val context: Context) {
             // Channel for scheduled reminders (alerting)
             val remindersChannel = NotificationChannel(
                 CHANNEL_ID_REMINDERS,
-                "Reminders",
+                context.getString(R.string.channel_reminders_name),
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Alerts for note reminders"
+                description = context.getString(R.string.channel_reminders_description)
             }
             notificationManager.createNotificationChannel(remindersChannel)
         }
@@ -111,9 +111,9 @@ class NotificationHelper(private val context: Context) {
             .setLocalOnly(true)
 
         if (note.isPinned) {
-            builder.addAction(R.drawable.ic_unpin, "Unpin", unpinPendingIntent(note.id))
+            builder.addAction(R.drawable.ic_unpin, context.getString(R.string.action_unpin), unpinPendingIntent(note.id))
         }
-        builder.addAction(R.drawable.ic_delete, "Delete", deletePendingIntent(note.id))
+        builder.addAction(R.drawable.ic_delete, context.getString(R.string.action_delete), deletePendingIntent(note.id))
 
         notificationManager.notify(note.id.toInt(), builder.build())
     }
@@ -151,8 +151,8 @@ class NotificationHelper(private val context: Context) {
         val builder = NotificationCompat.Builder(context, CHANNEL_ID_REMINDERS)
             .setSmallIcon(R.drawable.ic_stat_noty)
             .setContentTitle(note.title)
-            .setContentText(note.description ?: "Reminder")
-            .setStyle(NotificationCompat.BigTextStyle().bigText(note.description ?: "Reminder"))
+            .setContentText(note.description ?: context.getString(R.string.reminder_fallback_text))
+            .setStyle(NotificationCompat.BigTextStyle().bigText(note.description ?: context.getString(R.string.reminder_fallback_text)))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
@@ -163,8 +163,8 @@ class NotificationHelper(private val context: Context) {
             .setContentIntent(pendingIntent)
 
         if (note.isPinned) {
-            builder.addAction(R.drawable.ic_unpin, "Unpin", unpinPendingIntent(note.id))
-            builder.addAction(R.drawable.ic_delete, "Delete", deletePendingIntent(note.id))
+            builder.addAction(R.drawable.ic_unpin, context.getString(R.string.action_unpin), unpinPendingIntent(note.id))
+            builder.addAction(R.drawable.ic_delete, context.getString(R.string.action_delete), deletePendingIntent(note.id))
             // Deliberately only for the pinned branch: ACTION_DISMISSED deletes
             // an unpinned note, so swiping away a fired one-shot must not fire it.
             builder.setDeleteIntent(dismissPendingIntent(note.id))

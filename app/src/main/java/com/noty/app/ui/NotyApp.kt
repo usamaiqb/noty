@@ -105,10 +105,12 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.noty.app.R
 import com.noty.app.data.Note
 import com.noty.app.utils.ReminderScheduler
 import com.noty.app.data.NoteType
@@ -236,19 +238,19 @@ fun NotyApp(
                             )
                         } else {
                             LargeTopAppBar(
-                                title = { Text("Noty") },
+                                title = { Text(stringResource(R.string.app_name)) },
                                 actions = {
                                     IconButton(onClick = {
                                         haptics.performHapticFeedback(HapticFeedbackType.Confirm)
                                         searchActive = true
                                     }) {
-                                        Icon(Icons.Rounded.Search, contentDescription = "Search notes")
+                                        Icon(Icons.Rounded.Search, contentDescription = stringResource(R.string.cd_search_notes))
                                     }
                                     IconButton(onClick = {
                                         haptics.performHapticFeedback(HapticFeedbackType.Confirm)
                                         showSettings = true
                                     }) {
-                                        Icon(Icons.Rounded.Settings, contentDescription = "Settings")
+                                        Icon(Icons.Rounded.Settings, contentDescription = stringResource(R.string.cd_settings))
                                     }
                                 },
                                 colors = TopAppBarDefaults.largeTopAppBarColors(
@@ -262,7 +264,7 @@ fun NotyApp(
                 },
                 floatingActionButton = {
                     ExtendedFloatingActionButton(
-                        text = { Text("New Note") },
+                        text = { Text(stringResource(R.string.home_new_note)) },
                         icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
                         expanded = fabExpanded,
                         onClick = {
@@ -337,8 +339,8 @@ fun NotyApp(
     noteToDelete?.let { note ->
         AlertDialog(
             onDismissRequest = { noteToDelete = null },
-            title = { Text("Delete this note?") },
-            text = { Text("Are you sure you want to delete '${note.title}'?") },
+            title = { Text(stringResource(R.string.delete_dialog_title)) },
+            text = { Text(stringResource(R.string.delete_dialog_message, note.title)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -346,12 +348,12 @@ fun NotyApp(
                         noteToDelete = null
                     }
                 ) {
-                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.action_delete), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { noteToDelete = null }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )
@@ -374,14 +376,14 @@ private fun SearchTopBar(
     TopAppBar(
         navigationIcon = {
             IconButton(onClick = onClose) {
-                Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Close search")
+                Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.cd_close_search))
             }
         },
         title = {
             TextField(
                 value = query,
                 onValueChange = onQueryChange,
-                placeholder = { Text("Search notes") },
+                placeholder = { Text(stringResource(R.string.search_placeholder)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(onSearch = { focusManager.clearFocus() }),
@@ -400,7 +402,7 @@ private fun SearchTopBar(
         actions = {
             if (query.isNotEmpty()) {
                 IconButton(onClick = { onQueryChange("") }) {
-                    Icon(Icons.Rounded.Close, contentDescription = "Clear search")
+                    Icon(Icons.Rounded.Close, contentDescription = stringResource(R.string.cd_clear_search))
                 }
             }
         },
@@ -435,7 +437,7 @@ private fun NotesList(
         if (showHeaders) {
             item(key = "pinned_header") {
                 Box(modifier = Modifier.animateItem()) {
-                    SectionHeader("Pinned")
+                    SectionHeader(stringResource(R.string.home_section_pinned))
                 }
             }
         }
@@ -458,7 +460,7 @@ private fun NotesList(
         if (showHeaders && others.isNotEmpty()) {
             item(key = "others_header") {
                 Box(modifier = Modifier.animateItem().padding(top = 20.dp)) {
-                    SectionHeader("Others")
+                    SectionHeader(stringResource(R.string.home_section_others))
                 }
             }
         }
@@ -524,7 +526,9 @@ fun NoteCard(
                         )
                         onPinClick()
                     },
-                    onLongClickLabel = if (note.isPinned) "Unpin note" else "Pin note"
+                    onLongClickLabel = stringResource(
+                            if (note.isPinned) R.string.cd_unpin_note else R.string.cd_pin_note
+                        )
                 )
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
@@ -581,7 +585,7 @@ fun NoteCard(
                         Spacer(modifier = Modifier.width(8.dp))
                         Icon(
                             imageVector = Icons.Rounded.Alarm,
-                            contentDescription = "Reminder set",
+                            contentDescription = stringResource(R.string.cd_reminder_set),
                             modifier = Modifier.size(14.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )
@@ -606,7 +610,7 @@ fun NoteCard(
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.MoreVert,
-                        contentDescription = "More options",
+                        contentDescription = stringResource(R.string.cd_more_options),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(18.dp)
                     )
@@ -616,7 +620,9 @@ fun NoteCard(
                     onDismissRequest = { menuExpanded = false }
                 ) {
                     DropdownMenuItem(
-                        text = { Text(if (note.isPinned) "Unpin" else "Pin") },
+                        text = {
+                            Text(stringResource(if (note.isPinned) R.string.action_unpin else R.string.action_pin))
+                        },
                         leadingIcon = { Icon(Icons.Rounded.PushPin, contentDescription = null) },
                         onClick = {
                             haptics.performHapticFeedback(
@@ -628,7 +634,7 @@ fun NoteCard(
                         }
                     )
                     DropdownMenuItem(
-                        text = { Text("Edit") },
+                        text = { Text(stringResource(R.string.action_edit)) },
                         leadingIcon = { Icon(Icons.Rounded.Edit, contentDescription = null) },
                         onClick = {
                             haptics.performHapticFeedback(HapticFeedbackType.Confirm)
@@ -637,7 +643,7 @@ fun NoteCard(
                         }
                     )
                     DropdownMenuItem(
-                        text = { Text("Delete", color = MaterialTheme.colorScheme.error) },
+                        text = { Text(stringResource(R.string.action_delete), color = MaterialTheme.colorScheme.error) },
                         leadingIcon = { Icon(Icons.Rounded.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error) },
                         onClick = {
                             haptics.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -704,11 +710,11 @@ fun NoteBottomSheet(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = if (isEditing) "Edit Note" else "New Note",
+                    text = stringResource(if (isEditing) R.string.sheet_title_edit else R.string.sheet_title_new),
                     style = MaterialTheme.typography.headlineSmall
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Pin note", style = MaterialTheme.typography.bodyMedium)
+                    Text(stringResource(R.string.sheet_pin_note), style = MaterialTheme.typography.bodyMedium)
                     Spacer(Modifier.width(8.dp))
                     Switch(
                         checked = isPinned,
@@ -746,10 +752,10 @@ fun NoteBottomSheet(
                     title = it
                     titleError = false
                 },
-                label = { Text("Note Title") },
+                label = { Text(stringResource(R.string.sheet_label_title)) },
                 isError = titleError,
                 supportingText = if (titleError) {
-                    { Text("Title is required") }
+                    { Text(stringResource(R.string.sheet_error_title_required)) }
                 } else null,
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
@@ -760,7 +766,7 @@ fun NoteBottomSheet(
             OutlinedTextField(
                 value = description,
                 onValueChange = { description = it },
-                label = { Text("Description (optional)") },
+                label = { Text(stringResource(R.string.sheet_label_description)) },
                 maxLines = 5,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -797,7 +803,10 @@ fun NoteBottomSheet(
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         text = reminderAt?.let { formatReminderTime(context, it) }
-                            ?: if (canScheduleReminders) "Add reminder" else "Add reminder — needs permission",
+                            ?: stringResource(
+                                if (canScheduleReminders) R.string.reminder_add
+                                else R.string.reminder_add_needs_permission
+                            ),
                         style = MaterialTheme.typography.bodyMedium,
                         color = if (reminderAt != null) MaterialTheme.colorScheme.onSecondaryContainer
                                 else MaterialTheme.colorScheme.onSurfaceVariant,
@@ -813,7 +822,7 @@ fun NoteBottomSheet(
                         ) {
                             Icon(
                                 imageVector = Icons.Rounded.Close,
-                                contentDescription = "Remove reminder",
+                                contentDescription = stringResource(R.string.cd_remove_reminder),
                                 modifier = Modifier.size(18.dp),
                                 tint = MaterialTheme.colorScheme.onSecondaryContainer
                             )
@@ -843,7 +852,7 @@ fun NoteBottomSheet(
                         .weight(1f)
                         .fillMaxSize()
                 ) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Button(
@@ -865,7 +874,7 @@ fun NoteBottomSheet(
                         .weight(1f)
                         .fillMaxSize()
                 ) {
-                    Text(if (isEditing) "Update" else "Save")
+                    Text(stringResource(if (isEditing) R.string.action_update else R.string.action_save))
                 }
             }
         }
@@ -875,13 +884,9 @@ fun NoteBottomSheet(
         AlertDialog(
             onDismissRequest = { showReminderPermissionDialog = false },
             icon = { Icon(Icons.Rounded.Alarm, contentDescription = null) },
-            title = { Text("Allow alarms & reminders") },
+            title = { Text(stringResource(R.string.reminder_permission_title)) },
             text = {
-                Text(
-                    "Noty needs the \"Alarms & reminders\" permission to notify you at the " +
-                        "exact minute you pick. Without it Android can hold a reminder back by " +
-                        "10 minutes or more, so reminders stay switched off."
-                )
+                Text(stringResource(R.string.reminder_permission_message))
             },
             confirmButton = {
                 TextButton(
@@ -892,12 +897,12 @@ fun NoteBottomSheet(
                         )
                     }
                 ) {
-                    Text("Open settings")
+                    Text(stringResource(R.string.action_open_settings))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showReminderPermissionDialog = false }) {
-                    Text("Not now")
+                    Text(stringResource(R.string.action_not_now))
                 }
             }
         )
@@ -940,12 +945,12 @@ fun NoteBottomSheet(
                         if (pendingDateMillis != null) showTimePicker = true
                     }
                 ) {
-                    Text("Next")
+                    Text(stringResource(R.string.action_next))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDatePicker = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         ) {
@@ -966,13 +971,13 @@ fun NoteBottomSheet(
                 showTimePicker = false
                 timeInPastError = false
             },
-            title = { Text("Set time") },
+            title = { Text(stringResource(R.string.reminder_time_dialog_title)) },
             text = {
                 Column {
                     TimePicker(state = timePickerState)
                     if (timeInPastError) {
                         Text(
-                            text = "That time has already passed. Pick a later time.",
+                            text = stringResource(R.string.reminder_time_in_past),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.error
                         )
@@ -1012,7 +1017,7 @@ fun NoteBottomSheet(
                         }
                     }
                 ) {
-                    Text("OK")
+                    Text(stringResource(R.string.action_ok))
                 }
             },
             dismissButton = {
@@ -1022,7 +1027,7 @@ fun NoteBottomSheet(
                         timeInPastError = false
                     }
                 ) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )
@@ -1054,13 +1059,13 @@ fun EmptyStateContent(modifier: Modifier = Modifier, searchQuery: String = "") {
                 tint = MaterialTheme.colorScheme.primary
             )
             Text(
-                text = "No notes yet",
+                text = stringResource(R.string.home_empty_title),
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(top = 24.dp)
             )
             Text(
-                text = "Tap + New Note to create your first note",
+                text = stringResource(R.string.home_empty_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -1074,14 +1079,14 @@ fun EmptyStateContent(modifier: Modifier = Modifier, searchQuery: String = "") {
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = "No results for \"$searchQuery\"",
+                text = stringResource(R.string.search_empty_title, searchQuery),
                 style = MaterialTheme.typography.headlineMedium,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(top = 24.dp)
             )
             Text(
-                text = "Try a different search term",
+                text = stringResource(R.string.search_empty_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 8.dp)

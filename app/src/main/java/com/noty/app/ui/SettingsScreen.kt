@@ -59,7 +59,9 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.noty.app.R
 import com.noty.app.utils.ThemeManager
 
 private const val GithubRepoUrl = "https://github.com/usamaiqb/noty"
@@ -221,7 +223,9 @@ fun SettingsScreen(
     val currentTheme by viewModel.themeFlow.collectAsState(initial = ThemeManager.ThemeMode.SYSTEM)
     val dynamicColors by viewModel.dynamicColorsFlow.collectAsState(initial = true)
     val defaultPin by viewModel.defaultPinFlow.collectAsState(initial = true)
-    val versionLabel = remember(context) {
+    // remember cannot call stringResource, so read the package info there and
+    // format outside it rather than reaching for context.getString in composition.
+    val packageVersion = remember(context) {
         runCatching {
             val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
             val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -230,9 +234,13 @@ fun SettingsScreen(
                 @Suppress("DEPRECATION")
                 packageInfo.versionCode.toLong()
             }
-            "Version ${packageInfo.versionName ?: "1.0"} ($versionCode)"
-        }.getOrDefault("Version unknown")
+            packageInfo.versionName to versionCode
+        }.getOrNull()
     }
+    val versionNameFallback = stringResource(R.string.settings_version_name_fallback)
+    val versionLabel = packageVersion?.let { (name, code) ->
+        stringResource(R.string.settings_version, name ?: versionNameFallback, code)
+    } ?: stringResource(R.string.settings_version_unknown)
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
@@ -241,12 +249,12 @@ fun SettingsScreen(
         containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
         topBar = {
             LargeTopAppBar(
-                title = { Text(text = "Settings") },
+                title = { Text(text = stringResource(R.string.settings_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.cd_back)
                         )
                     }
                 },
@@ -268,14 +276,14 @@ fun SettingsScreen(
         ) {
             // ── Appearance ─────────────────────────────────────────────
             Column {
-                SectionHeader("Appearance")
+                SectionHeader(stringResource(R.string.settings_section_appearance))
                 val supportsDynamicColors = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
                 SettingsGroup {
                     SegmentedSettingsRow(
                         position = if (supportsDynamicColors) SegmentPosition.First else SegmentPosition.Single,
                         icon = Icons.Rounded.Palette,
-                        title = "App theme",
-                        subtitle = "Overall look of the app"
+                        title = stringResource(R.string.settings_theme_title),
+                        subtitle = stringResource(R.string.settings_theme_subtitle)
                     ) {
                         ThemeModeControl(
                             selected = currentTheme,
@@ -286,8 +294,8 @@ fun SettingsScreen(
                         SwitchSettingsRow(
                             position = SegmentPosition.Last,
                             icon = Icons.Rounded.Wallpaper,
-                            title = "Use dynamic colors",
-                            subtitle = "Tint the app from your wallpaper",
+                            title = stringResource(R.string.settings_dynamic_color_title),
+                            subtitle = stringResource(R.string.settings_dynamic_color_subtitle),
                             checked = dynamicColors,
                             onCheckedChange = viewModel::setDynamicColors
                         )
@@ -297,13 +305,13 @@ fun SettingsScreen(
 
             // ── Notes ──────────────────────────────────────────────────
             Column {
-                SectionHeader("Notes")
+                SectionHeader(stringResource(R.string.settings_section_notes))
                 SettingsGroup {
                     SwitchSettingsRow(
                         position = SegmentPosition.Single,
                         icon = Icons.Rounded.PushPin,
-                        title = "Pin new notes by default",
-                        subtitle = "New notes start pinned as notifications",
+                        title = stringResource(R.string.settings_pin_default_title),
+                        subtitle = stringResource(R.string.settings_pin_default_subtitle),
                         checked = defaultPin,
                         onCheckedChange = viewModel::setDefaultPin
                     )
@@ -312,7 +320,7 @@ fun SettingsScreen(
 
             // ── About ──────────────────────────────────────────────────
             Column {
-                SectionHeader("About")
+                SectionHeader(stringResource(R.string.settings_section_about))
                 SettingsGroup {
                     val uriHandler = LocalUriHandler.current
                     SettingsSurface(
@@ -336,7 +344,7 @@ fun SettingsScreen(
                             Spacer(modifier = Modifier.width(16.dp))
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = "GitHub",
+                                    text = stringResource(R.string.settings_github),
                                     style = MaterialTheme.typography.titleMedium
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
@@ -371,7 +379,7 @@ fun SettingsScreen(
                             Spacer(modifier = Modifier.width(16.dp))
                             Column {
                                 Text(
-                                    text = "Noty",
+                                    text = stringResource(R.string.app_name),
                                     style = MaterialTheme.typography.titleMedium
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
@@ -382,7 +390,7 @@ fun SettingsScreen(
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    text = "Simple notes, pinned to your notifications.",
+                                    text = stringResource(R.string.app_tagline),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -414,7 +422,7 @@ private fun ThemeModeControl(
             selected = selected == ThemeManager.ThemeMode.SYSTEM,
             icon = { Icon(Icons.Rounded.BrightnessAuto, contentDescription = null) }
         ) {
-            Text("System")
+            Text(stringResource(R.string.theme_system))
         }
         SegmentedButton(
             shape = SegmentedButtonDefaults.itemShape(index = 1, count = 3),
@@ -425,7 +433,7 @@ private fun ThemeModeControl(
             selected = selected == ThemeManager.ThemeMode.LIGHT,
             icon = { Icon(Icons.Rounded.LightMode, contentDescription = null) }
         ) {
-            Text("Light")
+            Text(stringResource(R.string.theme_light))
         }
         SegmentedButton(
             shape = SegmentedButtonDefaults.itemShape(index = 2, count = 3),
@@ -436,7 +444,7 @@ private fun ThemeModeControl(
             selected = selected == ThemeManager.ThemeMode.DARK,
             icon = { Icon(Icons.Rounded.DarkMode, contentDescription = null) }
         ) {
-            Text("Dark")
+            Text(stringResource(R.string.theme_dark))
         }
     }
 }
