@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ComposableParamOrder:NotyApp.kt$NoteBottomSheet</ID>
+    <ID>ContentSlotReused:SettingsScreen.kt$content</ID>
+    <ID>CyclomaticComplexMethod:NotyApp.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun NoteBottomSheet( note: Note? = null, defaultPinned: Boolean = true, onDismiss: () -&gt; Unit, onSave: (title: String, description: String, isPinned: Boolean, reminderAt: Long?) -&gt; Unit )</ID>
+    <ID>CyclomaticComplexMethod:NotyApp.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun NotyApp( viewModel: NotyViewModel, triggerAddNote: Boolean = false, onAddNoteTriggered: () -&gt; Unit = {} )</ID>
+    <ID>LambdaParameterInRestartableEffect:NotyApp.kt$onAddNoteTriggered</ID>
+    <ID>ModifierMissing:ExpressiveList.kt$SectionHeader</ID>
+    <ID>ModifierMissing:NotyApp.kt$NotyApp</ID>
+    <ID>ModifierMissing:SettingsScreen.kt$SettingsScreen</ID>
+    <ID>ParameterNaming:NotyApp.kt$onAddNoteTriggered</ID>
+    <ID>TooGenericExceptionCaught:NotyRepository.kt$NotyRepository$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:NotyService.kt$NotyService$e: Exception</ID>
+    <ID>TooManyFunctions:NotificationHelper.kt$NotificationHelper</ID>
+    <ID>ViewModelForwarding:NotyApp.kt$SettingsScreen( viewModel = viewModel, onNavigateBack = { showSettings = false } )</ID>
+  </CurrentIssues>
+</SmellBaseline>

@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.detekt)
 }
 
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -86,6 +87,27 @@ android {
     }
 }
 
+detekt {
+    config.setFrom("$rootDir/config/detekt/detekt.yml")
+    // Findings that predate detekt, so the rules bind to new code without this commit
+    // rewriting the app. Meant to shrink and then be deleted — regenerating it wholesale
+    // during a refactor turns temporary debt into permanent debt.
+    baseline = file("$rootDir/config/detekt/baseline.xml")
+    // Our config only states where we differ, so detekt's own defaults still apply.
+    buildUponDefaultConfig = true
+    allRules = false
+}
+
+tasks.withType(io.gitlab.arturbosch.detekt.Detekt).configureEach {
+    jvmTarget = JavaVersion.VERSION_17.toString()
+    reports {
+        html.required = true
+        sarif.required = false
+        md.required = false
+        txt.required = false
+    }
+}
+
 dependencies {
     implementation libs.androidx.core.ktx
     implementation libs.androidx.appcompat
@@ -116,6 +138,9 @@ dependencies {
     implementation libs.androidx.activity.compose
     implementation libs.androidx.lifecycle.viewmodel.compose
     implementation libs.androidx.compose.runtime.livedata
+
+    // Kotlin static analysis, including the Compose rule set
+    detektPlugins libs.detekt.compose.rules
 
     testImplementation libs.junit
     androidTestImplementation libs.androidx.test.junit

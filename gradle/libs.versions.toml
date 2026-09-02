@@ -5,6 +5,8 @@
 agp = "9.2.0"
 kotlin = "2.0.21"
 ksp = "2.0.21-1.0.28"
+detekt = "1.23.8"
+detektComposeRules = "0.4.28"
 
 androidxCore = "1.12.0"
 appcompat = "1.6.1"
@@ -49,6 +51,9 @@ androidx-compose-material-icons-extended = { group = "androidx.compose.material"
 androidx-compose-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose" }
 
+# Kotlin static analysis, including the Compose rule set
+detekt-compose-rules = { module = "io.nlopez.compose.rules:detekt", version.ref = "detektComposeRules" }
+
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-test-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidxTestJunit" }
 androidx-test-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso" }
@@ -57,3 +62,4 @@ androidx-test-espresso-core = { group = "androidx.test.espresso", name = "espres
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }

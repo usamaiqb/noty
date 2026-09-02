@@ -1,7 +1,7 @@
 package com.noty.app.utils
 
 import org.junit.Test
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
 
 class ThemeManagerTest {
 

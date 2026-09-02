@@ -21,6 +21,10 @@ class NotificationHelper(private val context: Context) {
         const val ACTION_DISMISSED = "com.noty.app.ACTION_DISMISSED"
         const val ACTION_UNPIN = "com.noty.app.ACTION_UNPIN"
         const val EXTRA_NOTE_ID = "extra_note_id"
+
+        // Request-code offsets keeping each note's PendingIntents distinct from one
+        // another. Any collision would make one action overwrite another's intent.
+        private const val REQUEST_CODE_UNPIN_OFFSET = 3000
     }
 
     private val notificationManager =
@@ -223,7 +227,7 @@ class NotificationHelper(private val context: Context) {
             putExtra(EXTRA_NOTE_ID, noteId)
         }
         return PendingIntent.getBroadcast(
-            context, noteId.toInt() + 3000, intent,
+            context, noteId.toInt() + REQUEST_CODE_UNPIN_OFFSET, intent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
     }
