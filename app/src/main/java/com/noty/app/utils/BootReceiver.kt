@@ -25,11 +25,7 @@ class BootReceiver : BroadcastReceiver() {
                 val notes = AppDatabase.getDatabase(context).noteDao().getAllNotes().first()
                 if (notes.any { it.isPinned }) {
                     val serviceIntent = Intent(context, NotyService::class.java)
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        context.startForegroundService(serviceIntent)
-                    } else {
-                        context.startService(serviceIntent)
-                    }
+                    context.startForegroundService(serviceIntent)
                 }
                 // Alarms are cleared on reboot and app update — re-register them
                 ReminderScheduler.rescheduleAll(context)

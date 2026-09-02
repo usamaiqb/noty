@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
 
     <!-- Splash Screen Theme -->
     <style name="Theme.Noty.Splash" parent="Theme.SplashScreen">
@@ -34,7 +34,7 @@
         <!-- Status bar and navigation bar -->
         <item name="android:statusBarColor">?attr/colorSurface</item>
         <item name="android:navigationBarColor">?attr/colorSurface</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+        <item name="android:windowLightStatusBar">true</item>
 
         <!-- M3 Expressive Typography Overrides (Optional, standard M3 is good base, but we can make it punchier) -->
         <!-- Using default M3 typescale for now, can customize later -->

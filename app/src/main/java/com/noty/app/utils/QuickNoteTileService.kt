@@ -6,7 +6,6 @@ import android.graphics.drawable.Icon
 import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
-import androidx.annotation.RequiresApi
 import com.noty.app.R
 import com.noty.app.ui.MainActivity
 
@@ -19,7 +18,6 @@ import com.noty.app.ui.MainActivity
  * 2. Tap the edit button (pencil icon)
  * 3. Find "Quick Note" tile and drag it to the active tiles
  */
-@RequiresApi(Build.VERSION_CODES.N)
 class QuickNoteTileService : TileService() {
 
     companion object {
