@@ -111,9 +111,17 @@ class NotificationHelper(private val context: Context) {
             .setLocalOnly(true)
 
         if (note.isPinned) {
-            builder.addAction(R.drawable.ic_unpin, context.getString(R.string.action_unpin), unpinPendingIntent(note.id))
+            builder.addAction(
+                R.drawable.ic_unpin,
+                context.getString(R.string.action_unpin),
+                unpinPendingIntent(note.id)
+            )
         }
-        builder.addAction(R.drawable.ic_delete, context.getString(R.string.action_delete), deletePendingIntent(note.id))
+        builder.addAction(
+            R.drawable.ic_delete,
+            context.getString(R.string.action_delete),
+            deletePendingIntent(note.id)
+        )
 
         notificationManager.notify(note.id.toInt(), builder.build())
     }
@@ -148,11 +156,12 @@ class NotificationHelper(private val context: Context) {
             context, note.id.toInt(), intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
+        val reminderText = note.description ?: context.getString(R.string.reminder_fallback_text)
         val builder = NotificationCompat.Builder(context, CHANNEL_ID_REMINDERS)
             .setSmallIcon(R.drawable.ic_stat_noty)
             .setContentTitle(note.title)
-            .setContentText(note.description ?: context.getString(R.string.reminder_fallback_text))
-            .setStyle(NotificationCompat.BigTextStyle().bigText(note.description ?: context.getString(R.string.reminder_fallback_text)))
+            .setContentText(reminderText)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(reminderText))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
@@ -163,8 +172,16 @@ class NotificationHelper(private val context: Context) {
             .setContentIntent(pendingIntent)
 
         if (note.isPinned) {
-            builder.addAction(R.drawable.ic_unpin, context.getString(R.string.action_unpin), unpinPendingIntent(note.id))
-            builder.addAction(R.drawable.ic_delete, context.getString(R.string.action_delete), deletePendingIntent(note.id))
+            builder.addAction(
+                R.drawable.ic_unpin,
+                context.getString(R.string.action_unpin),
+                unpinPendingIntent(note.id)
+            )
+            builder.addAction(
+            R.drawable.ic_delete,
+            context.getString(R.string.action_delete),
+            deletePendingIntent(note.id)
+        )
             // Deliberately only for the pinned branch: ACTION_DISMISSED deletes
             // an unpinned note, so swiping away a fired one-shot must not fire it.
             builder.setDeleteIntent(dismissPendingIntent(note.id))
