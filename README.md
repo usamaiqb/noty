@@ -29,8 +29,6 @@ A simple, privacy-focused notes app for Android that keeps your notes exactly wh
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width="200" alt="Notes" />
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width="200" alt="Notifications" />
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width="200" alt="Dark theme" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/6.png" width="200" alt="Edit note" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/7.png" width="200" alt="Theme selection" />
 </p>
 
 ## Download
