@@ -78,6 +78,12 @@ android {
         compose true
         buildConfig true
     }
+
+    lint {
+        // Suppressions and severities live in lint.xml so the IDE, the CLI and CI all
+        // read the same policy. Each entry there carries its reason.
+        lintConfig file('lint.xml')
+    }
 }
 
 dependencies {
