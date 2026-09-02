@@ -27,6 +27,8 @@ class NotificationReceiver : BroadcastReceiver() {
                         val repository = NotyRepository(database.noteDao())
                         repository.deleteById(noteId)
                         notificationHelper.cancelNotification(noteId.toInt())
+                        // Otherwise the alarm outlives the note until it fires
+                        ReminderScheduler.cancel(context, noteId)
                     }
                     NotificationHelper.ACTION_DISMISSED -> {
                         val note = database.noteDao().getNoteById(noteId)

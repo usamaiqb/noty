@@ -17,7 +17,6 @@ class NotificationHelper(private val context: Context) {
         const val CHANNEL_ID = "noty_persistent_channel"
         const val CHANNEL_ID_SERVICE = "noty_service_channel"
         const val CHANNEL_ID_REMINDERS = "noty_reminders_channel"
-        const val TAG_REMINDER = "reminder"
         const val ACTION_DELETE = "com.noty.app.ACTION_DELETE"
         const val ACTION_DISMISSED = "com.noty.app.ACTION_DISMISSED"
         const val ACTION_UNPIN = "com.noty.app.ACTION_UNPIN"
@@ -95,33 +94,6 @@ class NotificationHelper(private val context: Context) {
             context, note.id.toInt(), intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        val deleteIntent = Intent(context, NotificationReceiver::class.java).apply {
-            action = ACTION_DELETE
-            putExtra(EXTRA_NOTE_ID, note.id)
-        }
-        // Use negative offset for delete intent to avoid collision with activity intent
-        val deletePendingIntent: PendingIntent = PendingIntent.getBroadcast(
-            context, -note.id.toInt(), deleteIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
-
-        val dismissIntent = Intent(context, NotificationReceiver::class.java).apply {
-            action = ACTION_DISMISSED
-            putExtra(EXTRA_NOTE_ID, note.id)
-        }
-        // Use Int.MIN_VALUE/2 offset to avoid collision with other intents
-        val dismissPendingIntent: PendingIntent = PendingIntent.getBroadcast(
-             context, Int.MIN_VALUE / 2 + note.id.toInt(), dismissIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
-
-        val unpinIntent = Intent(context, NotificationReceiver::class.java).apply {
-            action = ACTION_UNPIN
-            putExtra(EXTRA_NOTE_ID, note.id)
-        }
-        // Use +3000 offset to avoid collision with other intents
-        val unpinPendingIntent: PendingIntent = PendingIntent.getBroadcast(
-            context, note.id.toInt() + 3000, unpinIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
-
         // Using the new custom pen nib icon for the status bar
         val icon = R.drawable.ic_stat_noty
 
@@ -135,13 +107,13 @@ class NotificationHelper(private val context: Context) {
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setContentIntent(pendingIntent)
-            .setDeleteIntent(dismissPendingIntent)
+            .setDeleteIntent(dismissPendingIntent(note.id))
             .setLocalOnly(true)
 
         if (note.isPinned) {
-            builder.addAction(R.drawable.ic_unpin, "Unpin", unpinPendingIntent)
+            builder.addAction(R.drawable.ic_unpin, "Unpin", unpinPendingIntent(note.id))
         }
-        builder.addAction(R.drawable.ic_delete, "Delete", deletePendingIntent)
+        builder.addAction(R.drawable.ic_delete, "Delete", deletePendingIntent(note.id))
 
         notificationManager.notify(note.id.toInt(), builder.build())
     }
@@ -158,6 +130,14 @@ class NotificationHelper(private val context: Context) {
             .build()
     }
 
+    /**
+     * Fires a note's reminder.
+     *
+     * A note has at most one notification at a time, posted under its own id.
+     * For a pinned note this replaces the quiet persistent one instead of
+     * adding a second entry: it alerts, then stays in the shade, because that
+     * is what pinning means. An unpinned note gets a dismissible one-shot.
+     */
     fun showReminderNotification(note: Note) {
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -176,11 +156,59 @@ class NotificationHelper(private val context: Context) {
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
-            .setAutoCancel(true)
+            // Pinning decides what happens after the alert: a pinned note stays
+            // put and keeps its shade actions, an unpinned one is dismissible.
+            .setOngoing(note.isPinned)
+            .setAutoCancel(!note.isPinned)
             .setContentIntent(pendingIntent)
 
-        // Separate tag keeps reminder ids from colliding with pinned-note notification ids
-        notificationManager.notify(TAG_REMINDER, note.id.toInt(), builder.build())
+        if (note.isPinned) {
+            builder.addAction(R.drawable.ic_unpin, "Unpin", unpinPendingIntent(note.id))
+            builder.addAction(R.drawable.ic_delete, "Delete", deletePendingIntent(note.id))
+            // Deliberately only for the pinned branch: ACTION_DISMISSED deletes
+            // an unpinned note, so swiping away a fired one-shot must not fire it.
+            builder.setDeleteIntent(dismissPendingIntent(note.id))
+            // Updating a posted notification in place can suppress the heads-up
+            // alert, so clear the quiet one before re-posting.
+            notificationManager.cancel(note.id.toInt())
+        }
+
+        notificationManager.notify(note.id.toInt(), builder.build())
+    }
+
+    // Request-code offsets keep these distinct from the content intent and from
+    // each other; they must stay stable so re-posting replaces rather than duplicates.
+    private fun deletePendingIntent(noteId: Long): PendingIntent {
+        val intent = Intent(context, NotificationReceiver::class.java).apply {
+            action = ACTION_DELETE
+            putExtra(EXTRA_NOTE_ID, noteId)
+        }
+        return PendingIntent.getBroadcast(
+            context, -noteId.toInt(), intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+    }
+
+    private fun dismissPendingIntent(noteId: Long): PendingIntent {
+        val intent = Intent(context, NotificationReceiver::class.java).apply {
+            action = ACTION_DISMISSED
+            putExtra(EXTRA_NOTE_ID, noteId)
+        }
+        return PendingIntent.getBroadcast(
+            context, Int.MIN_VALUE / 2 + noteId.toInt(), intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+    }
+
+    private fun unpinPendingIntent(noteId: Long): PendingIntent {
+        val intent = Intent(context, NotificationReceiver::class.java).apply {
+            action = ACTION_UNPIN
+            putExtra(EXTRA_NOTE_ID, noteId)
+        }
+        return PendingIntent.getBroadcast(
+            context, noteId.toInt() + 3000, intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
     }
 
     fun cancelNotification(noteId: Int) {
@@ -188,7 +216,9 @@ class NotificationHelper(private val context: Context) {
     }
 
     fun cancelReminderNotification(noteId: Int) {
-        notificationManager.cancel(TAG_REMINDER, noteId)
+        // A note has one notification identity; kept as a named entry point so
+        // call sites still read clearly.
+        notificationManager.cancel(noteId)
     }
 
     fun syncNotifications(notes: List<Note>) {
