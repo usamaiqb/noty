@@ -3,6 +3,8 @@ package com.noty.app.ui
 import android.os.Build
 import android.text.format.DateUtils
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -52,6 +54,7 @@ import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.TimePicker
@@ -107,6 +110,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.noty.app.data.Note
+import com.noty.app.utils.ReminderScheduler
 import com.noty.app.data.NoteType
 import java.util.Calendar
 import java.util.TimeZone
@@ -669,6 +673,17 @@ fun NoteBottomSheet(
     val context = LocalContext.current
     val haptics = LocalHapticFeedback.current
 
+    // Reminders are gated on the exact-alarm permission: without it Android can
+    // delay delivery by 10+ minutes, so the feature is hidden rather than degraded.
+    var canScheduleReminders by remember { mutableStateOf(ReminderScheduler.canScheduleExact(context)) }
+    var showReminderPermissionDialog by remember { mutableStateOf(false) }
+    var timeInPastError by remember { mutableStateOf(false) }
+    val exactAlarmSettingsLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        canScheduleReminders = ReminderScheduler.canScheduleExact(context)
+    }
+
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
@@ -758,7 +773,11 @@ fun NoteBottomSheet(
             Surface(
                 onClick = {
                     haptics.performHapticFeedback(HapticFeedbackType.ContextClick)
-                    showDatePicker = true
+                    if (canScheduleReminders) {
+                        showDatePicker = true
+                    } else {
+                        showReminderPermissionDialog = true
+                    }
                 },
                 shape = RoundedCornerShape(16.dp),
                 color = if (reminderAt != null) MaterialTheme.colorScheme.secondaryContainer
@@ -777,7 +796,8 @@ fun NoteBottomSheet(
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = reminderAt?.let { formatReminderTime(context, it) } ?: "Add reminder",
+                        text = reminderAt?.let { formatReminderTime(context, it) }
+                            ?: if (canScheduleReminders) "Add reminder" else "Add reminder — needs permission",
                         style = MaterialTheme.typography.bodyMedium,
                         color = if (reminderAt != null) MaterialTheme.colorScheme.onSecondaryContainer
                                 else MaterialTheme.colorScheme.onSurfaceVariant,
@@ -851,9 +871,64 @@ fun NoteBottomSheet(
         }
     }
 
+    if (showReminderPermissionDialog) {
+        AlertDialog(
+            onDismissRequest = { showReminderPermissionDialog = false },
+            icon = { Icon(Icons.Rounded.Alarm, contentDescription = null) },
+            title = { Text("Allow alarms & reminders") },
+            text = {
+                Text(
+                    "Noty needs the \"Alarms & reminders\" permission to notify you at the " +
+                        "exact minute you pick. Without it Android can hold a reminder back by " +
+                        "10 minutes or more, so reminders stay switched off."
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showReminderPermissionDialog = false
+                        exactAlarmSettingsLauncher.launch(
+                            ReminderScheduler.exactAlarmSettingsIntent(context)
+                        )
+                    }
+                ) {
+                    Text("Open settings")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showReminderPermissionDialog = false }) {
+                    Text("Not now")
+                }
+            }
+        )
+    }
+
     if (showDatePicker) {
+        // DatePicker works in UTC, so "today" has to be expressed as UTC midnight
+        // of the current *local* date or the boundary lands a day off.
+        val todayUtcMidnight = remember {
+            val local = Calendar.getInstance()
+            Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+                clear()
+                set(
+                    local.get(Calendar.YEAR),
+                    local.get(Calendar.MONTH),
+                    local.get(Calendar.DAY_OF_MONTH)
+                )
+            }.timeInMillis
+        }
+        val currentYear = remember { Calendar.getInstance().get(Calendar.YEAR) }
         val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = reminderAt ?: System.currentTimeMillis()
+            // A stored reminder can be in the past only if it never fired; don't
+            // seed the picker with a date it would reject.
+            initialSelectedDateMillis = (reminderAt ?: System.currentTimeMillis())
+                .coerceAtLeast(System.currentTimeMillis()),
+            selectableDates = object : SelectableDates {
+                override fun isSelectableDate(utcTimeMillis: Long) =
+                    utcTimeMillis >= todayUtcMidnight
+
+                override fun isSelectableYear(year: Int) = year >= currentYear
+            }
         )
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
@@ -887,19 +962,32 @@ fun NoteBottomSheet(
             initialMinute = initialCalendar.get(Calendar.MINUTE)
         )
         AlertDialog(
-            onDismissRequest = { showTimePicker = false },
+            onDismissRequest = {
+                showTimePicker = false
+                timeInPastError = false
+            },
             title = { Text("Set time") },
-            text = { TimePicker(state = timePickerState) },
+            text = {
+                Column {
+                    TimePicker(state = timePickerState)
+                    if (timeInPastError) {
+                        Text(
+                            text = "That time has already passed. Pick a later time.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+            },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        haptics.performHapticFeedback(HapticFeedbackType.Confirm)
                         // DatePicker returns UTC midnight; combine with the picked
                         // time in the local timezone
                         val utc = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
                             timeInMillis = pendingDateMillis ?: System.currentTimeMillis()
                         }
-                        reminderAt = Calendar.getInstance().apply {
+                        val candidate = Calendar.getInstance().apply {
                             set(
                                 utc.get(Calendar.YEAR),
                                 utc.get(Calendar.MONTH),
@@ -910,14 +998,30 @@ fun NoteBottomSheet(
                             )
                             set(Calendar.MILLISECOND, 0)
                         }.timeInMillis
-                        showTimePicker = false
+
+                        // The date picker blocks past days, but not an earlier
+                        // time on today — an alarm set in the past fires instantly.
+                        if (candidate <= System.currentTimeMillis()) {
+                            haptics.performHapticFeedback(HapticFeedbackType.Reject)
+                            timeInPastError = true
+                        } else {
+                            haptics.performHapticFeedback(HapticFeedbackType.Confirm)
+                            reminderAt = candidate
+                            timeInPastError = false
+                            showTimePicker = false
+                        }
                     }
                 ) {
                     Text("OK")
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showTimePicker = false }) {
+                TextButton(
+                    onClick = {
+                        showTimePicker = false
+                        timeInPastError = false
+                    }
+                ) {
                     Text("Cancel")
                 }
             }
