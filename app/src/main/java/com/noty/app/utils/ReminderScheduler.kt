@@ -6,34 +6,55 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import com.noty.app.data.AppDatabase
 import com.noty.app.data.Note
+import com.noty.app.ui.MainActivity
 
 /**
  * Schedules one-shot reminder alarms via AlarmManager.
  *
- * Uses exact alarms when the user has granted SCHEDULE_EXACT_ALARM (granted by
- * default below Android 14), otherwise falls back to a windowed alarm so the
- * feature works without any permission round-trip.
+ * Reminders require SCHEDULE_EXACT_ALARM. When it isn't granted the feature is
+ * disabled in the UI rather than silently degraded — an inexact alarm can slip
+ * by 10+ minutes, which is worse than not offering the feature at all.
  */
 object ReminderScheduler {
 
     const val ACTION_REMINDER = "com.noty.app.ACTION_REMINDER"
 
-    private const val WINDOW_MS = 10 * 60 * 1000L
-
-    fun schedule(context: Context, note: Note) {
-        val triggerAt = note.reminderAt ?: return
+    /** Whether the OS will let us deliver a reminder at the requested minute. */
+    fun canScheduleExact(context: Context): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return true
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val pendingIntent = reminderPendingIntent(context, note.id)
+        return alarmManager.canScheduleExactAlarms()
+    }
 
-        val canExact = Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
-                alarmManager.canScheduleExactAlarms()
-        if (canExact) {
-            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent)
-        } else {
-            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, triggerAt, WINDOW_MS, pendingIntent)
+    /** Settings screen where the user grants "Alarms & reminders". */
+    fun exactAlarmSettingsIntent(context: Context): Intent =
+        Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+            data = Uri.parse("package:${context.packageName}")
         }
+
+    /**
+     * Registers the alarm. Returns false if the permission is missing, in which
+     * case nothing is scheduled.
+     */
+    fun schedule(context: Context, note: Note): Boolean {
+        val triggerAt = note.reminderAt ?: return false
+        if (!canScheduleExact(context)) return false
+        // A past trigger time makes setAlarmClock fire the instant it's set.
+        // The pickers block this, but the user can still linger past their own
+        // chosen time before saving.
+        if (triggerAt <= System.currentTimeMillis()) return false
+
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        // setAlarmClock is the only alarm exempt from Doze deferral, so it fires
+        // on time even after the device has been idle for days.
+        alarmManager.setAlarmClock(
+            AlarmManager.AlarmClockInfo(triggerAt, showIntent(context, note.id)),
+            reminderPendingIntent(context, note.id)
+        )
+        return true
     }
 
     fun cancel(context: Context, noteId: Long) {
@@ -42,11 +63,13 @@ object ReminderScheduler {
     }
 
     /**
-     * Re-registers alarms for all pending reminders. Alarms don't survive a
-     * reboot or an app update, so this runs from BootReceiver. Overdue
-     * reminders fire immediately.
+     * Re-registers alarms for all pending reminders. Alarms are cleared on
+     * reboot, on app update, and when the exact-alarm permission is revoked and
+     * re-granted. Overdue reminders fire immediately.
      */
     suspend fun rescheduleAll(context: Context) {
+        if (!canScheduleExact(context)) return
+
         val dao = AppDatabase.getDatabase(context).noteDao()
         val notificationHelper = NotificationHelper(context)
         val now = System.currentTimeMillis()
@@ -70,6 +93,18 @@ object ReminderScheduler {
             putExtra(NotificationHelper.EXTRA_NOTE_ID, noteId)
         }
         return PendingIntent.getBroadcast(
+            context, noteId.toInt(), intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+    }
+
+    /** Tapping the status-bar alarm chip opens the note. */
+    private fun showIntent(context: Context, noteId: Long): PendingIntent {
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            data = Uri.parse("noty://reminder/$noteId")
+        }
+        return PendingIntent.getActivity(
             context, noteId.toInt(), intent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )

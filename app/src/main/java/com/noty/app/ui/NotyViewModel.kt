@@ -71,8 +71,12 @@ class NotyViewModel(application: Application) : AndroidViewModel(application) {
             if (noteWithId.isPinned) {
                 notificationHelper.showNotification(noteWithId)
             }
-            if (noteWithId.reminderAt != null) {
-                ReminderScheduler.schedule(getApplication(), noteWithId)
+            // If the exact-alarm permission went away between picking the time
+            // and saving, drop the reminder rather than store one that can't fire.
+            if (noteWithId.reminderAt != null &&
+                !ReminderScheduler.schedule(getApplication(), noteWithId)
+            ) {
+                repository.update(noteWithId.copy(reminderAt = null))
             }
         }
     }
@@ -85,7 +89,9 @@ class NotyViewModel(application: Application) : AndroidViewModel(application) {
             notificationHelper.cancelNotification(note.id.toInt())
         }
         if (note.reminderAt != null) {
-            ReminderScheduler.schedule(getApplication(), note)
+            if (!ReminderScheduler.schedule(getApplication(), note)) {
+                repository.update(note.copy(reminderAt = null))
+            }
         } else {
             ReminderScheduler.cancel(getApplication(), note.id)
         }
