@@ -22,4 +22,7 @@ interface NoteDao {
 
     @Query("SELECT * FROM notes WHERE id = :noteId LIMIT 1")
     suspend fun getNoteById(noteId: Long): Note?
+
+    @Query("SELECT * FROM notes WHERE reminderAt IS NOT NULL")
+    suspend fun getReminderNotes(): List<Note>
 }

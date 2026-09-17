@@ -3,6 +3,8 @@ package com.noty.app.ui
 import android.os.Build
 import android.text.format.DateUtils
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -39,6 +41,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.Notes
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Alarm
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Delete
@@ -50,6 +53,12 @@ import androidx.compose.material.icons.rounded.SearchOff
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.SelectableDates
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -101,7 +110,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.noty.app.data.Note
+import com.noty.app.utils.ReminderScheduler
 import com.noty.app.data.NoteType
+import java.util.Calendar
+import java.util.TimeZone
 
 // ─── Theme ───────────────────────────────────────────────────────────────────
 
@@ -287,13 +299,14 @@ fun NotyApp(
         NoteBottomSheet(
             defaultPinned = defaultPin,
             onDismiss = { showAddSheet = false },
-            onSave = { title, description, isPinned ->
+            onSave = { title, description, isPinned, reminderAt ->
                 viewModel.insert(
                     Note(
                         title = title,
                         description = if (description.isEmpty()) null else description,
                         type = NoteType.NOTE,
-                        isPinned = isPinned
+                        isPinned = isPinned,
+                        reminderAt = reminderAt
                     )
                 )
                 showAddSheet = false
@@ -306,12 +319,13 @@ fun NotyApp(
         NoteBottomSheet(
             note = note,
             onDismiss = { noteToEdit = null },
-            onSave = { title, description, isPinned ->
+            onSave = { title, description, isPinned, reminderAt ->
                 viewModel.update(
                     note.copy(
                         title = title,
                         description = if (description.isEmpty()) null else description,
-                        isPinned = isPinned
+                        isPinned = isPinned,
+                        reminderAt = reminderAt
                     )
                 )
                 noteToEdit = null
@@ -556,11 +570,31 @@ fun NoteCard(
                     )
                 }
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = relativeTime,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = relativeTime,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    note.reminderAt?.let { reminderAt ->
+                        val context = LocalContext.current
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Icon(
+                            imageVector = Icons.Rounded.Alarm,
+                            contentDescription = "Reminder set",
+                            modifier = Modifier.size(14.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = formatReminderTime(context, reminderAt),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
             }
             Box {
                 IconButton(
@@ -625,14 +659,30 @@ fun NoteBottomSheet(
     note: Note? = null,
     defaultPinned: Boolean = true,
     onDismiss: () -> Unit,
-    onSave: (title: String, description: String, isPinned: Boolean) -> Unit
+    onSave: (title: String, description: String, isPinned: Boolean, reminderAt: Long?) -> Unit
 ) {
     val isEditing = note != null
     var title by remember { mutableStateOf(note?.title ?: "") }
     var description by remember { mutableStateOf(note?.description ?: "") }
     var isPinned by remember { mutableStateOf(note?.isPinned ?: defaultPinned) }
+    var reminderAt by remember { mutableStateOf(note?.reminderAt) }
     var titleError by remember { mutableStateOf(false) }
+    var showDatePicker by remember { mutableStateOf(false) }
+    var showTimePicker by remember { mutableStateOf(false) }
+    var pendingDateMillis by remember { mutableStateOf<Long?>(null) }
+    val context = LocalContext.current
     val haptics = LocalHapticFeedback.current
+
+    // Reminders are gated on the exact-alarm permission: without it Android can
+    // delay delivery by 10+ minutes, so the feature is hidden rather than degraded.
+    var canScheduleReminders by remember { mutableStateOf(ReminderScheduler.canScheduleExact(context)) }
+    var showReminderPermissionDialog by remember { mutableStateOf(false) }
+    var timeInPastError by remember { mutableStateOf(false) }
+    val exactAlarmSettingsLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        canScheduleReminders = ReminderScheduler.canScheduleExact(context)
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -717,6 +767,61 @@ fun NoteBottomSheet(
                     .heightIn(min = 120.dp)
             )
 
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Reminder picker pill
+            Surface(
+                onClick = {
+                    haptics.performHapticFeedback(HapticFeedbackType.ContextClick)
+                    if (canScheduleReminders) {
+                        showDatePicker = true
+                    } else {
+                        showReminderPermissionDialog = true
+                    }
+                },
+                shape = RoundedCornerShape(16.dp),
+                color = if (reminderAt != null) MaterialTheme.colorScheme.secondaryContainer
+                        else MaterialTheme.colorScheme.surfaceContainerHigh,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Alarm,
+                        contentDescription = null,
+                        tint = if (reminderAt != null) MaterialTheme.colorScheme.onSecondaryContainer
+                               else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = reminderAt?.let { formatReminderTime(context, it) }
+                            ?: if (canScheduleReminders) "Add reminder" else "Add reminder — needs permission",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (reminderAt != null) MaterialTheme.colorScheme.onSecondaryContainer
+                                else MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.weight(1f)
+                    )
+                    if (reminderAt != null) {
+                        IconButton(
+                            onClick = {
+                                haptics.performHapticFeedback(HapticFeedbackType.ToggleOff)
+                                reminderAt = null
+                            },
+                            modifier = Modifier.size(24.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Close,
+                                contentDescription = "Remove reminder",
+                                modifier = Modifier.size(18.dp),
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.height(20.dp))
 
             // Paired action buttons: mirrored asymmetric corners read as one unit
@@ -746,7 +851,7 @@ fun NoteBottomSheet(
                         val trimmed = title.trim()
                         if (trimmed.isNotEmpty()) {
                             haptics.performHapticFeedback(HapticFeedbackType.Confirm)
-                            onSave(trimmed, description.trim(), isPinned)
+                            onSave(trimmed, description.trim(), isPinned, reminderAt)
                         } else {
                             haptics.performHapticFeedback(HapticFeedbackType.Reject)
                             titleError = true
@@ -765,7 +870,170 @@ fun NoteBottomSheet(
             }
         }
     }
+
+    if (showReminderPermissionDialog) {
+        AlertDialog(
+            onDismissRequest = { showReminderPermissionDialog = false },
+            icon = { Icon(Icons.Rounded.Alarm, contentDescription = null) },
+            title = { Text("Allow alarms & reminders") },
+            text = {
+                Text(
+                    "Noty needs the \"Alarms & reminders\" permission to notify you at the " +
+                        "exact minute you pick. Without it Android can hold a reminder back by " +
+                        "10 minutes or more, so reminders stay switched off."
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showReminderPermissionDialog = false
+                        exactAlarmSettingsLauncher.launch(
+                            ReminderScheduler.exactAlarmSettingsIntent(context)
+                        )
+                    }
+                ) {
+                    Text("Open settings")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showReminderPermissionDialog = false }) {
+                    Text("Not now")
+                }
+            }
+        )
+    }
+
+    if (showDatePicker) {
+        // DatePicker works in UTC, so "today" has to be expressed as UTC midnight
+        // of the current *local* date or the boundary lands a day off.
+        val todayUtcMidnight = remember {
+            val local = Calendar.getInstance()
+            Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+                clear()
+                set(
+                    local.get(Calendar.YEAR),
+                    local.get(Calendar.MONTH),
+                    local.get(Calendar.DAY_OF_MONTH)
+                )
+            }.timeInMillis
+        }
+        val currentYear = remember { Calendar.getInstance().get(Calendar.YEAR) }
+        val datePickerState = rememberDatePickerState(
+            // A stored reminder can be in the past only if it never fired; don't
+            // seed the picker with a date it would reject.
+            initialSelectedDateMillis = (reminderAt ?: System.currentTimeMillis())
+                .coerceAtLeast(System.currentTimeMillis()),
+            selectableDates = object : SelectableDates {
+                override fun isSelectableDate(utcTimeMillis: Long) =
+                    utcTimeMillis >= todayUtcMidnight
+
+                override fun isSelectableYear(year: Int) = year >= currentYear
+            }
+        )
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        pendingDateMillis = datePickerState.selectedDateMillis
+                        showDatePicker = false
+                        if (pendingDateMillis != null) showTimePicker = true
+                    }
+                ) {
+                    Text("Next")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("Cancel")
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
+
+    if (showTimePicker) {
+        val initialCalendar = remember {
+            Calendar.getInstance().apply { reminderAt?.let { timeInMillis = it } }
+        }
+        val timePickerState = rememberTimePickerState(
+            initialHour = initialCalendar.get(Calendar.HOUR_OF_DAY),
+            initialMinute = initialCalendar.get(Calendar.MINUTE)
+        )
+        AlertDialog(
+            onDismissRequest = {
+                showTimePicker = false
+                timeInPastError = false
+            },
+            title = { Text("Set time") },
+            text = {
+                Column {
+                    TimePicker(state = timePickerState)
+                    if (timeInPastError) {
+                        Text(
+                            text = "That time has already passed. Pick a later time.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        // DatePicker returns UTC midnight; combine with the picked
+                        // time in the local timezone
+                        val utc = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+                            timeInMillis = pendingDateMillis ?: System.currentTimeMillis()
+                        }
+                        val candidate = Calendar.getInstance().apply {
+                            set(
+                                utc.get(Calendar.YEAR),
+                                utc.get(Calendar.MONTH),
+                                utc.get(Calendar.DAY_OF_MONTH),
+                                timePickerState.hour,
+                                timePickerState.minute,
+                                0
+                            )
+                            set(Calendar.MILLISECOND, 0)
+                        }.timeInMillis
+
+                        // The date picker blocks past days, but not an earlier
+                        // time on today — an alarm set in the past fires instantly.
+                        if (candidate <= System.currentTimeMillis()) {
+                            haptics.performHapticFeedback(HapticFeedbackType.Reject)
+                            timeInPastError = true
+                        } else {
+                            haptics.performHapticFeedback(HapticFeedbackType.Confirm)
+                            reminderAt = candidate
+                            timeInPastError = false
+                            showTimePicker = false
+                        }
+                    }
+                ) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showTimePicker = false
+                        timeInPastError = false
+                    }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 }
+
+private fun formatReminderTime(context: android.content.Context, millis: Long): String =
+    DateUtils.formatDateTime(
+        context, millis,
+        DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME or DateUtils.FORMAT_ABBREV_MONTH
+    )
 
 // ─── Empty state ──────────────────────────────────────────────────────────────
 
