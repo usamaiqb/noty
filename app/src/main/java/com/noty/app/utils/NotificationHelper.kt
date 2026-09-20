@@ -218,7 +218,29 @@ class NotificationHelper(private val context: Context) {
         // call sites still read clearly.
         notificationManager.cancel(noteId)
     }
+   
+    private fun appliedDescriptionText(description: String?, maxLines: Int): String {
+    val text = description?.trim().takeUnless { it.isNullOrEmpty() } ?: return ""
+    if (maxLines == Int.MAX_VALUE) return text
+    val lines = text.split('\n')
+    if (lines.size <= maxLines) return text
+    return lines.take(maxLines).joinToString("\n") + "…"
+    }
 
+    fun showNotification(note: Note) {
+    val size = ThemeManager(context).noteDescriptionLinesFlow
+        .let { runCatching { kotlinx.coroutines.runBlocking { it.first() } }.getOrDefault(2) }
+
+    val notificationText = appliedDescriptionText(note.description, size)
+
+    val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+        .setSmallIcon(icon)
+        .setContentTitle(note.title)
+        .setContentText(notificationText)
+        .setStyle(NotificationCompat.BigTextStyle().bigText(notificationText))
+        ...
+    }
+    
     fun syncNotifications(notes: List<Note>) {
         val activeNotifications = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             notificationManager.activeNotifications.map { it.id }.toSet()
