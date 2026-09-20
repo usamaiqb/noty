@@ -562,13 +562,13 @@ fun NoteCard(
                 )
                 if (!note.description.isNullOrEmpty()) {
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = note.description,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                Text(
+                         text = note.description,
+                         style = MaterialTheme.typography.bodyMedium,
+                         color = MaterialTheme.colorScheme.onSurfaceVariant,
+                         maxLines = descriptionLines,
+                         overflow = TextOverflow.Ellipsis
+                     )
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
