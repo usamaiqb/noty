@@ -113,7 +113,6 @@ class NotificationHelper(private val context: Context) {
         if (note.isPinned) {
             builder.addAction(R.drawable.ic_unpin, "Unpin", unpinPendingIntent(note.id))
         }
-        builder.addAction(R.drawable.ic_delete, "Delete", deletePendingIntent(note.id))
 
         notificationManager.notify(note.id.toInt(), builder.build())
     }
@@ -135,8 +134,8 @@ class NotificationHelper(private val context: Context) {
      *
      * A note has at most one notification at a time, posted under its own id.
      * For a pinned note this replaces the quiet persistent one instead of
-     * adding a second entry: it alerts, then stays in the shade, because that
-     * is what pinning means. An unpinned note gets a dismissible one-shot.
+     * adding a second entry: it alerts, then stays in the shade, because
+     * that is what pinning means. An unpinned note gets a dismissible one-shot.
      */
     fun showReminderNotification(note: Note) {
         val intent = Intent(context, MainActivity::class.java).apply {
@@ -164,7 +163,6 @@ class NotificationHelper(private val context: Context) {
 
         if (note.isPinned) {
             builder.addAction(R.drawable.ic_unpin, "Unpin", unpinPendingIntent(note.id))
-            builder.addAction(R.drawable.ic_delete, "Delete", deletePendingIntent(note.id))
             // Deliberately only for the pinned branch: ACTION_DISMISSED deletes
             // an unpinned note, so swiping away a fired one-shot must not fire it.
             builder.setDeleteIntent(dismissPendingIntent(note.id))
