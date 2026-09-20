@@ -174,7 +174,7 @@ fun NotyApp(
         }
     }
     val displayedNotes = if (searchActive) filteredNotes else notes
-    val defaultPin by viewModel.defaultPinFlow.collectAsState(initial = true)
+    val defaultPin by viewModel.defaultPinFlow.collectAsState(initial = false)
     val descriptionLines by viewModel.noteDescriptionLinesFlow.collectAsState(initial = 2)
 
     val haptics = LocalHapticFeedback.current
