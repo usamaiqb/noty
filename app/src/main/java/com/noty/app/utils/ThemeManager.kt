@@ -32,7 +32,7 @@ class ThemeManager(private val context: Context) {
     }
 
     val defaultPinFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
-        preferences[DEFAULT_PIN_KEY] ?: true
+        preferences[DEFAULT_PIN_KEY] ?: false
     }
 
     suspend fun setTheme(mode: ThemeMode) {
