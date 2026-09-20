@@ -3,6 +3,7 @@ package com.noty.app.utils
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
@@ -16,6 +17,8 @@ class ThemeManager(private val context: Context) {
         val THEME_KEY = stringPreferencesKey("theme_preference")
         val DYNAMIC_COLORS_KEY = booleanPreferencesKey("dynamic_colors")
         val DEFAULT_PIN_KEY = booleanPreferencesKey("default_pin_new_notes")
+        val SHOW_UNPIN_OPTION_KEY = booleanPreferencesKey("show_unpin_option")
+        val NOTE_DESCRIPTION_LINES_KEY = intPreferencesKey("note_description_lines")
     }
 
     enum class ThemeMode {
@@ -35,6 +38,14 @@ class ThemeManager(private val context: Context) {
         preferences[DEFAULT_PIN_KEY] ?: false
     }
 
+    val showUnpinOptionFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[SHOW_UNPIN_OPTION_KEY] ?: false
+    }
+
+    val noteDescriptionLinesFlow: Flow<Int> = context.dataStore.data.map { preferences ->
+        preferences[NOTE_DESCRIPTION_LINES_KEY] ?: 2
+    }
+
     suspend fun setTheme(mode: ThemeMode) {
         context.dataStore.edit { preferences ->
             preferences[THEME_KEY] = mode.name
@@ -50,6 +61,18 @@ class ThemeManager(private val context: Context) {
     suspend fun setDefaultPin(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[DEFAULT_PIN_KEY] = enabled
+        }
+    }
+
+    suspend fun setShowUnpinOption(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[SHOW_UNPIN_OPTION_KEY] = enabled
+        }
+    }
+
+    suspend fun setDescriptionLines(lines: Int) {
+        context.dataStore.edit { preferences ->
+            preferences[NOTE_DESCRIPTION_LINES_KEY] = lines
         }
     }
 }
