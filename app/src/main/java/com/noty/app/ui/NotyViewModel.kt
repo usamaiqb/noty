@@ -34,6 +34,8 @@ class NotyViewModel(application: Application) : AndroidViewModel(application) {
     val themeFlow = themeManager.themeFlow
     val dynamicColorsFlow = themeManager.dynamicColorsFlow
     val defaultPinFlow = themeManager.defaultPinFlow
+    val showUnpinOptionFlow = themeManager.showUnpinOptionFlow
+    val noteDescriptionLinesFlow = themeManager.noteDescriptionLinesFlow
 
     // Track service state to prevent start/stop thrashing
     private var isServiceRunning = false
@@ -114,6 +116,14 @@ class NotyViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setDefaultPin(enabled: Boolean) = viewModelScope.launch {
         themeManager.setDefaultPin(enabled)
+    }
+
+    fun setShowUnpinOption(enabled: Boolean) = viewModelScope.launch {
+        themeManager.setShowUnpinOption(enabled)
+    }
+
+    fun setDescriptionLines(lines: Int) = viewModelScope.launch {
+        themeManager.setDescriptionLines(lines)
     }
 }
 
