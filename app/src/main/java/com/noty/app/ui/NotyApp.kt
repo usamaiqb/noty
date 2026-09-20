@@ -175,6 +175,7 @@ fun NotyApp(
     }
     val displayedNotes = if (searchActive) filteredNotes else notes
     val defaultPin by viewModel.defaultPinFlow.collectAsState(initial = true)
+    val descriptionLines by viewModel.noteDescriptionLinesFlow.collectAsState(initial = 2)
 
     val haptics = LocalHapticFeedback.current
     val listState = rememberLazyListState()
@@ -236,7 +237,7 @@ fun NotyApp(
                             )
                         } else {
                             LargeTopAppBar(
-                                title = { Text("Noty") },
+                                title = { Text("Tasks") },
                                 actions = {
                                     IconButton(onClick = {
                                         haptics.performHapticFeedback(HapticFeedbackType.Confirm)
@@ -746,7 +747,7 @@ fun NoteBottomSheet(
                     title = it
                     titleError = false
                 },
-                label = { Text("Note Title") },
+                label = { Text("Title") },
                 isError = titleError,
                 supportingText = if (titleError) {
                     { Text("Title is required") }
