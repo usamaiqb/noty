@@ -221,6 +221,8 @@ fun SettingsScreen(
     val currentTheme by viewModel.themeFlow.collectAsState(initial = ThemeManager.ThemeMode.SYSTEM)
     val dynamicColors by viewModel.dynamicColorsFlow.collectAsState(initial = true)
     val defaultPin by viewModel.defaultPinFlow.collectAsState(initial = true)
+    val showUnpinOption by viewModel.showUnpinOptionFlow.collectAsState(initial = false)
+    val descriptionLines by viewModel.noteDescriptionLinesFlow.collectAsState(initial = 2)
     val versionLabel = remember(context) {
         runCatching {
             val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
@@ -300,13 +302,58 @@ fun SettingsScreen(
                 SectionHeader("Notes")
                 SettingsGroup {
                     SwitchSettingsRow(
-                        position = SegmentPosition.Single,
+                        position = SegmentPosition.First,
                         icon = Icons.Rounded.PushPin,
                         title = "Pin new notes by default",
                         subtitle = "New notes start pinned as notifications",
                         checked = defaultPin,
                         onCheckedChange = viewModel::setDefaultPin
                     )
+
+                    SwitchSettingsRow(
+                        position = SegmentPosition.Last,
+                        icon = Icons.Rounded.PushPin,
+                        title = "Show unpin option",
+                        subtitle = "Show Unpin in pinned notifications",
+                        checked = showUnpinOption,
+                        onCheckedChange = viewModel::setShowUnpinOption
+                    )
+                }
+            }
+
+            Column {
+                SectionHeader("Display")
+                SettingsGroup {
+                    SegmentedSettingsRow(
+                        position = SegmentPosition.Single,
+                        icon = Icons.AutoMirrored.Rounded.Notes,
+                        title = "Description lines",
+                        subtitle = "How much of each note to show"
+                    ) {
+                        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                            val options = listOf(
+                                2 to "2",
+                                5 to "5",
+                                10 to "10",
+                                Int.MAX_VALUE to "All"
+                            )
+
+                            options.forEachIndexed { index, (value, label) ->
+                                SegmentedButton(
+                                    shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
+                                    onClick = { viewModel.setDescriptionLines(value) },
+                                    selected = descriptionLines == value,
+                                    icon = {
+                                        if (value == Int.MAX_VALUE) {
+                                            Icon(Icons.AutoMirrored.Rounded.Notes, contentDescription = null)
+                                        } else null
+                                    }
+                                ) {
+                                    Text(label)
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
