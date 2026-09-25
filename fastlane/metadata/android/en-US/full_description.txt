@@ -22,15 +22,22 @@ Add a "Quick Note" tile to your Quick Settings panel. Tap it to open the add-not
 🎨 Material You Design
 Noty uses Material 3 with dynamic color — on Android 12 and above, the app automatically matches your wallpaper's color palette. Light, Dark, and System themes are all supported and persist across sessions.
 
+⚙️ Make It Yours
+Open Settings to switch themes, toggle wallpaper-based dynamic color on Android 12 and above, and choose whether new notes start out pinned. Your choices are remembered between launches.
+
 🔍 Search Your Notes
 Quickly filter your notes by title or description with the built-in search bar.
+
+⏰ Reminders
+Set a one-time reminder on any note with a date and time picker. Noty fires a notification right on time using exact alarms, so you never miss it.
 
 🔒 100% Private
 Noty is entirely local. No accounts, no cloud, no network access. Your notes never leave your device.
 
 PERMISSIONS EXPLAINED
 • Notifications — required to show your notes as persistent notifications
-• Run at Startup — used to restore your notes after your phone restarts
+• Run at Startup — used to restore your notes and reschedule reminders after your phone restarts
 • Foreground Service — allows Noty to keep notifications active in the background
+• Exact Alarms — used to deliver note reminders at the exact time you set
 
 No ads. No in-app purchases. No data collection.
