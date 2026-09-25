@@ -1,0 +1,4 @@
+• Add one-shot date/time reminders for notes
+• Schedule reminders with a date and time picker in the note editor
+• Reminders deliver on time using exact alarms
+• New Settings screen: theme, dynamic color, and pin defaults

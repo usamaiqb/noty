@@ -1,3 +1,9 @@
+## [1.0.4] - 2026-09-25
+
+### Added
+- One-shot date/time reminders for notes, scheduled from the note editor, with exact-alarm delivery and permission handling
+- A Settings screen with theme selection (Light/Dark/System), dynamic color, and pin defaults
+
 ## [1.0.3] - 2026-09-01
 
 ### Added
