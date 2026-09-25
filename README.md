@@ -18,6 +18,8 @@ A simple, privacy-focused notes app for Android that keeps your notes exactly wh
 - 📌 **Pin or Unpin Anytime** — Choose which notes appear as notifications; unpin a note and it moves back to the app without a notification
 - ⚡ **Quick Settings Tile** — Add a "Quick Note" tile to your Quick Settings panel to open the add-note screen
 - 🔍 **Search** — Filter notes by title or description
+- ⏰ **Reminders** — Set a one-time date and time reminder on any note and get notified right on time
+- ⚙️ **Settings** — Choose your app theme, toggle dynamic color, and decide whether new notes start pinned
 - 🎨 **Material You** — Material 3 with dynamic color on Android 12+; Light, Dark, and System themes
 - 🔒 **100% Private** — No accounts, no cloud, no network access; your notes never leave your device
 
@@ -28,7 +30,7 @@ A simple, privacy-focused notes app for Android that keeps your notes exactly wh
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width="200" alt="Add note" />
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width="200" alt="Notes" />
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width="200" alt="Notifications" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width="200" alt="Dark theme" />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width="200" alt="Settings" />
 </p>
 
 ## Download
@@ -50,8 +52,9 @@ Download the latest APK from the [Releases](https://github.com/usamaiqb/noty/rel
 Noty requests only the permissions it needs:
 
 - **POST_NOTIFICATIONS** — To show your notes as persistent notifications
-- **RECEIVE_BOOT_COMPLETED** — To restore notes after a phone restart
-- **FOREGROUND_SERVICE** — To keep notifications active in the background
+- **RECEIVE_BOOT_COMPLETED** — To restore notes and reschedule reminders after a phone restart
+- **FOREGROUND_SERVICE / FOREGROUND_SERVICE_DATA_SYNC** — To keep notifications active in the background
+- **SCHEDULE_EXACT_ALARM** — To deliver note reminders at the exact time you set
 
 No internet permission. No location. No data collection.
 
