@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.IBinder
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
+import com.noty.app.R
 import com.noty.app.data.AppDatabase
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
@@ -27,8 +28,8 @@ class NotyService : Service() {
 
         // Start as foreground service with a low-priority notification
         val notification = notificationHelper.createBaseNotification(
-            "Noty",
-            "Keeping your notes visible"
+            getString(R.string.app_name),
+            getString(R.string.service_notification_text)
         )
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
