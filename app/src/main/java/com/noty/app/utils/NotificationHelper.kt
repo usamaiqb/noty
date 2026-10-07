@@ -21,6 +21,10 @@ class NotificationHelper(private val context: Context) {
         const val ACTION_DISMISSED = "com.noty.app.ACTION_DISMISSED"
         const val ACTION_UNPIN = "com.noty.app.ACTION_UNPIN"
         const val EXTRA_NOTE_ID = "extra_note_id"
+
+        // Request-code offsets keeping each note's PendingIntents distinct from one
+        // another. Any collision would make one action overwrite another's intent.
+        private const val REQUEST_CODE_UNPIN_OFFSET = 3000
     }
 
     private val notificationManager =
@@ -111,9 +115,17 @@ class NotificationHelper(private val context: Context) {
             .setLocalOnly(true)
 
         if (note.isPinned) {
-            builder.addAction(R.drawable.ic_unpin, context.getString(R.string.action_unpin), unpinPendingIntent(note.id))
+            builder.addAction(
+                R.drawable.ic_unpin,
+                context.getString(R.string.action_unpin),
+                unpinPendingIntent(note.id)
+            )
         }
-        builder.addAction(R.drawable.ic_delete, context.getString(R.string.action_delete), deletePendingIntent(note.id))
+        builder.addAction(
+            R.drawable.ic_delete,
+            context.getString(R.string.action_delete),
+            deletePendingIntent(note.id)
+        )
 
         notificationManager.notify(note.id.toInt(), builder.build())
     }
@@ -148,11 +160,12 @@ class NotificationHelper(private val context: Context) {
             context, note.id.toInt(), intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
+        val reminderText = note.description ?: context.getString(R.string.reminder_fallback_text)
         val builder = NotificationCompat.Builder(context, CHANNEL_ID_REMINDERS)
             .setSmallIcon(R.drawable.ic_stat_noty)
             .setContentTitle(note.title)
-            .setContentText(note.description ?: context.getString(R.string.reminder_fallback_text))
-            .setStyle(NotificationCompat.BigTextStyle().bigText(note.description ?: context.getString(R.string.reminder_fallback_text)))
+            .setContentText(reminderText)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(reminderText))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
@@ -163,8 +176,16 @@ class NotificationHelper(private val context: Context) {
             .setContentIntent(pendingIntent)
 
         if (note.isPinned) {
-            builder.addAction(R.drawable.ic_unpin, context.getString(R.string.action_unpin), unpinPendingIntent(note.id))
-            builder.addAction(R.drawable.ic_delete, context.getString(R.string.action_delete), deletePendingIntent(note.id))
+            builder.addAction(
+                R.drawable.ic_unpin,
+                context.getString(R.string.action_unpin),
+                unpinPendingIntent(note.id)
+            )
+            builder.addAction(
+            R.drawable.ic_delete,
+            context.getString(R.string.action_delete),
+            deletePendingIntent(note.id)
+        )
             // Deliberately only for the pinned branch: ACTION_DISMISSED deletes
             // an unpinned note, so swiping away a fired one-shot must not fire it.
             builder.setDeleteIntent(dismissPendingIntent(note.id))
@@ -206,7 +227,7 @@ class NotificationHelper(private val context: Context) {
             putExtra(EXTRA_NOTE_ID, noteId)
         }
         return PendingIntent.getBroadcast(
-            context, noteId.toInt() + 3000, intent,
+            context, noteId.toInt() + REQUEST_CODE_UNPIN_OFFSET, intent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
     }

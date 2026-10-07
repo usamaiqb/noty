@@ -1,0 +1,74 @@
+# detekt configuration.
+#
+# `buildUponDefaultConfig = true` in app/build.gradle means this file only states where we
+# differ from detekt's defaults. The Compose rules come from io.nlopez.compose.rules and
+# are left at their own defaults.
+#
+# Each entry below is a rule that disagrees with a convention this project follows
+# deliberately. Findings that are simply older than detekt belong in baseline.xml instead.
+
+build:
+  maxIssues: 0
+
+config:
+  validation: true
+
+complexity:
+  LongMethod:
+    active: true
+    threshold: 60
+    # A screen composable is one declarative tree, not a procedure. Splitting NotyApp or
+    # NoteBottomSheet purely to satisfy a line count would scatter a single layout across
+    # helpers that no one calls twice.
+    ignoreAnnotated:
+      - "Composable"
+      - "Preview"
+  LongParameterList:
+    active: true
+    ignoreDefaultParameters: true
+    # A composable's parameter list is its API, and hoisted state makes it long by design.
+    ignoreAnnotated:
+      - "Composable"
+
+style:
+  MagicNumber:
+    active: true
+    ignoreEnums: true
+    ignoreNumbers: ["-1", "0", "1", "2"]
+    # dp, sp and weight literals inside a composable are layout, not arithmetic: 24.dp is
+    # already as named as it is going to get, and hoisting it to a constant moves the
+    # value away from the only place that reads it.
+    ignoreAnnotated:
+      - "Composable"
+    # Room schema versions are the vocabulary here, and MIGRATION_3_4 already names the
+    # pair beside it.
+    excludes:
+      - "**/data/AppDatabase.kt"
+      - "**/test/**"
+      - "**/androidTest/**"
+  MaxLineLength:
+    active: true
+    maxLineLength: 120
+    excludePackageStatements: true
+    excludeImportStatements: true
+  ReturnCount:
+    active: true
+    max: 4
+    # Guard clauses at the top of a function read better than the nesting that avoiding
+    # them would require. ReminderScheduler.schedule is four guards and one call.
+    excludeGuardClauses: true
+
+naming:
+  FunctionNaming:
+    active: true
+    # Composables are PascalCase, which the default pattern rejects.
+    ignoreAnnotated:
+      - "Composable"
+      - "Preview"
+    functionPattern: "[a-z][A-Za-z0-9]*"
+  MatchingDeclarationName:
+    # A file is named for the vocabulary it provides, not for whichever single class-like
+    # declaration happens to be in it. ExpressiveList.kt holds the SegmentPosition enum,
+    # two radius tokens and three functions; renaming it SegmentPosition.kt would describe
+    # a fifth of the file.
+    active: false

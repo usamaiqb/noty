@@ -9,7 +9,11 @@ import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
 import com.noty.app.R
 import com.noty.app.data.AppDatabase
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first
 
 class NotyService : Service() {

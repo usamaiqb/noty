@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Android Lint policy.
+
+  CI runs `./gradlew lint` on every pull request and the job fails on lint *errors*.
+  Warnings stay warnings for now; revisit `warningsAsErrors` once the current run of
+  refactors has settled.
+
+  This file rather than a `lint { }` block in app/build.gradle so the IDE, the CLI and
+  CI all read one policy instead of three.
+
+  Anything suppressed or downgraded here needs a reason next to it.
+
+  Noty ships a single locale, so there is deliberately no MissingTranslation entry.
+  Add one only if translated values-* folders ever land.
+-->
+<lint>
+    <!--
+      ACTION_REQUEST_SCHEDULE_EXACT_ALARM is an API 31 constant whose value is inlined
+      at compile time. Safe here: its only caller is the reminder permission dialog,
+      which cannot be reached below API 31. canScheduleExact() returns true on those
+      releases, so the picker never reports a missing permission and never offers the
+      route into settings.
+    -->
+    <issue id="InlinedApi">
+        <ignore path="src/main/java/com/noty/app/utils/ReminderScheduler.kt" />
+    </issue>
+</lint>

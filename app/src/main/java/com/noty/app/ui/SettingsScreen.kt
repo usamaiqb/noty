@@ -64,7 +64,7 @@ import androidx.compose.ui.unit.dp
 import com.noty.app.R
 import com.noty.app.utils.ThemeManager
 
-private const val GithubRepoUrl = "https://github.com/usamaiqb/noty"
+private const val GITHUB_REPO_URL = "https://github.com/usamaiqb/noty"
 
 // ─── Reusable settings components ─────────────────────────────────────────────
 
@@ -325,7 +325,7 @@ fun SettingsScreen(
                     val uriHandler = LocalUriHandler.current
                     SettingsSurface(
                         position = SegmentPosition.First,
-                        onClick = { uriHandler.openUri(GithubRepoUrl) }
+                        onClick = { uriHandler.openUri(GITHUB_REPO_URL) }
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Surface(
@@ -349,7 +349,7 @@ fun SettingsScreen(
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    text = GithubRepoUrl.removePrefix("https://"),
+                                    text = GITHUB_REPO_URL.removePrefix("https://"),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )

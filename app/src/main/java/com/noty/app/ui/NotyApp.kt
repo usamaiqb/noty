@@ -244,13 +244,19 @@ fun NotyApp(
                                         haptics.performHapticFeedback(HapticFeedbackType.Confirm)
                                         searchActive = true
                                     }) {
-                                        Icon(Icons.Rounded.Search, contentDescription = stringResource(R.string.cd_search_notes))
+                                        Icon(
+                                            Icons.Rounded.Search,
+                                            contentDescription = stringResource(R.string.cd_search_notes)
+                                        )
                                     }
                                     IconButton(onClick = {
                                         haptics.performHapticFeedback(HapticFeedbackType.Confirm)
                                         showSettings = true
                                     }) {
-                                        Icon(Icons.Rounded.Settings, contentDescription = stringResource(R.string.cd_settings))
+                                        Icon(
+                                            Icons.Rounded.Settings,
+                                            contentDescription = stringResource(R.string.cd_settings)
+                                        )
                                     }
                                 },
                                 colors = TopAppBarDefaults.largeTopAppBarColors(
@@ -376,7 +382,10 @@ private fun SearchTopBar(
     TopAppBar(
         navigationIcon = {
             IconButton(onClick = onClose) {
-                Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.cd_close_search))
+                Icon(
+                    Icons.AutoMirrored.Rounded.ArrowBack,
+                    contentDescription = stringResource(R.string.cd_close_search)
+                )
             }
         },
         title = {
@@ -643,8 +652,19 @@ fun NoteCard(
                         }
                     )
                     DropdownMenuItem(
-                        text = { Text(stringResource(R.string.action_delete), color = MaterialTheme.colorScheme.error) },
-                        leadingIcon = { Icon(Icons.Rounded.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error) },
+                        text = {
+                            Text(
+                                stringResource(R.string.action_delete),
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Rounded.Delete,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        },
                         onClick = {
                             haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                             menuExpanded = false
