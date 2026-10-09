@@ -20,13 +20,10 @@
 
     <!-- Neutral Colors -->
     <color name="background">#FDFBFF</color>
-    <color name="onBackground">#1A1B1E</color>
     <color name="surface">#FDFBFF</color>
     <color name="onSurface">#1A1B1E</color>
     <color name="surfaceVariant">#E1E2EC</color>
     <color name="onSurfaceVariant">#44474E</color>
-    <color name="outline">#757780</color>
     
     <color name="black">#000000</color>
-    <color name="white">#FFFFFF</color>
 </resources>

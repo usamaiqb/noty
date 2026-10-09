@@ -4,9 +4,9 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import androidx.core.net.toUri
 import com.noty.app.data.AppDatabase
 import com.noty.app.data.Note
 import com.noty.app.ui.MainActivity
@@ -32,7 +32,7 @@ object ReminderScheduler {
     /** Settings screen where the user grants "Alarms & reminders". */
     fun exactAlarmSettingsIntent(context: Context): Intent =
         Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
-            data = Uri.parse("package:${context.packageName}")
+            data = "package:${context.packageName}".toUri()
         }
 
     /**
@@ -89,7 +89,7 @@ object ReminderScheduler {
         val intent = Intent(context, ReminderReceiver::class.java).apply {
             action = ACTION_REMINDER
             // Unique data URI distinguishes intents per note without request-code tricks
-            data = Uri.parse("noty://reminder/$noteId")
+            data = "noty://reminder/$noteId".toUri()
             putExtra(NotificationHelper.EXTRA_NOTE_ID, noteId)
         }
         return PendingIntent.getBroadcast(
@@ -102,7 +102,7 @@ object ReminderScheduler {
     private fun showIntent(context: Context, noteId: Long): PendingIntent {
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            data = Uri.parse("noty://reminder/$noteId")
+            data = "noty://reminder/$noteId".toUri()
         }
         return PendingIntent.getActivity(
             context, noteId.toInt(), intent,

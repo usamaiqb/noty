@@ -7,6 +7,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
+import androidx.core.graphics.createBitmap
+import androidx.core.net.toUri
 import com.noty.app.R
 import com.noty.app.data.Note
 import com.noty.app.ui.MainActivity
@@ -41,11 +43,7 @@ class NotificationHelper(private val context: Context) {
 
         if (drawable.intrinsicWidth <= 0 || drawable.intrinsicHeight <= 0) return null
 
-        val bitmap = android.graphics.Bitmap.createBitmap(
-            drawable.intrinsicWidth,
-            drawable.intrinsicHeight,
-            android.graphics.Bitmap.Config.ARGB_8888
-        )
+        val bitmap = createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight)
         val canvas = android.graphics.Canvas(bitmap)
         drawable.setBounds(0, 0, canvas.width, canvas.height)
         drawable.draw(canvas)
@@ -58,35 +56,33 @@ class NotificationHelper(private val context: Context) {
     }
 
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // Channel for Notes
-            val name = context.getString(R.string.channel_notes_name)
-            val descriptionText = context.getString(R.string.channel_notes_description)
-            val importance = NotificationManager.IMPORTANCE_DEFAULT
-            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
-                description = descriptionText
-            }
-            notificationManager.createNotificationChannel(channel)
-
-            // Channel for Service (Minimized)
-            val serviceName = context.getString(R.string.channel_service_name)
-            val serviceDescription = context.getString(R.string.channel_service_description)
-            val serviceImportance = NotificationManager.IMPORTANCE_MIN
-            val serviceChannel = NotificationChannel(CHANNEL_ID_SERVICE, serviceName, serviceImportance).apply {
-                description = serviceDescription
-            }
-            notificationManager.createNotificationChannel(serviceChannel)
-
-            // Channel for scheduled reminders (alerting)
-            val remindersChannel = NotificationChannel(
-                CHANNEL_ID_REMINDERS,
-                context.getString(R.string.channel_reminders_name),
-                NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                description = context.getString(R.string.channel_reminders_description)
-            }
-            notificationManager.createNotificationChannel(remindersChannel)
+        // Channel for Notes
+        val name = context.getString(R.string.channel_notes_name)
+        val descriptionText = context.getString(R.string.channel_notes_description)
+        val importance = NotificationManager.IMPORTANCE_DEFAULT
+        val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
+            description = descriptionText
         }
+        notificationManager.createNotificationChannel(channel)
+
+        // Channel for Service (Minimized)
+        val serviceName = context.getString(R.string.channel_service_name)
+        val serviceDescription = context.getString(R.string.channel_service_description)
+        val serviceImportance = NotificationManager.IMPORTANCE_MIN
+        val serviceChannel = NotificationChannel(CHANNEL_ID_SERVICE, serviceName, serviceImportance).apply {
+            description = serviceDescription
+        }
+        notificationManager.createNotificationChannel(serviceChannel)
+
+        // Channel for scheduled reminders (alerting)
+        val remindersChannel = NotificationChannel(
+            CHANNEL_ID_REMINDERS,
+            context.getString(R.string.channel_reminders_name),
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            description = context.getString(R.string.channel_reminders_description)
+        }
+        notificationManager.createNotificationChannel(remindersChannel)
     }
 
     fun showNotification(note: Note) {
@@ -154,7 +150,7 @@ class NotificationHelper(private val context: Context) {
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
             // Distinct data URI keeps this PendingIntent separate from the pinned-note one
-            data = android.net.Uri.parse("noty://reminder/${note.id}")
+            data = "noty://reminder/${note.id}".toUri()
         }
         val pendingIntent: PendingIntent = PendingIntent.getActivity(
             context, note.id.toInt(), intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
@@ -243,11 +239,7 @@ class NotificationHelper(private val context: Context) {
     }
 
     fun syncNotifications(notes: List<Note>) {
-        val activeNotifications = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            notificationManager.activeNotifications.map { it.id }.toSet()
-        } else {
-            emptySet()
-        }
+        val activeNotifications = notificationManager.activeNotifications.map { it.id }.toSet()
 
         notes.filter { it.isPinned }.forEach { note ->
             if (!activeNotifications.contains(note.id.toInt())) {

@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Base application theme for Dark mode. -->
     <!-- Base application theme for Dark mode. -->
     <style name="Theme.Noty" parent="Theme.Material3.DayNight.NoActionBar">
@@ -28,7 +28,7 @@
         <!-- Status bar and navigation bar -->
         <item name="android:statusBarColor">?attr/colorSurface</item>
         <item name="android:navigationBarColor">?attr/colorSurface</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+        <item name="android:windowLightStatusBar">false</item>
         
          <!-- M3 Expressive Shapes (Copy from default or inherit if not overridden) -->
          <item name="shapeAppearanceCornerExtraLarge">@style/ShapeAppearance.Material3.Expressive.Corner.ExtraLarge</item>
