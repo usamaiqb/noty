@@ -4,7 +4,7 @@
 [versions]
 agp = "9.2.0"
 kotlin = "2.4.20"
-ksp = "2.0.21-1.0.28"
+ksp = "2.3.12"
 detekt = "1.23.8"
 detektComposeRules = "0.4.28"
 
