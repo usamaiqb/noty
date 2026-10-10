@@ -110,6 +110,12 @@ class NotificationHelper(private val context: Context) {
             .setDeleteIntent(dismissPendingIntent(note.id))
             .setLocalOnly(true)
 
+        // Without BigTextStyle the shade keeps only the first line of the
+        // description, dropping line breaks even when expanded.
+        if (!note.description.isNullOrBlank()) {
+            builder.setStyle(NotificationCompat.BigTextStyle().bigText(note.description))
+        }
+
         if (note.isPinned) {
             builder.addAction(
                 R.drawable.ic_unpin,
