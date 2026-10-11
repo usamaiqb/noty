@@ -1,3 +1,15 @@
+## [1.0.5] - 2026-10-11
+
+### Fixed
+- Expanded reminder notifications now show the note's full description instead of a truncated line (#38)
+- The keep-alive service now runs as a `specialUse` foreground service instead of `dataSync`, so it isn't stopped by Android's limits on that service type (#39)
+
+### Changed
+- Target Android 16 (API 36)
+- Moved all user-facing text into string resources, ready for translation
+- Updated Material Components to 1.14.0, KSP to 2.3.12, and the Kotlin Compose compiler plugin
+- Build and code-quality cleanup: a version catalog for dependencies, detekt with Compose rules in CI, lint policy in `lint.xml`, and removal of unused resources and API checks made redundant by minSdk 26
+
 ## [1.0.4] - 2026-09-25
 
 ### Added
