@@ -1,0 +1,4 @@
+• Expanded notifications now show the full note text
+• More reliable persistent notifications on newer Android versions
+• Now targets Android 16
+• Updated libraries and internal cleanup
