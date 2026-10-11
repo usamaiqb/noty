@@ -53,7 +53,7 @@ Noty requests only the permissions it needs:
 
 - **POST_NOTIFICATIONS** — To show your notes as persistent notifications
 - **RECEIVE_BOOT_COMPLETED** — To restore notes and reschedule reminders after a phone restart
-- **FOREGROUND_SERVICE / FOREGROUND_SERVICE_DATA_SYNC** — To keep notifications active in the background
+- **FOREGROUND_SERVICE / FOREGROUND_SERVICE_SPECIAL_USE** — To keep pinned notes visible as notifications in the background
 - **SCHEDULE_EXACT_ALARM** — To deliver note reminders at the exact time you set
 
 No internet permission. No location. No data collection.
