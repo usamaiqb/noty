@@ -2,26 +2,32 @@
 
 <p align="center">
   <a href="https://github.com/usamaiqb/noty/actions/workflows/ci.yml"><img src="https://github.com/usamaiqb/noty/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="https://github.com/usamaiqb/noty/releases"><img src="https://img.shields.io/github/downloads/usamaiqb/noty/total?logo=github&logoColor=white&label=Downloads" alt="Downloads" /></a>
   <a href="https://f-droid.org/packages/com.noty.app/"><img src="https://img.shields.io/f-droid/v/com.noty.app?logo=fdroid&logoColor=white&label=F-Droid" alt="F-Droid" /></a>
-  <img src="https://img.shields.io/badge/platform-Android-3DDC84?logo=android&logoColor=white" alt="Platform" />
-  <img src="https://img.shields.io/badge/Jetpack%20Compose-Material%203-4285F4?logo=jetpackcompose&logoColor=white" alt="Jetpack Compose" />
   <a href="https://www.gnu.org/licenses/gpl-3.0"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3" /></a>
 </p>
 
-A simple, privacy-focused notes app for Android that keeps your notes exactly where you look dozens of times a day — your notification shade.
+Keep your notes exactly where you look dozens of times a day: pinned as notifications in your status bar. No ads, no tracking, no accounts, and no internet access.
 
-## Features
+<p align="center">
+  <a href="https://f-droid.org/packages/com.noty.app/"><img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80" /></a>
+</p>
 
-- 📌 **Persistent Notifications** — Every note appears as a notification that stays in your status bar until you're done with it
-- 🔄 **Survives Restarts** — Notes are restored automatically after a phone restart
-- ✏️ **Add, Edit, Delete** — Create notes with a title and optional description; edit or delete any note with a tap
-- 📌 **Pin or Unpin Anytime** — Choose which notes appear as notifications; unpin a note and it moves back to the app without a notification
-- ⚡ **Quick Settings Tile** — Add a "Quick Note" tile to your Quick Settings panel to open the add-note screen
-- 🔍 **Search** — Filter notes by title or description
-- ⏰ **Reminders** — Set a one-time date and time reminder on any note and get notified right on time
-- ⚙️ **Settings** — Choose your app theme, toggle dynamic color, and decide whether new notes start pinned
-- 🎨 **Material You** — Material 3 with dynamic color on Android 12+; Light, Dark, and System themes
-- 🔒 **100% Private** — No accounts, no cloud, no network access; your notes never leave your device
+Download the latest APK from the [Releases](https://github.com/usamaiqb/noty/releases) page.
+
+## Help test on Google Play
+
+We're working on getting Noty published on Google Play. The app is already available there in **closed testing**, and we need real users trying it out to get it fully published.
+
+1. Join the [Google Group](https://groups.google.com/g/noty-testers) (approval may take a few minutes)
+2. Once approved, [opt in as a tester](https://play.google.com/apps/testing/noty.app)
+3. [Install the app](https://play.google.com/store/apps/details?id=noty.app) and open it a few times over the next two weeks
+
+<p align="center">
+  <a href="https://play.google.com/apps/testing/noty.app"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play (testing)" height="80" /></a>
+</p>
+
+Thank you! This helps us reach far more users than F-Droid and GitHub alone.
 
 ## Screenshots
 
@@ -33,86 +39,65 @@ A simple, privacy-focused notes app for Android that keeps your notes exactly wh
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width="200" alt="Settings" />
 </p>
 
-## Download
+## Features
 
-### F-Droid
+### Notes
 
-[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" height="60" alt="Get it on F-Droid">](https://f-droid.org/packages/com.noty.app/)
+- **Persistent notifications** - Every pinned note stays in your status bar until you're done with it
+- **Pin or unpin anytime** - Choose which notes appear as notifications; unpinned notes stay in the app
+- **Survives restarts** - Notes and reminders are restored automatically after a phone restart
+- **Add, edit, delete** - Give a note a title and an optional description, and edit or delete it with a tap
+- **Search** - Filter notes by title or description
+- **Reminders** - Set a one-time date and time reminder on any note
 
-### GitHub Releases
+### App
 
-Download the latest APK from the [Releases](https://github.com/usamaiqb/noty/releases) page.
+- **Quick Settings tile** - Add a "Quick Note" tile to jump straight to the add-note screen
+- **Material You** - Material 3 with dynamic color on Android 12+, plus Light, Dark, and System themes
+- **Settings** - Choose the theme, toggle dynamic color, and decide whether new notes start pinned
+- **Fully private** - Notes are stored only on your device and never leave it
 
 ## Requirements
 
 - Android 8.0 (Oreo) or higher
 
-## Permissions
+## Verification
 
-Noty requests only the permissions it needs:
+Builds from this repository and F-Droid are signed with the same key. Verify the signing certificate rather than the APK file hash, since file hashes can differ between distributions while the certificate stays the same.
 
-- **POST_NOTIFICATIONS** — To show your notes as persistent notifications
-- **RECEIVE_BOOT_COMPLETED** — To restore notes and reschedule reminders after a phone restart
-- **FOREGROUND_SERVICE / FOREGROUND_SERVICE_SPECIAL_USE** — To keep pinned notes visible as notifications in the background
-- **SCHEDULE_EXACT_ALARM** — To deliver note reminders at the exact time you set
+- **Package:** `com.noty.app`
+- **Certificate SHA-256:** `C1:12:91:80:4C:FF:F1:C4:DF:08:BD:52:37:92:F6:4C:84:E0:3C:27:6A:B4:77:32:D9:FC:3E:3F:62:F7:8D:92`
 
-No internet permission. No location. No data collection.
+Check it with an on-device verifier app, or `apksigner verify --print-certs <apk>`, which prints the same value in lower case without colons.
 
-## Building from Source
+<details>
+<summary><h2>Permissions</h2></summary>
 
-### Prerequisites
+- **POST_NOTIFICATIONS** - To show your notes as persistent notifications
+- **RECEIVE_BOOT_COMPLETED** - To restore notes and reschedule reminders after a phone restart
+- **FOREGROUND_SERVICE** / **FOREGROUND_SERVICE_SPECIAL_USE** - To keep pinned notes visible as notifications in the background
+- **SCHEDULE_EXACT_ALARM** - To deliver reminders at the exact time you set
 
-- Android Studio Meerkat (2024.3.1) or later
-- JDK 17
-- Android SDK API level 35
+Noty has no internet permission and no location permission.
 
-### Build Steps
+</details>
 
-1. Clone the repository:
+## Building
+
+Requires JDK 17 and the Android SDK (API 36).
+
 ```bash
 git clone https://github.com/usamaiqb/noty.git
 cd noty
+./gradlew assembleDebug
 ```
 
-2. Open in Android Studio or build from the command line:
-```bash
-./gradlew assembleRelease
-```
+The APK is written to `app/build/outputs/apk/debug/`. See [CHANGELOG.md](CHANGELOG.md) for version history.
 
-3. The APK will be in `app/build/outputs/apk/release/`
+## Contributing
 
-## Privacy
-
-Noty:
-- ✅ Does NOT collect any personal data
-- ✅ Does NOT require internet access
-- ✅ Does NOT contain ads or tracking
-- ✅ Does NOT share data with third parties
-- ✅ All data is stored locally on your device
-
-For full details, see the [Privacy Policy](PRIVACY_POLICY.md).
-
-## Support
-
-- **Issues**: [GitHub Issues](https://github.com/usamaiqb/noty/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/usamaiqb/noty/discussions)
+Contributions are welcome. Use [Issues](https://github.com/usamaiqb/noty/issues) or [Discussions](https://github.com/usamaiqb/noty/discussions) for bugs and questions.
 
 ## License
 
-This project is licensed under the GNU General Public License v3.0 — see the [LICENSE](LICENSE) file for details.
-
-## Built With
-
-- [Kotlin](https://kotlinlang.org/) — Modern programming language for Android
-- [Jetpack Compose](https://developer.android.com/compose) — Declarative UI toolkit
-- [Room](https://developer.android.com/training/data-storage/room) — Local database
-- [Material Design 3](https://m3.material.io/) — Modern design system
-- [Kotlin Coroutines](https://kotlinlang.org/docs/coroutines-overview.html) — Asynchronous programming
-
-## Changelog
-
-See [CHANGELOG.md](CHANGELOG.md) for version history and changes.
-
----
-
-Made with ❤️ for the open source community
+[GNU General Public License v3.0](LICENSE). See the [Privacy Policy](PRIVACY_POLICY.md) for how the app handles data.

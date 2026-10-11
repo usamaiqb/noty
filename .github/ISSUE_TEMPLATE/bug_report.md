@@ -27,7 +27,7 @@ If applicable, add screenshots to help explain your problem.
 - Device: [e.g. Pixel 7]
 - Android Version: [e.g. Android 14]
 - App Version: [e.g. 1.0.0]
-- Installation Source: [F-Droid / GitHub / Built from source]
+- Installation Source: [F-Droid / GitHub / Google Play / Built from source]
 
 ## Logcat (if possible)
 ```
