@@ -6,7 +6,7 @@ agp = "9.4.1"
 kotlin = "2.4.21"
 ksp = "2.3.12"
 detekt = "1.23.8"
-detektComposeRules = "0.6.7"
+detektComposeRules = "0.6.8"
 
 androidxCore = "1.12.0"
 appcompat = "1.6.1"
