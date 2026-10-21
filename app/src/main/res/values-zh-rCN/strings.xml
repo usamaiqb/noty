@@ -1,0 +1,104 @@
+<resources>
+
+    <!-- App -->
+
+    <string name="app_name">Noty</string>
+    <string name="app_tagline">简单的便签APP，将便签固定在通知栏</string>
+
+    <!-- Actions reused across screens -->
+    <string name="action_save">保存</string>
+    <string name="action_update">更新</string>
+    <string name="action_cancel">取消</string>
+    <string name="action_next">下一步</string>
+    <string name="action_ok">确定</string>
+    <string name="action_edit">编辑</string>
+    <string name="action_delete">删除</string>
+    <string name="action_pin">置顶</string>
+    <string name="action_unpin">取消置顶</string>
+    <string name="action_open_settings">打开设置</string>
+    <string name="action_not_now">之后再说</string>
+
+    <!-- Note list -->
+    <string name="home_new_note">新建便签</string>
+    <string name="home_section_pinned">已置顶</string>
+    <string name="home_section_others">其他</string>
+    <string name="home_empty_title">还没有便签</string>
+    <string name="home_empty_subtitle">点击「+ 新建便签」创建第一条便签</string>
+
+    <!-- Search -->
+    <string name="search_placeholder">搜索便签</string>
+    <string name="search_empty_title">没有找到“%1$s”</string>
+    <string name="search_empty_subtitle">尝试其他搜索词</string>
+
+    <!-- Add / edit sheet -->
+    <string name="sheet_title_new">新建便签</string>
+    <string name="sheet_title_edit">编辑便签</string>
+    <string name="sheet_pin_note">置顶</string>
+    <string name="sheet_label_title">标题</string>
+    <string name="sheet_label_description">说明（可选）</string>
+    <string name="sheet_error_title_required">标题不能为空</string>
+
+    <!-- Delete confirmation -->
+    <string name="delete_dialog_title">删除这条便签？</string>
+    <string name="delete_dialog_message">确定要删除“%1$s”吗？</string>
+
+    <!-- Reminders -->
+    <string name="reminder_add">添加提醒</string>
+    <string name="reminder_add_needs_permission">添加提醒（需要权限）</string>
+    <string name="reminder_permission_title">允许闹钟和提醒</string>
+    <string name="reminder_permission_message">Noty 需要“闹钟和提醒”权限才能准确地在您设定的时间提醒您。没有该权限 Android 可能会将提醒延迟 10 分钟以上，因此提醒功能将保持关闭。</string>
+    <string name="reminder_time_dialog_title">设置时间</string>
+    <string name="reminder_time_in_past">该时间已过，请选择更晚的时间。</string>
+    <string name="reminder_fallback_text">提醒</string>
+
+    <!-- Settings -->
+    <string name="settings_title">设置</string>
+    <string name="settings_section_appearance">外观</string>
+    <string name="settings_section_notes">便签</string>
+    <string name="settings_section_about">关于</string>
+    <string name="settings_theme_title">主题</string>
+    <string name="settings_theme_subtitle">整体界面风格</string>
+    <string name="settings_dynamic_color_title">使用动态取色</string>
+    <string name="settings_dynamic_color_subtitle">根据壁纸为APP着色</string>
+    <string name="settings_pin_default_title">默认置顶新便签</string>
+    <string name="settings_pin_default_subtitle">新便签将作为通知置顶显示</string>
+    <string name="settings_github">GitHub</string>
+    <!-- Prefixes the version read off the installed package. Quoted so aapt keeps the
+         trailing space; the shared rememberAppVersionLabel() concatenates rather than
+         formatting, so the space has to live here. -->
+    <string name="settings_version_prefix">"版本 "</string>
+    <string name="settings_version_unknown_name">未知</string>
+
+    <!-- Theme picker -->
+    <string name="theme_system">跟随系统</string>
+    <string name="theme_light">浅色</string>
+    <string name="theme_dark">深色</string>
+
+    <!-- Notification channels, shown in system settings -->
+    <string name="channel_notes_name">置顶便签</string>
+    <string name="channel_notes_description">显示当前生效的便签</string>
+    <string name="channel_service_name">Noty 服务</string>
+    <string name="channel_service_description">用于监控便签的后台服务</string>
+    <string name="channel_reminders_name">提醒</string>
+    <string name="channel_reminders_description">便签到期时的提醒</string>
+
+    <!-- Foreground service notification -->
+    <string name="service_notification_text">正在显示便签</string>
+
+    <!-- Quick Settings tile -->
+    <string name="tile_add_note">快速便签</string>
+    <string name="tile_subtitle">点击添加</string>
+
+    <!-- Accessibility -->
+    <string name="cd_search_notes">搜索便签</string>
+    <string name="cd_settings">设置</string>
+    <string name="cd_back">返回</string>
+    <string name="cd_close_search">关闭搜索</string>
+    <string name="cd_clear_search">清除搜索</string>
+    <string name="cd_more_options">更多选项</string>
+    <string name="cd_reminder_set">已设置提醒</string>
+    <string name="cd_remove_reminder">移除提醒</string>
+    <string name="cd_pin_note">置顶便签</string>
+    <string name="cd_unpin_note">取消置顶便签</string>
+
+</resources>
