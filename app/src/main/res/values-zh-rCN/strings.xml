@@ -2,7 +2,6 @@
 
     <!-- App -->
 
-    <string name="app_name">Noty</string>
     <string name="app_tagline">简单的便签应用，将便签固定在通知栏</string>
 
     <!-- Actions reused across screens -->
