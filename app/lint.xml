@@ -11,10 +11,17 @@
 
   Anything suppressed or downgraded here needs a reason next to it.
 
-  Noty ships a single locale, so there is deliberately no MissingTranslation entry.
-  Add one only if translated values-* folders ever land.
+  Translations (values-de, values-zh-rCN, ...) are contributed by volunteers and land
+  on their own schedule, so MissingTranslation is downgraded below.
 -->
 <lint>
+    <!--
+      A new English string would otherwise fail CI until every locale catches up.
+      Kept at warning rather than ignored so the gaps still show in the lint report;
+      untranslated strings fall back to values/ at runtime.
+    -->
+    <issue id="MissingTranslation" severity="warning" />
+
     <!--
       ACTION_REQUEST_SCHEDULE_EXACT_ALARM is an API 31 constant whose value is inlined
       at compile time. Safe here: its only caller is the reminder permission dialog,

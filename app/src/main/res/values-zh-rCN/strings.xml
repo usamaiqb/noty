@@ -59,9 +59,10 @@
     <string name="settings_theme_subtitle">整体界面风格</string>
     <string name="settings_dynamic_color_title">使用动态取色</string>
     <string name="settings_dynamic_color_subtitle">根据壁纸为应用着色</string>
+    <string name="settings_language_title">语言</string>
+    <string name="settings_language_subtitle">选择 Noty 使用的语言</string>
     <string name="settings_pin_default_title">默认固定新便签</string>
     <string name="settings_pin_default_subtitle">新便签将默认固定，显示在通知栏</string>
-    <string name="settings_github">GitHub</string>
     <!-- Prefixes the version read off the installed package. Quoted so aapt keeps the
          trailing space; the shared rememberAppVersionLabel() concatenates rather than
          formatting, so the space has to live here. -->

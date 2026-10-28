@@ -86,6 +86,12 @@ android {
         buildConfig true
     }
 
+    androidResources {
+        // Builds the locale list for Android 13+ per-app language settings from the
+        // values-* folders. The default locale comes from res/resources.properties.
+        generateLocaleConfig true
+    }
+
     lint {
         // Suppressions and severities live in lint.xml so the IDE, the CLI and CI all
         // read the same policy. Each entry there carries its reason.

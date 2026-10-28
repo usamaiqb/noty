@@ -1,6 +1,9 @@
 package com.noty.app.ui
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,9 +13,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Notes
+import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material.icons.rounded.BrightnessAuto
 import androidx.compose.material.icons.rounded.Code
 import androidx.compose.material.icons.rounded.DarkMode
+import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.rounded.LightMode
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.PushPin
@@ -30,9 +35,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.noty.app.R
+import com.noty.app.ui.expressive.ActionRow
 import com.noty.app.ui.expressive.AppIdentityRow
 import com.noty.app.ui.expressive.CollapsingLargeTopBar
 import com.noty.app.ui.expressive.ControlSettingsRow
@@ -58,6 +65,7 @@ fun SettingsScreen(
     val currentTheme by viewModel.themeFlow.collectAsState(initial = ThemeManager.ThemeMode.SYSTEM)
     val dynamicColors by viewModel.dynamicColorsFlow.collectAsState(initial = true)
     val defaultPin by viewModel.defaultPinFlow.collectAsState(initial = true)
+    val context = LocalContext.current
     val scrollBehavior = rememberExpressiveScrollBehavior()
 
     Scaffold(
@@ -84,6 +92,8 @@ fun SettingsScreen(
             Column {
                 SectionHeader(stringResource(R.string.settings_section_appearance))
                 val supportsDynamicColors = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                // Below 13 there is no per-app language; the app follows the device locale.
+                val supportsAppLanguage = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
                 SegmentedGroup {
                     ControlSettingsRow(
                         position = if (supportsDynamicColors) {
@@ -102,12 +112,42 @@ fun SettingsScreen(
                     }
                     if (supportsDynamicColors) {
                         SwitchSettingsRow(
-                            position = SegmentPosition.Last,
+                            position = if (supportsAppLanguage) {
+                                SegmentPosition.Middle
+                            } else {
+                                SegmentPosition.Last
+                            },
                             title = stringResource(R.string.settings_dynamic_color_title),
                             checked = dynamicColors,
                             onCheckedChange = viewModel::setDynamicColors,
                             icon = Icons.Rounded.Wallpaper,
                             subtitle = stringResource(R.string.settings_dynamic_color_subtitle)
+                        )
+                    }
+                    // 13+ implies 12+, so the dynamic colour row is always above this one.
+                    if (supportsAppLanguage) {
+                        ActionRow(
+                            position = SegmentPosition.Last,
+                            title = stringResource(R.string.settings_language_title),
+                            onClick = {
+                                context.startActivity(
+                                    Intent(
+                                        Settings.ACTION_APP_LOCALE_SETTINGS,
+                                        Uri.fromParts("package", context.packageName, null)
+                                    )
+                                )
+                            },
+                            icon = Icons.Rounded.Language,
+                            subtitle = stringResource(R.string.settings_language_subtitle),
+                            trailing = {
+                                // Opens system settings, so it gets the leaves-the-app glyph
+                                // ExternalLinkRow uses.
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Rounded.OpenInNew,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                         )
                     }
                 }
