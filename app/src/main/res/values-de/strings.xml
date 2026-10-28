@@ -1,0 +1,103 @@
+<resources>
+
+    <!-- App -->
+    <string name="app_name">Noty</string>
+    <string name="app_tagline">Einfache Notizen, angeheftet als Benachrichtigung.</string>
+
+    <!-- Actions reused across screens -->
+    <string name="action_save">Speichern</string>
+    <string name="action_update">Aktualisieren</string>
+    <string name="action_cancel">Abbrechen</string>
+    <string name="action_next">Weiter</string>
+    <string name="action_ok">OK</string>
+    <string name="action_edit">Bearbeiten</string>
+    <string name="action_delete">Löschen</string>
+    <string name="action_pin">Anheften</string>
+    <string name="action_unpin">Ablösen</string>
+    <string name="action_open_settings">Einstellungen öffnen</string>
+    <string name="action_not_now">Nicht jetzt</string>
+
+    <!-- Note list -->
+    <string name="home_new_note">Neue Notiz</string>
+    <string name="home_section_pinned">Angeheftet</string>
+    <string name="home_section_others">Sonstige</string>
+    <string name="home_empty_title">Noch keine Notizen</string>
+    <string name="home_empty_subtitle">Drücke + Neue Notiz um deine erste Notiz zu erstellen</string>
+
+    <!-- Search -->
+    <string name="search_placeholder">Notizen suchen</string>
+    <string name="search_empty_title">Keine Ergebnisse für \"%1$s\"</string>
+    <string name="search_empty_subtitle">Versuche einen anderen Suchbegriff</string>
+
+    <!-- Add / edit sheet -->
+    <string name="sheet_title_new">Neue Notiz</string>
+    <string name="sheet_title_edit">Notiz bearbeiten</string>
+    <string name="sheet_pin_note">anheften</string>
+    <string name="sheet_label_title">Überschrift</string>
+    <string name="sheet_label_description">Beschreibung (optional)</string>
+    <string name="sheet_error_title_required">Überschrift erforderlich</string>
+
+    <!-- Delete confirmation -->
+    <string name="delete_dialog_title">Diese Notiz löschen?</string>
+    <string name="delete_dialog_message">Bist du sicher, dass du \'%1$s\' löschen möchtest?</string>
+
+    <!-- Reminders -->
+    <string name="reminder_add">Erinnerung hinzufügen</string>
+    <string name="reminder_add_needs_permission">Erinnerung hinzufügen — braucht die Berechtigung</string>
+    <string name="reminder_permission_title">Erlaube Wecker und Erinnerungen</string>
+    <string name="reminder_permission_message">Noty braucht die Berechtigung \"Wecker und Erinnerungen\" um dich zum genauen Zeitpunkt den du ausgewählt hast zu erinnern. Ohne diese Berechtigung kann Android die Erinnerung um 10 Minuten oder mehr verzögern. Daher bleiben sie ausgeschaltet.</string>
+    <string name="reminder_time_dialog_title">Uhrzeit einstellen</string>
+    <string name="reminder_time_in_past">Diese Uhrzeit liegt in der Vergangenheit. Wähle eine andere Uhrzeit.</string>
+    <string name="reminder_fallback_text">Erinnerung</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_section_appearance">Aussehen</string>
+    <string name="settings_section_notes">Notizen</string>
+    <string name="settings_section_about">Über</string>
+    <string name="settings_theme_title">Thema</string>
+    <string name="settings_theme_subtitle">Darstellung der App</string>
+    <string name="settings_dynamic_color_title">Dynamische Systemfarben verwenden</string>
+    <string name="settings_dynamic_color_subtitle">Die Farben deinem Hintergrundbild anpassen</string>
+    <string name="settings_pin_default_title">Neue Notizen standardmäßig anheften</string>
+    <string name="settings_pin_default_subtitle">Grundeinstellung ist ein Anheften der Notiz</string>
+    <string name="settings_github">GitHub</string>
+    <!-- Prefixes the version read off the installed package. Quoted so aapt keeps the
+         trailing space; the shared rememberAppVersionLabel() concatenates rather than
+         formatting, so the space has to live here. -->
+    <string name="settings_version_prefix">"Version "</string>
+    <string name="settings_version_unknown_name">unbekannt</string>
+
+    <!-- Theme picker -->
+    <string name="theme_system">System</string>
+    <string name="theme_light">Hell</string>
+    <string name="theme_dark">Dunkel</string>
+
+    <!-- Notification channels, shown in system settings -->
+    <string name="channel_notes_name">Dauerhafte Notizen</string>
+    <string name="channel_notes_description">Zeigt deine aktiven Notizen an</string>
+    <string name="channel_service_name">Noty Hintergrunddienst</string>
+    <string name="channel_service_description">Hintergrunddienst zur Überwachung deiner Notizen</string>
+    <string name="channel_reminders_name">Erinnerungen</string>
+    <string name="channel_reminders_description">Alarme für Erinnerungen</string>
+
+    <!-- Foreground service notification -->
+    <string name="service_notification_text">Deine Notizen werden sichtbar gehalten</string>
+
+    <!-- Quick Settings tile -->
+    <string name="tile_add_note">Notiz</string>
+    <string name="tile_subtitle">Erstellen</string>
+
+    <!-- Accessibility -->
+    <string name="cd_search_notes">Notizen suchen</string>
+    <string name="cd_settings">Einstellungen</string>
+    <string name="cd_back">Zurück</string>
+    <string name="cd_close_search">Suche schließen</string>
+    <string name="cd_clear_search">Suche leeren</string>
+    <string name="cd_more_options">Weitere Optionen</string>
+    <string name="cd_reminder_set">Erinnerung gesetzt</string>
+    <string name="cd_remove_reminder">Erinnerung entfernen</string>
+    <string name="cd_pin_note">Notiz anheften</string>
+    <string name="cd_unpin_note">Notiz ablösen</string>
+
+</resources>
