@@ -1,3 +1,23 @@
+## [1.0.6] - 2026-10-29
+
+### Added
+- German and Simplified Chinese translations (#50, #51)
+- Per-app language selection on Android 13+: Noty now appears in the system's per-app language settings, and Settings has a Language row that opens that page (#60)
+
+### Improved
+- A complete green default color palette, built from Material Green 500, for devices without dynamic color or with it turned off; previously most color roles fell back to Material's baseline purple (#59)
+- Changing between Light and Dark theme now recomposes in place instead of recreating the screen
+- Settings and the notes list now use the shared expressive components: consistent switches, rows, spacing and haptics
+- The About screen shows just the version name in release builds, without the build number
+
+### Fixed
+- Removed an Android 12+ splash screen override that referenced theme colors the splash theme can't resolve (#58)
+
+### Changed
+- Dropped the androidx.appcompat dependency
+- Added a debug build variant that installs alongside the release app (#55)
+- Updated the Android Gradle Plugin to 9.4.1, Gradle to 9.8.2, and the Compose compiler plugin and detekt Compose rules
+
 ## [1.0.5] - 2026-10-11
 
 ### Fixed
