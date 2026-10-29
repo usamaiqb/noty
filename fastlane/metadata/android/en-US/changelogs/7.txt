@@ -1,0 +1,5 @@
+• Added German and Simplified Chinese translations
+• Choose Noty's language separately from the system (Android 13+)
+• New green default color palette
+• Smoother theme switching and refreshed settings screen
+• Updated libraries and internal cleanup
