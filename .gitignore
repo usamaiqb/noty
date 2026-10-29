@@ -5,6 +5,7 @@ out/
 build/
 release/
 .gradle/
+.kotlin/
 *.apk
 *.aab
 *.aar

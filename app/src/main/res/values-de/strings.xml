@@ -1,7 +1,6 @@
 <resources>
 
     <!-- App -->
-    <string name="app_name">Noty</string>
     <string name="app_tagline">Einfache Notizen, angeheftet als Benachrichtigung.</string>
 
     <!-- Actions reused across screens -->
@@ -59,9 +58,10 @@
     <string name="settings_theme_subtitle">Darstellung der App</string>
     <string name="settings_dynamic_color_title">Dynamische Systemfarben verwenden</string>
     <string name="settings_dynamic_color_subtitle">Die Farben deinem Hintergrundbild anpassen</string>
+    <string name="settings_language_title">Sprache</string>
+    <string name="settings_language_subtitle">Wähle die Sprache für Noty</string>
     <string name="settings_pin_default_title">Neue Notizen standardmäßig anheften</string>
     <string name="settings_pin_default_subtitle">Grundeinstellung ist ein Anheften der Notiz</string>
-    <string name="settings_github">GitHub</string>
     <!-- Prefixes the version read off the installed package. Quoted so aapt keeps the
          trailing space; the shared rememberAppVersionLabel() concatenates rather than
          formatting, so the space has to live here. -->
