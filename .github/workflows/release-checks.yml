@@ -97,3 +97,13 @@ jobs:
           echo "✅ F-Droid changelog present: $FILE"
           echo "--- contents ---"
           cat "$FILE"
+
+      # The table is normally kept current by translation-table.yml's bot PR; this
+      # catches a release cut while that PR is still open.
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: README translation table is up to date
+        run: bash scripts/translation-status.sh --check
