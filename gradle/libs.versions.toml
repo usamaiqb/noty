@@ -2,7 +2,7 @@
 # Dependabot watches this file; see .github/dependabot.yml.
 
 [versions]
-agp = "9.4.1"
+agp = "9.5.0"
 kotlin = "2.4.21"
 ksp = "2.3.12"
 detekt = "1.23.8"
