@@ -24,3 +24,4 @@ Closes #
 - [ ] Branch is named `release/v<versionName>`
 - [ ] `CHANGELOG.md` has a `## [<versionName>]` entry
 - [ ] `fastlane/metadata/android/en-US/changelogs/<versionCode>.txt` added (F-Droid "What's New")
+- [ ] README translation table is up to date (merge the open `docs: update translation table` PR, or run `bash scripts/translation-status.sh`)

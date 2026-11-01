@@ -94,6 +94,18 @@ cd noty
 
 The APK is written to `app/build/outputs/apk/debug/`. See [CHANGELOG.md](CHANGELOG.md) for version history.
 
+## Translations
+
+<!-- translations:start -->
+| Language | Progress |
+| --- | --- |
+| English | ████████████ 100% (source) |
+| Deutsch | ████████████ 100% |
+| 中文 (中国) | ████████████ 100% |
+<!-- translations:end -->
+
+Translations are welcome! Add or improve one in `app/src/main/res/values-<locale>/strings.xml` and open a pull request.
+
 ## Contributing
 
 Contributions are welcome. Use [Issues](https://github.com/usamaiqb/noty/issues) or [Discussions](https://github.com/usamaiqb/noty/discussions) for bugs and questions.
