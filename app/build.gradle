@@ -24,12 +24,16 @@ def releaseKeyPassword = keystoreProperties['keyPassword'] ?: System.getenv('KEY
 def hasReleaseSigning = releaseStoreFile != null && releaseStorePassword != null &&
         releaseKeyAlias != null && releaseKeyPassword != null
 
+// com.noty.app is taken on Google Play, so Play builds pass -Pstore=play.
+// Default builds (F-Droid, GitHub releases) are unaffected.
+def isPlayBuild = project.findProperty('store') == 'play'
+
 android {
     namespace 'com.noty.app'
     compileSdk 36
 
     defaultConfig {
-        applicationId "com.noty.app"
+        applicationId isPlayBuild ? "noty.app" : "com.noty.app"
         minSdk 26
         targetSdk 36
         versionCode 7
