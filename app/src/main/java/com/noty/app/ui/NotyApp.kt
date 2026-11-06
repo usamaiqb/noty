@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -26,6 +27,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -46,9 +49,11 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.dp
 import com.noty.app.R
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.noty.app.data.Note
@@ -83,6 +88,24 @@ fun NotyApp(
     }
     val displayedNotes = if (searchActive) filteredNotes else notes
     val defaultPin by viewModel.defaultPinFlow.collectAsStateWithLifecycle(true)
+
+    // One answer to "can notes be pinned?", shared by every screen below.
+    val notificationAccess = rememberNotificationAccess(onEnabled = { viewModel.syncNotifications() })
+    val onPinToggle: (Note) -> Unit = { note ->
+        if (!note.isPinned && !notificationAccess.enabled) {
+            notificationAccess.explain()
+        } else {
+            viewModel.update(note.copy(isPinned = !note.isPinned))
+        }
+    }
+
+    val resources = LocalResources.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    LaunchedEffect(viewModel) {
+        viewModel.messages.collect { message ->
+            snackbarHostState.showSnackbar(resources.getString(message.text))
+        }
+    }
 
     val haptics = rememberExpressiveHaptics()
     val listState = rememberLazyListState()
@@ -123,12 +146,15 @@ fun NotyApp(
         if (settings) {
             SettingsScreen(
                 viewModel = viewModel,
+                notificationsEnabled = notificationAccess.enabled,
+                onTurnOnNotifications = notificationAccess::turnOn,
                 onNavigateBack = { showSettings = false }
             )
         } else {
             Scaffold(
                 modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
                 containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                snackbarHost = { SnackbarHost(snackbarHostState) },
                 topBar = {
                     AnimatedContent(
                         targetState = searchActive,
@@ -185,19 +211,30 @@ fun NotyApp(
                     )
                 }
             ) { innerPadding ->
-                when {
-                    displayedNotes.isEmpty() -> EmptyStateContent(
-                        modifier = Modifier.padding(innerPadding),
-                        searchQuery = if (searchActive) searchQuery else ""
-                    )
-                    else -> NotesList(
-                        notes = displayedNotes,
-                        listState = listState,
-                        onEditClick = { noteToEdit = it },
-                        onPinClick = { viewModel.update(it.copy(isPinned = !it.isPinned)) },
-                        onDeleteClick = { noteToDelete = it },
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                Column(modifier = Modifier.padding(innerPadding)) {
+                    // Shown even with no notes yet, so someone who declined notifications on
+                    // first launch learns why before they add anything.
+                    if (!notificationAccess.enabled) {
+                        NotificationsOffCard(
+                            onTurnOn = notificationAccess::turnOn,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
+                    }
+                    when {
+                        displayedNotes.isEmpty() -> EmptyStateContent(
+                            modifier = Modifier.weight(1f),
+                            searchQuery = if (searchActive) searchQuery else ""
+                        )
+                        else -> NotesList(
+                            notes = displayedNotes,
+                            listState = listState,
+                            canPin = notificationAccess.enabled,
+                            onEditClick = { noteToEdit = it },
+                            onPinClick = onPinToggle,
+                            onDeleteClick = { noteToDelete = it },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
                 }
             }
         }
@@ -211,6 +248,8 @@ fun NotyApp(
     if (showAddSheet) {
         NoteBottomSheet(
             defaultPinned = defaultPin,
+            canPin = notificationAccess.enabled,
+            onPinBlocked = notificationAccess::explain,
             onDismiss = { showAddSheet = false },
             onSave = { title, description, isPinned, reminderAt ->
                 viewModel.insert(
@@ -231,6 +270,8 @@ fun NotyApp(
     noteToEdit?.let { note ->
         NoteBottomSheet(
             note = note,
+            canPin = notificationAccess.enabled,
+            onPinBlocked = notificationAccess::explain,
             onDismiss = { noteToEdit = null },
             onSave = { title, description, isPinned, reminderAt ->
                 viewModel.update(
@@ -269,6 +310,8 @@ fun NotyApp(
             }
         )
     }
+
+    NotificationAccessDialog(notificationAccess)
 
 }
 

@@ -50,8 +50,22 @@
     <string name="reminder_time_in_past">That time has already passed. Pick a later time.</string>
     <string name="reminder_fallback_text">Reminder</string>
 
+    <!-- Notifications off: pinning can't work, so the app says so wherever it matters -->
+    <string name="notifications_off_banner">Notifications are off, so Noty can\'t show your notes in the status bar.</string>
+    <string name="notifications_turn_on">Turn on</string>
+    <string name="notifications_off_dialog_title">Turn on notifications</string>
+    <string name="notifications_off_dialog_message">Noty pins notes to your status bar as notifications. While notifications are off, notes can\'t be pinned.</string>
+
+    <!-- Messages for actions that didn't go through -->
+    <string name="message_save_failed">Couldn\'t save the note</string>
+    <string name="message_update_failed">Couldn\'t update the note</string>
+    <string name="message_delete_failed">Couldn\'t delete the note</string>
+    <string name="message_reminder_needs_permission">Note saved without its reminder: the alarms &amp; reminders permission is off</string>
+    <string name="message_reminder_time_passed">Note saved without its reminder: that time has already passed</string>
+
     <!-- Settings -->
     <string name="settings_title">Settings</string>
+    <string name="settings_pin_default_needs_notifications">Needs notifications to be on</string>
     <string name="settings_section_appearance">Appearance</string>
     <string name="settings_section_notes">Notes</string>
     <string name="settings_section_about">About</string>

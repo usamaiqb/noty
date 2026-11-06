@@ -39,6 +39,7 @@ import com.noty.app.ui.expressive.segmentPositionFor
 internal fun NotesList(
     notes: List<Note>,
     listState: LazyListState,
+    canPin: Boolean,
     onEditClick: (Note) -> Unit,
     onPinClick: (Note) -> Unit,
     onDeleteClick: (Note) -> Unit,
@@ -61,25 +62,30 @@ internal fun NotesList(
         ),
         modifier = modifier
     ) {
+        val actions = NoteRowActions(canPin, onEditClick, onPinClick, onDeleteClick)
         noteSection(
             headerKey = "pinned_header",
             notes = pinned,
-            onEditClick = onEditClick,
-            onPinClick = onPinClick,
-            onDeleteClick = onDeleteClick,
+            actions = actions,
             header = pinnedHeader
         )
         noteSection(
             headerKey = "others_header",
             notes = others,
-            onEditClick = onEditClick,
-            onPinClick = onPinClick,
-            onDeleteClick = onDeleteClick,
+            actions = actions,
             header = othersHeader,
             topPadding = SectionGap
         )
     }
 }
+
+/** What every row in the list can do, passed to each section as one unit. */
+private class NoteRowActions(
+    val canPin: Boolean,
+    val onEditClick: (Note) -> Unit,
+    val onPinClick: (Note) -> Unit,
+    val onDeleteClick: (Note) -> Unit
+)
 
 /**
  * One connected group of notes: an optional header, then the rows, each shaped for its place
@@ -92,9 +98,7 @@ internal fun NotesList(
 private fun LazyListScope.noteSection(
     headerKey: String,
     notes: List<Note>,
-    onEditClick: (Note) -> Unit,
-    onPinClick: (Note) -> Unit,
-    onDeleteClick: (Note) -> Unit,
+    actions: NoteRowActions,
     header: String? = null,
     topPadding: Dp = 0.dp
 ) {
@@ -111,9 +115,10 @@ private fun LazyListScope.noteSection(
         NoteCard(
             note = note,
             position = segmentPositionFor(index, notes.size),
-            onEditClick = { onEditClick(note) },
-            onPinClick = { onPinClick(note) },
-            onDeleteClick = { onDeleteClick(note) },
+            canPin = actions.canPin,
+            onEditClick = { actions.onEditClick(note) },
+            onPinClick = { actions.onPinClick(note) },
+            onDeleteClick = { actions.onDeleteClick(note) },
             modifier = Modifier
                 .animateItem(
                     fadeInSpec = tween(durationMillis = 180),

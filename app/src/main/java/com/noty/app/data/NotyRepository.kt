@@ -2,6 +2,7 @@ package com.noty.app.data
 
 import android.util.Log
 import kotlinx.coroutines.flow.Flow
+import kotlin.coroutines.cancellation.CancellationException
 
 class NotyRepository(private val noteDao: NoteDao) {
 
@@ -14,6 +15,9 @@ class NotyRepository(private val noteDao: NoteDao) {
     suspend fun insert(note: Note): Long {
         return try {
             noteDao.insertNote(note)
+        } catch (e: CancellationException) {
+            // Cancellation is not a database failure; swallowing it breaks structured concurrency.
+            throw e
         } catch (e: Exception) {
             Log.e(TAG, "Failed to insert note", e)
             -1L
@@ -24,6 +28,9 @@ class NotyRepository(private val noteDao: NoteDao) {
         return try {
             noteDao.updateNote(note)
             true
+        } catch (e: CancellationException) {
+            // Cancellation is not a database failure; swallowing it breaks structured concurrency.
+            throw e
         } catch (e: Exception) {
             Log.e(TAG, "Failed to update note", e)
             false
@@ -34,6 +41,9 @@ class NotyRepository(private val noteDao: NoteDao) {
         return try {
             noteDao.deleteNoteById(note.id)
             true
+        } catch (e: CancellationException) {
+            // Cancellation is not a database failure; swallowing it breaks structured concurrency.
+            throw e
         } catch (e: Exception) {
             Log.e(TAG, "Failed to delete note", e)
             false
@@ -44,6 +54,9 @@ class NotyRepository(private val noteDao: NoteDao) {
         return try {
             noteDao.deleteNoteById(noteId)
             true
+        } catch (e: CancellationException) {
+            // Cancellation is not a database failure; swallowing it breaks structured concurrency.
+            throw e
         } catch (e: Exception) {
             Log.e(TAG, "Failed to delete note by id", e)
             false
