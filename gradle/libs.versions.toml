@@ -15,6 +15,7 @@ lifecycle = "2.7.0"
 # 2.7.x required for KSP2 / AGP built-in Kotlin compatibility
 room = "2.7.2"
 datastore = "1.0.0"
+kotlinxSerialization = "1.12.0"
 splashscreen = "1.0.1"
 composeBom = "2025.12.00"
 # material3 is pinned past the BOM because MaterialExpressiveTheme and MotionScheme are
@@ -41,6 +42,8 @@ androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = 
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 androidx-room-testing = { group = "androidx.room", name = "room-testing", version.ref = "room" }
 
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashscreen" }
 
@@ -65,6 +68,7 @@ androidx-test-espresso-core = { group = "androidx.test.espresso", name = "espres
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 easylauncher = { id = "com.starter.easylauncher", version.ref = "easylauncher" }

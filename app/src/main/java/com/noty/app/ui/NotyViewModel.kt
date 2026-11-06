@@ -2,6 +2,7 @@ package com.noty.app.ui
 
 import android.app.Application
 import android.content.Intent
+import android.content.res.Resources
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
@@ -21,13 +22,20 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
-/** Something the user asked for that didn't happen, shown as a snackbar. */
-enum class NoteMessage(@StringRes val text: Int) {
+/** A short result shown as a snackbar, because the screen that asked for it has moved on. */
+sealed interface UserMessage {
+    fun text(resources: Resources): String
+}
+
+/** A note change that didn't happen, or only partly did. */
+enum class NoteMessage(@StringRes private val res: Int) : UserMessage {
     SAVE_FAILED(R.string.message_save_failed),
     UPDATE_FAILED(R.string.message_update_failed),
     DELETE_FAILED(R.string.message_delete_failed),
     REMINDER_NEEDS_PERMISSION(R.string.message_reminder_needs_permission),
-    REMINDER_TIME_PASSED(R.string.message_reminder_time_passed)
+    REMINDER_TIME_PASSED(R.string.message_reminder_time_passed);
+
+    override fun text(resources: Resources): String = resources.getString(res)
 }
 
 class NotyViewModel(application: Application) : AndroidViewModel(application) {
@@ -50,8 +58,8 @@ class NotyViewModel(application: Application) : AndroidViewModel(application) {
 
     // The sheet closes as soon as Save is tapped, so a failure has to be reported
     // after the fact rather than inline.
-    private val _messages = Channel<NoteMessage>(Channel.BUFFERED)
-    val messages: Flow<NoteMessage> = _messages.receiveAsFlow()
+    private val _messages = Channel<UserMessage>(Channel.BUFFERED)
+    val messages: Flow<UserMessage> = _messages.receiveAsFlow()
 
     // Track service state to prevent start/stop thrashing
     private var isServiceRunning = false
