@@ -61,6 +61,7 @@ import com.noty.app.ui.expressive.CollapsingLargeTopBar
 import com.noty.app.ui.expressive.rememberExpressiveHaptics
 import com.noty.app.ui.expressive.rememberExpressiveScrollBehavior
 import com.noty.app.data.NoteType
+import com.noty.app.data.withText
 // ─── Root composable ──────────────────────────────────────────────────────────
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -95,7 +96,7 @@ fun NotyApp(
         if (!note.isPinned && !notificationAccess.enabled) {
             notificationAccess.explain()
         } else {
-            viewModel.update(note.copy(isPinned = !note.isPinned))
+            viewModel.setPinned(note, !note.isPinned)
         }
     }
 
@@ -275,12 +276,8 @@ fun NotyApp(
             onDismiss = { noteToEdit = null },
             onSave = { title, description, isPinned, reminderAt ->
                 viewModel.update(
-                    note.copy(
-                        title = title,
-                        description = if (description.isEmpty()) null else description,
-                        isPinned = isPinned,
-                        reminderAt = reminderAt
-                    )
+                    note.withText(title, description.ifEmpty { null })
+                        .copy(isPinned = isPinned, reminderAt = reminderAt)
                 )
                 noteToEdit = null
             }

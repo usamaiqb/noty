@@ -27,7 +27,7 @@ class ReminderReceiver : BroadcastReceiver() {
 
                 // One-shot: clear the reminder once it has fired
                 if (note.reminderAt != null) {
-                    dao.updateNote(note.copy(reminderAt = null))
+                    dao.clearReminder(note.id)
                 }
             } finally {
                 pendingResult.finish()

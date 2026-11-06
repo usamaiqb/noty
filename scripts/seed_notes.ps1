@@ -58,28 +58,28 @@ $oneDay   = 86400000
 $oneWeek  = 7 * $oneDay
 
 # ── sample notes ─────────────────────────────────────────────────────────────
-#  Schema: id (auto), title, description, type (NOTE|REMINDER|WORK), timestamp, isPinned (1/0)
+#  Schema: id (auto), title, description, type (NOTE|REMINDER|WORK), createdAt, updatedAt, isPinned (1/0), reminderAt
 $notes = @(
     # ── Pinned notes ──────────────────────────────────────────────────────────
     @{
         title       = "Review pull request"
         description = "#42 — auth refactor"
         type        = "WORK"
-        timestamp   = $now - $oneHour
+        createdAt   = $now - $oneHour
         isPinned    = 1
     },
     @{
         title       = "Call dentist"
         description = "Book appointment for Tuesday"
         type        = "REMINDER"
-        timestamp   = $now - (2 * $oneHour)
+        createdAt   = $now - (2 * $oneHour)
         isPinned    = 1
     },
     @{
         title       = "Buy groceries"
         description = "Milk, eggs, bread, coffee"
         type        = "NOTE"
-        timestamp   = $now - (3 * $oneHour)
+        createdAt   = $now - (3 * $oneHour)
         isPinned    = 1
     },
 
@@ -88,21 +88,21 @@ $notes = @(
         title       = "Weekend reading"
         description = "Finish chapter 4 of Atomic Habits and start Deep Work."
         type        = "NOTE"
-        timestamp   = $now - $oneDay
+        createdAt   = $now - $oneDay
         isPinned    = 0
     },
     @{
         title       = "Team lunch"
         description = "Friday 1 PM at the Italian place on 5th. Confirm with Sara and Jake."
         type        = "REMINDER"
-        timestamp   = $now - (2 * $oneDay)
+        createdAt   = $now - (2 * $oneDay)
         isPinned    = 0
     },
     @{
         title       = "Team lunch"
         description = "Friday 1 PM at the Italian place on 5th. Confirm with Sara and Jake."
         type        = "REMINDER"
-        timestamp   = $now - (2 * $oneDay)
+        createdAt   = $now - (2 * $oneDay)
         isPinned    = 0
     }
 )
@@ -115,8 +115,8 @@ foreach ($note in $notes) {
     $title = $note.title -replace "'", "''"
     $desc  = $note.description -replace "'", "''"
 
-    $sql = "INSERT INTO notes (title, description, type, timestamp, isPinned) " +
-           "VALUES ('$title', '$desc', '$($note.type)', $($note.timestamp), $($note.isPinned));"
+    $sql = "INSERT INTO notes (title, description, type, createdAt, updatedAt, isPinned) " +
+           "VALUES ('$title', '$desc', '$($note.type)', $($note.createdAt), $($note.createdAt), $($note.isPinned));"
 
     Invoke-Sql $sql
     $pin = if ($note.isPinned) { "[pinned]" } else { "        " }

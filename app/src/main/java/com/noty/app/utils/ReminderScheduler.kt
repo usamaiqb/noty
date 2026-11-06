@@ -78,7 +78,7 @@ object ReminderScheduler {
             val triggerAt = note.reminderAt ?: return@forEach
             if (triggerAt <= now) {
                 notificationHelper.showReminderNotification(note)
-                dao.updateNote(note.copy(reminderAt = null))
+                dao.clearReminder(note.id)
             } else {
                 schedule(context, note)
             }
