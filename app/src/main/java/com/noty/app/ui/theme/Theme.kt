@@ -3,7 +3,8 @@ package com.noty.app.ui.theme
 import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
@@ -99,6 +100,19 @@ private val DarkColors = darkColorScheme(
     surfaceContainerLowest = surfaceContainerLowestDark
 )
 
+/**
+ * Noty is built out of Material 3 Expressive components, so it uses the Expressive theme
+ * rather than plain MaterialTheme. The difference at runtime is [MotionScheme]: this wrapper
+ * defaults motionScheme to expressive, which swaps Material's standard easing for the
+ * spatial spring physics the Expressive spec describes, across every component that animates.
+ *
+ * Nothing else is passed. Shapes and typography default, and the colour scheme is the same
+ * one plain MaterialTheme was given — this changes how things move, not how they look.
+ *
+ * Still marked @ExperimentalMaterial3ExpressiveApi in Material3 1.4.0. The opt-in is here and
+ * nowhere else, so the day it stabilises or changes shape, this is the only call site.
+ */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun NotyTheme(
     themeMode: ThemeManager.ThemeMode = ThemeManager.ThemeMode.SYSTEM,
@@ -138,7 +152,7 @@ fun NotyTheme(
         }
     }
 
-    MaterialTheme(
+    MaterialExpressiveTheme(
         colorScheme = colorScheme,
         content = content
     )

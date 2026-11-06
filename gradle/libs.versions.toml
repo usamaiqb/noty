@@ -17,6 +17,12 @@ room = "2.7.2"
 datastore = "1.0.0"
 splashscreen = "1.0.1"
 composeBom = "2025.12.00"
+# material3 is pinned past the BOM because MaterialExpressiveTheme and MotionScheme are
+# internal in every stable release, 1.4.0 included. Note this cascades: 1.5.0-alpha15 needs
+# newer foundation, so compose.ui and compose.animation resolve to 1.11.0-alpha06 too — the
+# pin puts the whole Compose core on alpha, not just material3. Drop it the moment the
+# Expressive APIs ship stable, and re-check that NotyTheme still compiles without the opt-in.
+material3 = "1.5.0-alpha15"
 
 junit = "4.13.2"
 androidxTestJunit = "1.1.5"
@@ -38,12 +44,13 @@ androidx-datastore-preferences = { group = "androidx.datastore", name = "datasto
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashscreen" }
 
 # Versions below come from the Compose BOM, so they are deliberately absent here.
+# material3 is the one exception; see the note beside its version above.
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
-androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose" }
 
