@@ -39,10 +39,8 @@ class NotificationReceiver : BroadcastReceiver() {
                         }
                     }
                     NotificationHelper.ACTION_UNPIN -> {
-                        val note = database.noteDao().getNoteById(noteId)
-                        if (note != null) {
-                            // Mark as unpinned — note stays in DB, notification is removed
-                            NotyRepository(database.noteDao()).update(note.copy(isPinned = false))
+                        // Mark as unpinned: the note stays in the DB, its notification goes
+                        if (NotyRepository(database.noteDao()).setPinned(noteId, false)) {
                             notificationHelper.cancelNotification(noteId.toInt())
                         }
                     }

@@ -12,54 +12,32 @@ class NotyRepository(private val noteDao: NoteDao) {
 
     fun getAllNotes(): Flow<List<Note>> = noteDao.getAllNotes()
 
-    suspend fun insert(note: Note): Long {
-        return try {
-            noteDao.insertNote(note)
-        } catch (e: CancellationException) {
-            // Cancellation is not a database failure; swallowing it breaks structured concurrency.
-            throw e
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to insert note", e)
-            -1L
-        }
-    }
+    /** @return the new row id, or -1 if the insert failed. */
+    suspend fun insert(note: Note): Long = attempt("insert note", -1L) { noteDao.insertNote(note) }
 
-    suspend fun update(note: Note): Boolean {
-        return try {
-            noteDao.updateNote(note)
-            true
-        } catch (e: CancellationException) {
-            // Cancellation is not a database failure; swallowing it breaks structured concurrency.
-            throw e
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to update note", e)
-            false
-        }
-    }
+    suspend fun update(note: Note): Boolean = attempt("update note") { noteDao.updateNote(note) }
 
-    suspend fun delete(note: Note): Boolean {
-        return try {
-            noteDao.deleteNoteById(note.id)
-            true
-        } catch (e: CancellationException) {
-            // Cancellation is not a database failure; swallowing it breaks structured concurrency.
-            throw e
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to delete note", e)
-            false
-        }
-    }
+    suspend fun setPinned(noteId: Long, pinned: Boolean): Boolean =
+        attempt("set pinned") { noteDao.setPinned(noteId, pinned) }
 
-    suspend fun deleteById(noteId: Long): Boolean {
-        return try {
-            noteDao.deleteNoteById(noteId)
-            true
+    suspend fun clearReminder(noteId: Long): Boolean =
+        attempt("clear reminder") { noteDao.clearReminder(noteId) }
+
+    suspend fun delete(note: Note): Boolean = deleteById(note.id)
+
+    suspend fun deleteById(noteId: Long): Boolean = attempt("delete note") { noteDao.deleteNoteById(noteId) }
+
+    private suspend fun attempt(what: String, block: suspend () -> Unit): Boolean =
+        attempt(what, false) { block(); true }
+
+    private suspend fun <T> attempt(what: String, onFailure: T, block: suspend () -> T): T =
+        try {
+            block()
         } catch (e: CancellationException) {
             // Cancellation is not a database failure; swallowing it breaks structured concurrency.
             throw e
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to delete note by id", e)
-            false
+            Log.e(TAG, "Failed to $what", e)
+            onFailure
         }
-    }
 }

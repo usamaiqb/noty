@@ -71,9 +71,9 @@ fun NoteCard(
     val pinBlocked = !note.isPinned && !canPin
     val pinAlpha = if (pinBlocked) DisabledAlpha else 1f
     val haptics = rememberExpressiveHaptics()
-    val relativeTime = remember(note.timestamp) {
+    val relativeTime = remember(note.updatedAt) {
         DateUtils.getRelativeTimeSpanString(
-            note.timestamp,
+            note.updatedAt,
             System.currentTimeMillis(),
             DateUtils.MINUTE_IN_MILLIS,
             DateUtils.FORMAT_ABBREV_RELATIVE

@@ -63,6 +63,47 @@ class MigrationTest {
             }
     }
 
+    @Test
+    fun migrate6To7_renamesTimestampAndBackfillsUpdatedAt() {
+        helper.createDatabase(testDb, 6).use { db ->
+            db.execSQL(
+                """
+                INSERT INTO notes (id, title, description, type, timestamp, isPinned, reminderAt)
+                VALUES (1, 'With reminder', 'Some text', 'NOTE', 1700000000000, 1, 1800000000000),
+                       (2, 'Plain', NULL, 'NOTE', 1700000001000, 0, NULL)
+                """.trimIndent()
+            )
+        }
+
+        // Auto-migrations are picked up from @Database; this also checks the table against 7.json.
+        val db = helper.runMigrationsAndValidate(testDb, 7, true)
+
+        db.query(
+            "SELECT id, title, description, type, createdAt, updatedAt, isPinned, reminderAt " +
+                "FROM notes ORDER BY id"
+        ).use { c ->
+            assertEquals(2, c.count)
+
+            assertTrue(c.moveToNext())
+            assertEquals(1L, c.getLong(0))
+            assertEquals("With reminder", c.getString(1))
+            assertEquals("Some text", c.getString(2))
+            assertEquals("NOTE", c.getString(3))
+            assertEquals(1700000000000L, c.getLong(4))
+            assertEquals(1700000000000L, c.getLong(5))
+            assertEquals(1, c.getInt(6))
+            assertEquals(1800000000000L, c.getLong(7))
+
+            assertTrue(c.moveToNext())
+            assertEquals(2L, c.getLong(0))
+            assertTrue(c.isNull(2))
+            assertEquals(1700000001000L, c.getLong(4))
+            assertEquals(1700000001000L, c.getLong(5))
+            assertEquals(0, c.getInt(6))
+            assertTrue(c.isNull(7))
+        }
+    }
+
     /**
      * Opens the oldest released schema with the app's real Room configuration, so a version
      * bump without a matching migration fails here rather than on users' phones.
@@ -83,11 +124,13 @@ class MigrationTest {
         try {
             // Opening runs the migrations and Room's own schema check against the entities.
             database.openHelper.writableDatabase
-                .query("SELECT title, reminderAt FROM notes WHERE id = 1")
+                .query("SELECT title, reminderAt, createdAt, updatedAt FROM notes WHERE id = 1")
                 .use { c ->
                     assertTrue(c.moveToNext())
                     assertEquals("Kept", c.getString(0))
                     assertNull(c.getString(1))
+                    assertEquals(1700000000000L, c.getLong(2))
+                    assertEquals(1700000000000L, c.getLong(3))
                 }
         } finally {
             database.close()

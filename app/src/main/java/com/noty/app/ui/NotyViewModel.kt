@@ -99,7 +99,7 @@ class NotyViewModel(application: Application) : AndroidViewModel(application) {
         if (noteWithId.reminderAt != null &&
             !ReminderScheduler.schedule(getApplication(), noteWithId)
         ) {
-            repository.update(noteWithId.copy(reminderAt = null))
+            repository.clearReminder(id)
             _messages.send(reminderNotSetReason())
         }
     }
@@ -118,11 +118,24 @@ class NotyViewModel(application: Application) : AndroidViewModel(application) {
         }
         if (note.reminderAt != null) {
             if (!ReminderScheduler.schedule(getApplication(), note)) {
-                repository.update(note.copy(reminderAt = null))
+                repository.clearReminder(note.id)
                 _messages.send(reminderNotSetReason())
             }
         } else {
             ReminderScheduler.cancel(getApplication(), note.id)
+        }
+    }
+
+    /** Pins or unpins from the list. Not an edit, so the note keeps its place. */
+    fun setPinned(note: Note, pinned: Boolean) = viewModelScope.launch {
+        if (!repository.setPinned(note.id, pinned)) {
+            _messages.send(NoteMessage.UPDATE_FAILED)
+            return@launch
+        }
+        if (pinned) {
+            notificationHelper.showNotification(note.copy(isPinned = true))
+        } else {
+            notificationHelper.cancelNotification(note.id.toInt())
         }
     }
 
