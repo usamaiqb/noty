@@ -4,11 +4,9 @@
   <CurrentIssues>
     <ID>ComposableParamOrder:NoteBottomSheet.kt$NoteBottomSheet</ID>
     <ID>CyclomaticComplexMethod:NoteBottomSheet.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun NoteBottomSheet( note: Note? = null, defaultPinned: Boolean = true, onDismiss: () -&gt; Unit, onSave: (title: String, description: String, isPinned: Boolean, reminderAt: Long?) -&gt; Unit )</ID>
-    <ID>CyclomaticComplexMethod:NotyApp.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun NotyApp( viewModel: NotyViewModel, triggerAddNote: Boolean = false, onAddNoteTriggered: () -&gt; Unit = {} )</ID>
-    <ID>LambdaParameterInRestartableEffect:NotyApp.kt$onAddNoteTriggered</ID>
+    <ID>CyclomaticComplexMethod:NotyApp.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun NotyApp( viewModel: NotyViewModel, pendingAddNote: Boolean = false, onConsumeAddNote: () -&gt; Unit = {} )</ID>
     <ID>ModifierMissing:NotyApp.kt$NotyApp</ID>
     <ID>ModifierMissing:SettingsScreen.kt$SettingsScreen</ID>
-    <ID>ParameterNaming:NotyApp.kt$onAddNoteTriggered</ID>
     <ID>TooGenericExceptionCaught:NotyRepository.kt$NotyRepository$e: Exception</ID>
     <ID>TooGenericExceptionCaught:NotyService.kt$NotyService$e: Exception</ID>
     <ID>TooManyFunctions:NotificationHelper.kt$NotificationHelper</ID>
