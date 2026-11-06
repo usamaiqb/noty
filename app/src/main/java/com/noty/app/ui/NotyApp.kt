@@ -34,14 +34,12 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -51,6 +49,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import com.noty.app.R
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.noty.app.data.Note
 import com.noty.app.ui.expressive.CollapsingLargeTopBar
 import com.noty.app.ui.expressive.rememberExpressiveHaptics
@@ -65,7 +64,7 @@ fun NotyApp(
     triggerAddNote: Boolean = false,
     onAddNoteTriggered: () -> Unit = {}
 ) {
-    val notes by viewModel.allNotes.observeAsState(emptyList())
+    val notes by viewModel.allNotes.collectAsStateWithLifecycle(emptyList())
     var showAddSheet by remember { mutableStateOf(false) }
     var noteToEdit by remember { mutableStateOf<Note?>(null) }
     var noteToDelete by remember { mutableStateOf<Note?>(null) }
@@ -82,7 +81,7 @@ fun NotyApp(
         }
     }
     val displayedNotes = if (searchActive) filteredNotes else notes
-    val defaultPin by viewModel.defaultPinFlow.collectAsState(initial = true)
+    val defaultPin by viewModel.defaultPinFlow.collectAsStateWithLifecycle(true)
 
     val haptics = rememberExpressiveHaptics()
     val listState = rememberLazyListState()

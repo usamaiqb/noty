@@ -130,8 +130,7 @@ dependencies {
 
     // Lifecycle components
     implementation libs.androidx.lifecycle.viewmodel.ktx
-    implementation libs.androidx.lifecycle.livedata.ktx
-    implementation libs.androidx.lifecycle.common.java8
+    implementation libs.androidx.lifecycle.runtime.compose
     implementation libs.androidx.lifecycle.runtime.ktx
 
     // Room
@@ -151,8 +150,6 @@ dependencies {
     implementation libs.androidx.compose.material3
     implementation libs.androidx.compose.material.icons.extended
     implementation libs.androidx.activity.compose
-    implementation libs.androidx.lifecycle.viewmodel.compose
-    implementation libs.androidx.compose.runtime.livedata
 
     // Kotlin static analysis, including the Compose rule set
     detektPlugins libs.detekt.compose.rules

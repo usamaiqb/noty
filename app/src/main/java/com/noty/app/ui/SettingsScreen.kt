@@ -31,13 +31,13 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.noty.app.R
 import com.noty.app.ui.expressive.ActionRow
 import com.noty.app.ui.expressive.AppIdentityRow
@@ -62,9 +62,9 @@ fun SettingsScreen(
     viewModel: NotyViewModel,
     onNavigateBack: () -> Unit
 ) {
-    val currentTheme by viewModel.themeFlow.collectAsState(initial = ThemeManager.ThemeMode.SYSTEM)
-    val dynamicColors by viewModel.dynamicColorsFlow.collectAsState(initial = true)
-    val defaultPin by viewModel.defaultPinFlow.collectAsState(initial = true)
+    val currentTheme by viewModel.themeFlow.collectAsStateWithLifecycle(ThemeManager.ThemeMode.SYSTEM)
+    val dynamicColors by viewModel.dynamicColorsFlow.collectAsStateWithLifecycle(true)
+    val defaultPin by viewModel.defaultPinFlow.collectAsStateWithLifecycle(true)
     val context = LocalContext.current
     val scrollBehavior = rememberExpressiveScrollBehavior()
 

@@ -6,7 +6,6 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.noty.app.data.AppDatabase
 import com.noty.app.data.NotyRepository
@@ -30,7 +29,7 @@ class NotyViewModel(application: Application) : AndroidViewModel(application) {
         notificationHelper = NotificationHelper(application)
     }
 
-    val allNotes = repository.getAllNotes().asLiveData()
+    val allNotes = repository.getAllNotes()
     val themeFlow = themeManager.themeFlow
     val dynamicColorsFlow = themeManager.dynamicColorsFlow
     val defaultPinFlow = themeManager.defaultPinFlow

@@ -8,7 +8,6 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.ComponentActivity
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -16,6 +15,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.noty.app.ui.theme.NotyTheme
 import com.noty.app.utils.QuickNoteTileService
 import com.noty.app.utils.ThemeManager
@@ -46,10 +46,9 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            val dynamicColors by viewModel.dynamicColorsFlow.collectAsState(initial = true)
-            val themeMode by viewModel.themeFlow.collectAsState(
-                initial = ThemeManager.ThemeMode.SYSTEM
-            )
+            val dynamicColors by viewModel.dynamicColorsFlow.collectAsStateWithLifecycle(true)
+            val themeMode by viewModel.themeFlow
+                .collectAsStateWithLifecycle(ThemeManager.ThemeMode.SYSTEM)
             NotyTheme(themeMode = themeMode, dynamicColor = dynamicColors) {
                 NotyApp(
                     viewModel = viewModel,
