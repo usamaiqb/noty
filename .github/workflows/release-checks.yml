@@ -98,6 +98,33 @@ jobs:
           echo "--- contents ---"
           cat "$FILE"
 
+      # Google Play rejects the whole upload when one field is over its limit, and that
+      # upload runs only after the tag. Characters, not bytes: `wc -m` under a UTF-8 locale.
+      # supply sends a file as it is, so line breaks count; only the final one is dropped.
+      - name: Store listing fits Google Play's limits
+        env:
+          LC_ALL: C.UTF-8
+          VERSION_CODE: ${{ steps.pr.outputs.version_code }}
+        run: |
+          FAIL=0
+          check() {
+            [ -f "$1" ] || return 0
+            LEN=$(printf '%s' "$(cat "$1")" | wc -m)
+            if [ "$LEN" -gt "$2" ]; then
+              echo "❌ $1 is $LEN characters; Google Play allows $2"
+              FAIL=1
+            else
+              echo "✅ $1: $LEN / $2"
+            fi
+          }
+          for DIR in fastlane/metadata/android/*/; do
+            check "${DIR}title.txt" 30
+            check "${DIR}short_description.txt" 80
+            check "${DIR}full_description.txt" 4000
+            check "${DIR}changelogs/${VERSION_CODE}.txt" 500
+          done
+          exit $FAIL
+
       # The table is normally kept current by translation-table.yml's bot PR; this
       # catches a release cut while that PR is still open.
       - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
