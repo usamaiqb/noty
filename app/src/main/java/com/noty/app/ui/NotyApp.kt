@@ -38,6 +38,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
@@ -61,8 +62,8 @@ import com.noty.app.data.NoteType
 @Composable
 fun NotyApp(
     viewModel: NotyViewModel,
-    triggerAddNote: Boolean = false,
-    onAddNoteTriggered: () -> Unit = {}
+    pendingAddNote: Boolean = false,
+    onConsumeAddNote: () -> Unit = {}
 ) {
     val notes by viewModel.allNotes.collectAsStateWithLifecycle(emptyList())
     var showAddSheet by remember { mutableStateOf(false) }
@@ -93,12 +94,15 @@ fun NotyApp(
         }
     }
 
-    // Open add sheet when triggered from Quick Settings tile
-    LaunchedEffect(triggerAddNote) {
-        if (triggerAddNote) {
+    // Opens the add sheet when the Quick Settings tile launched us. Held in a
+    // rememberUpdatedState because the effect restarts on pendingAddNote alone: capturing
+    // the lambda directly would pin whichever instance existed when the effect last began.
+    val consumeAddNote by rememberUpdatedState(onConsumeAddNote)
+    LaunchedEffect(pendingAddNote) {
+        if (pendingAddNote) {
             showSettings = false
             showAddSheet = true
-            onAddNoteTriggered()
+            consumeAddNote()
         }
     }
 

@@ -52,8 +52,8 @@ class MainActivity : ComponentActivity() {
             NotyTheme(themeMode = themeMode, dynamicColor = dynamicColors) {
                 NotyApp(
                     viewModel = viewModel,
-                    triggerAddNote = addNoteFromTile,
-                    onAddNoteTriggered = { addNoteFromTile = false }
+                    pendingAddNote = addNoteFromTile,
+                    onConsumeAddNote = { addNoteFromTile = false }
                 )
             }
         }
