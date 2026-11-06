@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
@@ -50,6 +51,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.noty.app.R
 import com.noty.app.data.Note
@@ -65,13 +67,18 @@ import java.util.TimeZone
 fun NoteBottomSheet(
     note: Note? = null,
     defaultPinned: Boolean = true,
+    canPin: Boolean = true,
+    onPinBlocked: () -> Unit = {},
     onDismiss: () -> Unit,
     onSave: (title: String, description: String, isPinned: Boolean, reminderAt: Long?) -> Unit
 ) {
     val isEditing = note != null
     var title by remember { mutableStateOf(note?.title ?: "") }
     var description by remember { mutableStateOf(note?.description ?: "") }
-    var isPinned by remember { mutableStateOf(note?.isPinned ?: defaultPinned) }
+    // "New notes start pinned" can't apply while notifications are off. An existing pinned
+    // note keeps its state, and can still be unpinned.
+    var isPinned by remember { mutableStateOf(note?.isPinned ?: (defaultPinned && canPin)) }
+    val pinBlocked = !isPinned && !canPin
     var reminderAt by remember { mutableStateOf(note?.reminderAt) }
     var titleError by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
@@ -114,15 +121,36 @@ fun NoteBottomSheet(
                     text = stringResource(if (isEditing) R.string.sheet_title_edit else R.string.sheet_title_new),
                     style = MaterialTheme.typography.headlineSmall
                 )
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(stringResource(R.string.sheet_pin_note), style = MaterialTheme.typography.bodyMedium)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    // While pinning is blocked the switch is drawn disabled, which also stops it
+                    // taking taps, so the row takes them instead and explains why.
+                    modifier = if (pinBlocked) {
+                        Modifier.clickable(role = Role.Switch) {
+                            haptics.reject()
+                            onPinBlocked()
+                        }
+                    } else {
+                        Modifier
+                    }
+                ) {
+                    Text(
+                        stringResource(R.string.sheet_pin_note),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = if (pinBlocked) 0.38f else 1f)
+                    )
                     Spacer(Modifier.width(8.dp))
                     ExpressiveSwitch(
                         checked = isPinned,
-                        onCheckedChange = { checked ->
-                            haptics.toggle(on = checked)
-                            isPinned = checked
-                        }
+                        onCheckedChange = if (pinBlocked) {
+                            null
+                        } else {
+                            { checked ->
+                                haptics.toggle(on = checked)
+                                isPinned = checked
+                            }
+                        },
+                        enabled = !pinBlocked
                     )
                 }
             }

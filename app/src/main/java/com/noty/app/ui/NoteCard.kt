@@ -39,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -48,6 +49,9 @@ import com.noty.app.data.Note
 import com.noty.app.ui.expressive.SegmentPosition
 import com.noty.app.ui.expressive.segmentShape
 import com.noty.app.ui.expressive.rememberExpressiveHaptics
+/** Material's standard disabled-content opacity. */
+private const val DisabledAlpha = 0.38f
+
 // ─── Note card ────────────────────────────────────────────────────────────────
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -55,12 +59,17 @@ import com.noty.app.ui.expressive.rememberExpressiveHaptics
 fun NoteCard(
     note: Note,
     position: SegmentPosition,
+    canPin: Boolean,
     onEditClick: () -> Unit,
     onPinClick: () -> Unit,
     onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
+    // Unpinning always works; pinning needs notifications. A blocked Pin stays tappable so
+    // it can explain itself, but reads as disabled.
+    val pinBlocked = !note.isPinned && !canPin
+    val pinAlpha = if (pinBlocked) DisabledAlpha else 1f
     val haptics = rememberExpressiveHaptics()
     val relativeTime = remember(note.timestamp) {
         DateUtils.getRelativeTimeSpanString(
@@ -85,7 +94,7 @@ fun NoteCard(
                         onEditClick()
                     },
                     onLongClick = {
-                        haptics.toggle(on = !note.isPinned)
+                        if (pinBlocked) haptics.reject() else haptics.toggle(on = !note.isPinned)
                         onPinClick()
                     },
                     onLongClickLabel = stringResource(
@@ -183,11 +192,20 @@ fun NoteCard(
                 ) {
                     DropdownMenuItem(
                         text = {
-                            Text(stringResource(if (note.isPinned) R.string.action_unpin else R.string.action_pin))
+                            Text(
+                                stringResource(if (note.isPinned) R.string.action_unpin else R.string.action_pin),
+                                modifier = Modifier.alpha(pinAlpha)
+                            )
                         },
-                        leadingIcon = { Icon(Icons.Rounded.PushPin, contentDescription = null) },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Rounded.PushPin,
+                                contentDescription = null,
+                                modifier = Modifier.alpha(pinAlpha)
+                            )
+                        },
                         onClick = {
-                            haptics.toggle(on = !note.isPinned)
+                            if (pinBlocked) haptics.reject() else haptics.toggle(on = !note.isPinned)
                             menuExpanded = false
                             onPinClick()
                         }

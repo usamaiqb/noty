@@ -60,6 +60,8 @@ private const val GITHUB_REPO_URL = "https://github.com/usamaiqb/noty"
 @Composable
 fun SettingsScreen(
     viewModel: NotyViewModel,
+    notificationsEnabled: Boolean,
+    onTurnOnNotifications: () -> Unit,
     onNavigateBack: () -> Unit
 ) {
     val currentTheme by viewModel.themeFlow.collectAsStateWithLifecycle(ThemeManager.ThemeMode.SYSTEM)
@@ -88,6 +90,12 @@ fun SettingsScreen(
                 .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(SectionGap)
         ) {
+            // The same card as Home, and only while notifications are off: it's a problem
+            // to fix, not a preference to browse.
+            if (!notificationsEnabled) {
+                NotificationsOffCard(onTurnOn = onTurnOnNotifications)
+            }
+
             // ── Appearance ─────────────────────────────────────────────
             Column {
                 SectionHeader(stringResource(R.string.settings_section_appearance))
@@ -163,7 +171,14 @@ fun SettingsScreen(
                         checked = defaultPin,
                         onCheckedChange = viewModel::setDefaultPin,
                         icon = Icons.Rounded.PushPin,
-                        subtitle = stringResource(R.string.settings_pin_default_subtitle)
+                        subtitle = stringResource(
+                            if (notificationsEnabled) {
+                                R.string.settings_pin_default_subtitle
+                            } else {
+                                R.string.settings_pin_default_needs_notifications
+                            }
+                        ),
+                        enabled = notificationsEnabled
                     )
                 }
             }

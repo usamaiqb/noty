@@ -31,15 +31,11 @@ class NotificationReceiver : BroadcastReceiver() {
                         ReminderScheduler.cancel(context, noteId)
                     }
                     NotificationHelper.ACTION_DISMISSED -> {
+                        // A pinned note's notification comes straight back. Nothing else
+                        // happens: dismissing a notification must never delete a note.
                         val note = database.noteDao().getNoteById(noteId)
-                        if (note != null) {
-                            if (note.isPinned) {
-                                // Pinned: resurrect the notification
-                                notificationHelper.showNotification(note)
-                            } else {
-                                // Non-pinned: swipe/clear deletes the note (kept for future use)
-                                NotyRepository(database.noteDao()).deleteById(noteId)
-                            }
+                        if (note != null && note.isPinned) {
+                            notificationHelper.showNotification(note)
                         }
                     }
                     NotificationHelper.ACTION_UNPIN -> {
