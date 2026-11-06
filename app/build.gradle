@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.detekt)
     alias(libs.plugins.easylauncher)
+    alias(libs.plugins.room)
 }
 
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -124,6 +125,12 @@ tasks.withType(io.gitlab.arturbosch.detekt.Detekt).configureEach {
     }
 }
 
+// Room writes each database version's schema here. The files are committed: they're the
+// history that migration tests and auto-migrations are built from.
+room {
+    schemaDirectory "$projectDir/schemas"
+}
+
 dependencies {
     implementation libs.androidx.core.ktx
     implementation libs.material
@@ -156,6 +163,7 @@ dependencies {
 
     testImplementation libs.junit
     androidTestImplementation libs.androidx.test.junit
+    androidTestImplementation libs.androidx.room.testing
     androidTestImplementation libs.androidx.test.espresso.core
     androidTestImplementation platform(libs.androidx.compose.bom)
     androidTestImplementation libs.androidx.compose.ui.test.junit4
