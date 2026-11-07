@@ -51,7 +51,17 @@
     <string name="reminder_fallback_text">提醒</string>
 
     <!-- Settings -->
+    <string name="notifications_off_banner">通知权限已关闭，Noty 无法在通知栏显示便签</string>
+    <string name="notifications_turn_on">开启</string>
+    <string name="notifications_off_dialog_title">开启通知权限</string>
+    <string name="notifications_off_dialog_message">Noty 使用通知权限将便签固定到通知栏。没有通知权限，便签无法固定。</string>
+    <string name="message_save_failed">无法保存便签</string>
+    <string name="message_update_failed">无法更新便签</string>
+    <string name="message_delete_failed">无法删除便签</string>
+    <string name="message_reminder_needs_permission">便签已保存，但未设置提醒：“闹钟和提醒”权限已关闭</string>
+    <string name="message_reminder_time_passed">便签已保存，但未设置提醒：所选时间已过</string>
     <string name="settings_title">设置</string>
+    <string name="settings_pin_default_needs_notifications">需要打开通知权限</string>
     <string name="settings_section_appearance">外观</string>
     <string name="settings_section_notes">便签</string>
     <string name="settings_section_about">关于</string>
