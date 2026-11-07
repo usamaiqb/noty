@@ -101,7 +101,7 @@ The APK is written to `app/build/outputs/apk/debug/`. See [CHANGELOG.md](CHANGEL
 | --- | --- |
 | English | ████████████ 100% (source) |
 | Deutsch | █████████░░░ 78% |
-| 中文 (中国) | █████████░░░ 78% |
+| 中文 (中国) | ███████████░ 89% |
 <!-- translations:end -->
 
 Translations are welcome! Add or improve one in `app/src/main/res/values-<locale>/strings.xml` and open a pull request.
