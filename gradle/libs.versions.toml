@@ -9,15 +9,15 @@ detekt = "1.23.8"
 easylauncher = "6.4.1"
 detektComposeRules = "0.6.8"
 
-androidxCore = "1.12.0"
+androidxCore = "1.19.1"
 material = "1.14.0"
 lifecycle = "2.7.0"
 # 2.7.x required for KSP2 / AGP built-in Kotlin compatibility
-room = "2.7.2"
-datastore = "1.0.0"
+room = "2.8.5"
+datastore = "1.3.0"
 kotlinxSerialization = "1.12.0"
-splashscreen = "1.0.1"
-composeBom = "2025.12.00"
+splashscreen = "1.2.0"
+composeBom = "2026.09.00"
 # material3 is pinned past the BOM because MaterialExpressiveTheme and MotionScheme are
 # internal in every stable release, 1.4.0 included. Note this cascades: 1.5.0-alpha15 needs
 # newer foundation, so compose.ui and compose.animation resolve to 1.11.0-alpha06 too — the
