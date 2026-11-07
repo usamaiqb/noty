@@ -4,6 +4,8 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +19,8 @@ import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material.icons.rounded.BrightnessAuto
 import androidx.compose.material.icons.rounded.Code
 import androidx.compose.material.icons.rounded.DarkMode
+import androidx.compose.material.icons.rounded.FileDownload
+import androidx.compose.material.icons.rounded.FileUpload
 import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.rounded.LightMode
 import androidx.compose.material.icons.rounded.Palette
@@ -29,6 +33,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -39,6 +45,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.noty.app.R
+import com.noty.app.data.backup.NoteBackup
 import com.noty.app.ui.expressive.ActionRow
 import com.noty.app.ui.expressive.AppIdentityRow
 import com.noty.app.ui.expressive.CollapsingLargeTopBar
@@ -53,6 +60,7 @@ import com.noty.app.ui.expressive.rememberAppVersionLabel
 import com.noty.app.ui.expressive.rememberExpressiveHaptics
 import com.noty.app.ui.expressive.rememberExpressiveScrollBehavior
 import com.noty.app.utils.ThemeManager
+import java.time.LocalDate
 
 private const val GITHUB_REPO_URL = "https://github.com/usamaiqb/noty"
 
@@ -60,8 +68,10 @@ private const val GITHUB_REPO_URL = "https://github.com/usamaiqb/noty"
 @Composable
 fun SettingsScreen(
     viewModel: NotyViewModel,
+    backupViewModel: BackupViewModel,
     notificationsEnabled: Boolean,
     onTurnOnNotifications: () -> Unit,
+    snackbarHostState: SnackbarHostState,
     onNavigateBack: () -> Unit
 ) {
     val currentTheme by viewModel.themeFlow.collectAsStateWithLifecycle(ThemeManager.ThemeMode.SYSTEM)
@@ -73,6 +83,8 @@ fun SettingsScreen(
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+        // Export and import report back here, where they were started.
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             CollapsingLargeTopBar(
                 title = stringResource(R.string.settings_title),
@@ -183,6 +195,12 @@ fun SettingsScreen(
                 }
             }
 
+            // ── Backup ─────────────────────────────────────────────────
+            BackupSection(
+                onExport = backupViewModel::exportNotes,
+                onImport = backupViewModel::importNotes
+            )
+
             // ── About ──────────────────────────────────────────────────
             Column {
                 SectionHeader(stringResource(R.string.settings_section_about))
@@ -205,6 +223,46 @@ fun SettingsScreen(
                     )
                 }
             }
+        }
+    }
+}
+
+/**
+ * Export and import through the system file picker, so the user chooses where the file goes
+ * (Downloads, a cloud drive, a USB stick) and the app needs no storage permission.
+ */
+@Composable
+private fun BackupSection(onExport: (Uri) -> Unit, onImport: (Uri) -> Unit) {
+    val exportLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument(NoteBackup.MIME_TYPE)
+    ) { uri -> uri?.let(onExport) }
+    val importLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri -> uri?.let(onImport) }
+
+    Column {
+        SectionHeader(stringResource(R.string.settings_section_backup))
+        SegmentedGroup {
+            ActionRow(
+                position = SegmentPosition.First,
+                title = stringResource(R.string.settings_export_title),
+                onClick = { exportLauncher.launch("noty-backup-${LocalDate.now()}.json") },
+                icon = Icons.Rounded.FileUpload,
+                subtitle = stringResource(R.string.settings_export_subtitle)
+            )
+            ActionRow(
+                position = SegmentPosition.Last,
+                title = stringResource(R.string.settings_import_title),
+                // Some file providers label .json files as generic binary or text, so a
+                // strict JSON filter would hide the user's own backup from them.
+                onClick = {
+                    importLauncher.launch(
+                        arrayOf(NoteBackup.MIME_TYPE, "application/octet-stream", "text/plain")
+                    )
+                },
+                icon = Icons.Rounded.FileDownload,
+                subtitle = stringResource(R.string.settings_import_subtitle)
+            )
         }
     }
 }

@@ -9,12 +9,13 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import java.util.UUID
 
 // Every released version's schema is committed under app/schemas. v1.0.0 shipped at
 // version 5, so there are no migrations from earlier versions: no user has them.
 @Database(
     entities = [Note::class],
-    version = 7,
+    version = 8,
     exportSchema = true,
     autoMigrations = [AutoMigration(from = 6, to = 7, spec = AppDatabase.Migration6To7::class)]
 )
@@ -44,10 +45,31 @@ abstract class AppDatabase : RoomDatabase() {
         }
 
         /**
+         * Gives every note a uuid. Hand-written rather than an auto-migration because the
+         * unique index can only be created once each row has its own value, and Room's
+         * auto-migration creates indices before onPostMigrate runs. The uuids come from
+         * Kotlin rather than SQL, so they are proper random (version 4) UUIDs.
+         */
+        val MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE notes ADD COLUMN uuid TEXT NOT NULL DEFAULT ''")
+                db.query("SELECT id FROM notes").use { cursor ->
+                    while (cursor.moveToNext()) {
+                        db.execSQL(
+                            "UPDATE notes SET uuid = ? WHERE id = ?",
+                            arrayOf<Any>(UUID.randomUUID().toString(), cursor.getLong(0))
+                        )
+                    }
+                }
+                db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_notes_uuid` ON `notes` (`uuid`)")
+            }
+        }
+
+        /**
          * Adds every hand-written migration. Auto-migrations come from the @Database
          * annotation. The migration tests use this too.
          */
-        fun RoomDatabase.Builder<AppDatabase>.addAllMigrations() = addMigrations(MIGRATION_5_6)
+        fun RoomDatabase.Builder<AppDatabase>.addAllMigrations() = addMigrations(MIGRATION_5_6, MIGRATION_7_8)
 
         // No destructive fallback, in debug builds either: a missing or broken migration
         // should fail loudly in development, not wipe the database and hide the bug.

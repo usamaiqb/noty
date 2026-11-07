@@ -11,6 +11,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.util.UUID
 
 /**
  * Runs each migration against a database built from the committed schema files in
@@ -104,6 +105,40 @@ class MigrationTest {
         }
     }
 
+    @Test
+    fun migrate7To8_givesEveryNoteItsOwnUuid() {
+        helper.createDatabase(testDb, 7).use { db ->
+            db.execSQL(
+                """
+                INSERT INTO notes (id, title, description, type, createdAt, updatedAt, isPinned, reminderAt)
+                VALUES (1, 'First', 'Text', 'NOTE', 1700000000000, 1700000005000, 1, NULL),
+                       (2, 'Second', NULL, 'WORK', 1700000001000, 1700000001000, 0, 1800000000000),
+                       (3, 'Third', NULL, 'NOTE', 1700000002000, 1700000002000, 0, NULL)
+                """.trimIndent()
+            )
+        }
+
+        // Also checks the migrated table, including the unique index, against 8.json.
+        val db = helper.runMigrationsAndValidate(testDb, 8, true, AppDatabase.MIGRATION_7_8)
+
+        db.query("SELECT id, title, updatedAt, reminderAt, uuid FROM notes ORDER BY id").use { c ->
+            val uuids = mutableSetOf<String>()
+            while (c.moveToNext()) {
+                val uuid = c.getString(4)
+                assertEquals(4, UUID.fromString(uuid).version())
+                uuids += uuid
+            }
+            assertEquals(3, uuids.size)
+
+            // Nothing else changed.
+            assertTrue(c.moveToFirst())
+            assertEquals("First", c.getString(1))
+            assertEquals(1700000005000L, c.getLong(2))
+            assertTrue(c.moveToNext())
+            assertEquals(1800000000000L, c.getLong(3))
+        }
+    }
+
     /**
      * Opens the oldest released schema with the app's real Room configuration, so a version
      * bump without a matching migration fails here rather than on users' phones.
@@ -124,13 +159,14 @@ class MigrationTest {
         try {
             // Opening runs the migrations and Room's own schema check against the entities.
             database.openHelper.writableDatabase
-                .query("SELECT title, reminderAt, createdAt, updatedAt FROM notes WHERE id = 1")
+                .query("SELECT title, reminderAt, createdAt, updatedAt, uuid FROM notes WHERE id = 1")
                 .use { c ->
                     assertTrue(c.moveToNext())
                     assertEquals("Kept", c.getString(0))
                     assertNull(c.getString(1))
                     assertEquals(1700000000000L, c.getLong(2))
                     assertEquals(1700000000000L, c.getLong(3))
+                    UUID.fromString(c.getString(4))
                 }
         } finally {
             database.close()
