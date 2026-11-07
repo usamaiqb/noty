@@ -62,12 +62,14 @@ import com.noty.app.ui.expressive.rememberExpressiveHaptics
 import com.noty.app.ui.expressive.rememberExpressiveScrollBehavior
 import com.noty.app.data.NoteType
 import com.noty.app.data.withText
+import kotlinx.coroutines.flow.merge
 // ─── Root composable ──────────────────────────────────────────────────────────
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotyApp(
     viewModel: NotyViewModel,
+    backupViewModel: BackupViewModel,
     pendingAddNote: Boolean = false,
     onConsumeAddNote: () -> Unit = {}
 ) {
@@ -102,9 +104,10 @@ fun NotyApp(
 
     val resources = LocalResources.current
     val snackbarHostState = remember { SnackbarHostState() }
-    LaunchedEffect(viewModel) {
-        viewModel.messages.collect { message ->
-            snackbarHostState.showSnackbar(resources.getString(message.text))
+    // One host for both screens, so a result still shows after switching between them.
+    LaunchedEffect(viewModel, backupViewModel) {
+        merge(viewModel.messages, backupViewModel.messages).collect { message ->
+            snackbarHostState.showSnackbar(message.text(resources))
         }
     }
 
@@ -147,8 +150,10 @@ fun NotyApp(
         if (settings) {
             SettingsScreen(
                 viewModel = viewModel,
+                backupViewModel = backupViewModel,
                 notificationsEnabled = notificationAccess.enabled,
                 onTurnOnNotifications = notificationAccess::turnOn,
+                snackbarHostState = snackbarHostState,
                 onNavigateBack = { showSettings = false }
             )
         } else {

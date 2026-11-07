@@ -2,11 +2,17 @@ package com.noty.app.data
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
+import java.util.UUID
 
-@Entity(tableName = "notes")
+@Entity(tableName = "notes", indices = [Index(value = ["uuid"], unique = true)])
 data class Note(
+    // A row number on this device only. Other devices reuse the same numbers for other notes.
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    // The note's identity everywhere else: it travels in backup files, so importing a backup
+    // can recognise a note that is already here, on this device or any other.
+    val uuid: String = UUID.randomUUID().toString(),
     val title: String,
     val description: String? = null,
     val type:  NoteType,

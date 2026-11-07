@@ -62,6 +62,19 @@
     <string name="message_delete_failed">Couldn\'t delete the note</string>
     <string name="message_reminder_needs_permission">Note saved without its reminder: the alarms &amp; reminders permission is off</string>
     <string name="message_reminder_time_passed">Note saved without its reminder: that time has already passed</string>
+    <string name="message_export_failed">Couldn\'t export your notes</string>
+    <string name="message_import_failed">Couldn\'t import that file</string>
+    <string name="message_import_not_a_backup">That file isn\'t a Noty backup</string>
+    <string name="message_import_newer_version">That backup is from a newer version of Noty. Update the app to import it.</string>
+    <string name="message_import_nothing_new">Nothing to import: every note in that backup is already here</string>
+    <plurals name="message_exported">
+        <item quantity="one">Exported %d note</item>
+        <item quantity="other">Exported %d notes</item>
+    </plurals>
+    <plurals name="message_imported">
+        <item quantity="one">Imported %d note</item>
+        <item quantity="other">Imported %d notes</item>
+    </plurals>
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>
@@ -69,6 +82,11 @@
     <string name="settings_section_appearance">Appearance</string>
     <string name="settings_section_notes">Notes</string>
     <string name="settings_section_about">About</string>
+    <string name="settings_section_backup">Backup</string>
+    <string name="settings_export_title">Export notes</string>
+    <string name="settings_export_subtitle">Save all your notes to a file</string>
+    <string name="settings_import_title">Import notes</string>
+    <string name="settings_import_subtitle">Add notes from a Noty backup. Notes already here are kept.</string>
     <string name="settings_theme_title">App theme</string>
     <string name="settings_theme_subtitle">Overall look of the app</string>
     <string name="settings_dynamic_color_title">Use dynamic colors</string>

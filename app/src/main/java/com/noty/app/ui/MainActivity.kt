@@ -39,6 +39,8 @@ class MainActivity : ComponentActivity() {
             this,
             NotyViewModelFactory(application)
         )[NotyViewModel::class.java]
+        // The default factory builds an AndroidViewModel from the Application on its own.
+        val backupViewModel = ViewModelProvider(this)[BackupViewModel::class.java]
 
         checkNotificationPermission()
 
@@ -53,6 +55,7 @@ class MainActivity : ComponentActivity() {
             NotyTheme(themeMode = themeMode, dynamicColor = dynamicColors) {
                 NotyApp(
                     viewModel = viewModel,
+                    backupViewModel = backupViewModel,
                     pendingAddNote = addNoteFromTile,
                     onConsumeAddNote = { addNoteFromTile = false }
                 )
