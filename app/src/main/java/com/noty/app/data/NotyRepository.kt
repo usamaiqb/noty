@@ -4,6 +4,8 @@ import android.util.Log
 import kotlinx.coroutines.flow.Flow
 import kotlin.coroutines.cancellation.CancellationException
 
+// Mirrors NoteDao, one function per operation.
+@Suppress("TooManyFunctions")
 class NotyRepository(private val noteDao: NoteDao) {
 
     companion object {
@@ -22,6 +24,13 @@ class NotyRepository(private val noteDao: NoteDao) {
 
     suspend fun clearReminder(noteId: Long): Boolean =
         attempt("clear reminder") { noteDao.clearReminder(noteId) }
+
+    /** Every note, for writing a backup. Null if the database couldn't be read. */
+    suspend fun allNotesOnce(): List<Note>? = attempt("read notes", null) { noteDao.getAllNotesOnce() }
+
+    /** Null if the import failed, in which case nothing was changed. */
+    suspend fun importNotes(notes: List<Note>, now: Long, keepReminders: Boolean): ImportResult? =
+        attempt("import notes", null) { noteDao.importNotes(notes, now, keepReminders) }
 
     suspend fun delete(note: Note): Boolean = deleteById(note.id)
 
