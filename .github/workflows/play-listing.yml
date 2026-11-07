@@ -1,0 +1,46 @@
+name: Play store listing
+
+# Pushes fastlane/metadata/android to Google Play without a release: the title, the
+# descriptions, the graphics and the screenshots. A tagged release already uploads all of
+# this with the bundle (release.yml); this is for correcting the listing between releases.
+#
+# Run it from the Actions tab. It reads the branch it is run on, so run it on main.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  listing:
+    name: Upload store listing
+    runs-on: ubuntu-24.04
+    environment: play-console
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: ruby/setup-ruby@de492cf36cbab201753d720ce4f4e336cd688c94 # v1.336.0
+        with:
+          bundler-cache: true
+
+      # Release notes belong to a build, so they are left to the release upload.
+      #
+      # supply anchors even a listing-only edit to a release: it looks one up on the track,
+      # and fails if it finds none (the default track is production) or several. So it is
+      # pointed at the testing track and at the versionCode this branch was released as.
+      - name: Upload store listing
+        env:
+          SUPPLY_JSON_KEY_DATA: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          TRACK: ${{ vars.PLAY_TRACK || 'alpha' }}
+        run: |
+          VERSION_CODE=$(grep -oP 'versionCode\s+\K\d+' app/build.gradle)
+          bundle exec fastlane supply \
+            --package_name noty.app \
+            --track "$TRACK" \
+            --version_code "$VERSION_CODE" \
+            --metadata_path fastlane/metadata/android \
+            --sync_image_upload true \
+            --skip_upload_apk true \
+            --skip_upload_aab true \
+            --skip_upload_changelogs true

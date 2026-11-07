@@ -1,0 +1,105 @@
+name: Play upload
+
+# Uploads a release's bundle to Google Play. release.yml calls this once the GitHub Release
+# exists; it can also be run by hand to retry a failed upload without rebuilding or moving
+# the tag. A re-run of the release would not do: a re-run keeps the workflow file the tag
+# was cut with, so a fix to this file only reaches a release through here.
+#
+# The bundle comes from the release run's artifact, which is kept for 7 days. Past that,
+# cut a new release.
+on:
+  workflow_call:
+    inputs:
+      tag:
+        type: string
+        required: true
+      run_id:
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to upload, for example v1.1.1
+        required: true
+      run_id:
+        description: ID of that tag's Release run. Leave empty to use the latest one.
+        required: false
+
+permissions:
+  contents: read
+  actions: read     # to download the bundle from the release run
+
+jobs:
+  play:
+    name: Upload to Google Play
+    runs-on: ubuntu-24.04
+    # The service account key lives in this environment, so it is only exposed to this job.
+    environment: play-console
+
+    steps:
+      - name: Find the release run
+        id: run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          TAG: ${{ inputs.tag }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          if [ -z "$RUN_ID" ]; then
+            RUN_ID=$(gh run list --repo "$REPO" --workflow release.yml --branch "$TAG" \
+              --event push --limit 1 --json databaseId --jq '.[0].databaseId')
+          fi
+          if [ -z "$RUN_ID" ]; then
+            echo "❌ No Release run found for $TAG"
+            exit 1
+          fi
+          echo "Using the bundle from run $RUN_ID"
+          echo "id=$RUN_ID" >> "$GITHUB_OUTPUT"
+
+      # The listing and the release notes are read from the tag, not from the branch this
+      # was started on, so a retry uploads what the release described.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.tag }}
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: play-bundle
+          path: play-bundle
+          run-id: ${{ steps.run.outputs.id }}
+          github-token: ${{ github.token }}
+
+      - uses: ruby/setup-ruby@de492cf36cbab201753d720ce4f4e336cd688c94 # v1.336.0
+        with:
+          bundler-cache: true
+
+      # Uploads the bundle to the testing track along with everything under
+      # fastlane/metadata/android: the listing text, the graphics, the screenshots and
+      # changelogs/<versionCode>.txt as the release notes. The same files F-Droid reads at
+      # this tag, so both stores describe the same build.
+      #
+      # PLAY_TRACK is a repository variable; `alpha` is Play's default closed testing track.
+      # A custom closed track is addressed by its name.
+      #
+      # noty.app, not com.noty.app: that ID is taken on Play, so the bundle is built with
+      # -Pstore=play (app/build.gradle).
+      - name: Upload bundle and store listing
+        env:
+          SUPPLY_JSON_KEY_DATA: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          TRACK: ${{ vars.PLAY_TRACK || 'alpha' }}
+        run: |
+          if [ -z "$SUPPLY_JSON_KEY_DATA" ]; then
+            echo "❌ PLAY_SERVICE_ACCOUNT_JSON is not set in the play-console environment"
+            exit 1
+          fi
+          AAB=$(find play-bundle -name '*.aab' | head -n 1)
+          MAPPING=$(find play-bundle -name 'mapping.txt' | head -n 1)
+          bundle exec fastlane supply \
+            --package_name noty.app \
+            --track "$TRACK" \
+            --release_status completed \
+            --aab "$AAB" \
+            --mapping "$MAPPING" \
+            --metadata_path fastlane/metadata/android \
+            --sync_image_upload true \
+            --skip_upload_apk true
