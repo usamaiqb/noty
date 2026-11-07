@@ -8,11 +8,17 @@
 #   - adb in your PATH (Android SDK platform-tools)
 #   - The app must already be installed (run it at least once so the DB exists)
 #   - An emulator or physical device connected
+#   - A release build needs a rootable emulator (a "Google APIs" image, not
+#     "Google Play"): run-as only works on debuggable builds, so the script
+#     falls back to `adb root` for those
 #
 # Usage:
-#   .\scripts\seed_notes.ps1                    # seed notes into debug build
+#   .\scripts\seed_notes.ps1                    # seed notes into the release build
 #   .\scripts\seed_notes.ps1 -Clear            # wipe existing notes first
-#   .\scripts\seed_notes.ps1 -Package com.noty.app.debug  # explicit package
+#   .\scripts\seed_notes.ps1 -Package com.noty.app.debug  # the debug build
+#
+# Pinned notes only reach the notification shade once the app posts them:
+# reinstall the APK afterwards (MY_PACKAGE_REPLACED restores them) or reboot.
 # ─────────────────────────────────────────────────────────────────────────────
 
 param(
@@ -24,8 +30,13 @@ $DB_NAME  = "noty_database"
 $DB_PATH  = "/data/data/$Package/databases/$DB_NAME"
 
 # ── helper: run a SQL statement via adb ──────────────────────────────────────
+$script:UseRoot = $false
 function Invoke-Sql([string]$sql) {
-    adb shell "run-as $Package sqlite3 $DB_PATH `"$sql`""
+    if ($script:UseRoot) {
+        adb shell "sqlite3 $DB_PATH `"$sql`""
+    } else {
+        adb shell "run-as $Package sqlite3 $DB_PATH `"$sql`""
+    }
 }
 
 # ── verify adb is available ──────────────────────────────────────────────────
@@ -44,6 +55,18 @@ if (-not $devices) {
 Write-Host "Connected device(s):" -ForegroundColor Cyan
 adb devices
 
+# ── pick run-as (debuggable build) or root (release build) ───────────────────
+adb shell "run-as $Package true" 2>$null | Out-Null
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "$Package isn't debuggable; using adb root instead of run-as." -ForegroundColor Yellow
+    adb root | Out-Null
+    adb wait-for-device
+    $script:UseRoot = $true
+}
+
+# Room keeps the database open; stop the app so it can't overwrite the changes.
+adb shell "am force-stop $Package"
+
 # ── optionally clear existing notes ─────────────────────────────────────────
 if ($Clear) {
     Write-Host "`nClearing existing notes..." -ForegroundColor Yellow
@@ -58,7 +81,8 @@ $oneDay   = 86400000
 $oneWeek  = 7 * $oneDay
 
 # ── sample notes ─────────────────────────────────────────────────────────────
-#  Schema: id (auto), title, description, type (NOTE|REMINDER|WORK), createdAt, updatedAt, isPinned (1/0), reminderAt
+#  Schema (v8): id (auto), uuid, title, description, type (NOTE|REMINDER|WORK),
+#  createdAt, updatedAt, isPinned (1/0), reminderAt
 $notes = @(
     # ── Pinned notes ──────────────────────────────────────────────────────────
     @{
@@ -99,10 +123,10 @@ $notes = @(
         isPinned    = 0
     },
     @{
-        title       = "Team lunch"
-        description = "Friday 1 PM at the Italian place on 5th. Confirm with Sara and Jake."
-        type        = "REMINDER"
-        createdAt   = $now - (2 * $oneDay)
+        title       = "Gift ideas for Mom"
+        description = "Silk scarf, the cookbook she mentioned, or a pottery class"
+        type        = "NOTE"
+        createdAt   = $now - (4 * $oneDay)
         isPinned    = 0
     }
 )
@@ -115,8 +139,10 @@ foreach ($note in $notes) {
     $title = $note.title -replace "'", "''"
     $desc  = $note.description -replace "'", "''"
 
-    $sql = "INSERT INTO notes (title, description, type, createdAt, updatedAt, isPinned) " +
-           "VALUES ('$title', '$desc', '$($note.type)', $($note.createdAt), $($note.createdAt), $($note.isPinned));"
+    $uuid  = [guid]::NewGuid().ToString()
+
+    $sql = "INSERT INTO notes (uuid, title, description, type, createdAt, updatedAt, isPinned) " +
+           "VALUES ('$uuid', '$title', '$desc', '$($note.type)', $($note.createdAt), $($note.createdAt), $($note.isPinned));"
 
     Invoke-Sql $sql
     $pin = if ($note.isPinned) { "[pinned]" } else { "        " }
@@ -128,4 +154,10 @@ Write-Host ""
 $count = Invoke-Sql "SELECT COUNT(*) FROM notes;"
 Write-Host "Total notes in database: $count" -ForegroundColor Cyan
 
-Write-Host "`nDone! Restart the app or pull-to-refresh to see the notes." -ForegroundColor Magenta
+# Files sqlite3 created as root (journal, -wal, -shm) would lock the app out of its own DB.
+if ($script:UseRoot) {
+    $owner = (adb shell "stat -c %u:%g /data/data/$Package").Trim()
+    adb shell "chown $owner $DB_PATH*; restorecon $DB_PATH*"
+}
+
+Write-Host "`nDone! Start the app to see the notes." -ForegroundColor Magenta
