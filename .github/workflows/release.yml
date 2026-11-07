@@ -86,3 +86,7 @@ jobs:
     with:
       tag: ${{ github.ref_name }}
       run_id: ${{ github.run_id }}
+    # Without this the called job's secrets context is empty, even for the play-console
+    # environment secret its job declares, so the upload saw no service account key. Only
+    # a hand-started run of play-upload.yml (not a call) read the secret on its own.
+    secrets: inherit
