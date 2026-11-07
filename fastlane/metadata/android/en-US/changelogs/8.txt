@@ -1,0 +1,5 @@
+• Back up and restore your notes with a file
+• Notes show when they were last edited, newest first
+• Clear notice when notifications are off, and when a save fails
+• Dismissing a notification can no longer delete a note
+• Smoother, springier animations

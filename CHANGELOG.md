@@ -1,3 +1,26 @@
+## [1.0.7] - 2026-11-07
+
+### Added
+- Back up notes to a file and restore them: export writes a JSON file through the system file picker, and import merges it in. A note already on the device is replaced only by a more recently edited copy, so importing the same file twice changes nothing. Reminders already in the past, or all reminders if exact alarms aren't allowed, are dropped on import (#24, #75)
+- Notes now record when they were last edited. The list is sorted by that time and each card shows it (#74)
+- When notifications are turned off, Home and Settings show a card explaining it, with a way to turn them back on. Pin controls appear disabled until they are, instead of failing silently (#72)
+- A failed save, update or delete now shows a message instead of quietly losing the change. So does a reminder dropped because its permission was revoked or its time passed (#72)
+
+### Improved
+- Expressive spring motion across components through MaterialExpressiveTheme (#68)
+- More complete Simplified Chinese translation (#78)
+
+### Fixed
+- Swiping away a notification could delete its note. Dismissing a notification now only brings a pinned note's notification back (#72)
+- The add-note sheet could reopen after a recomposition because a callback went stale (#67)
+
+### Changed
+- Database schema v8: notes get a stable ID for backups and a last-edited timestamp, with tested migrations from v6 (#74, #75)
+- Dropped LiveData. The app now collects Flows with lifecycle awareness and has three fewer dependencies (#66)
+- Google Play builds use the `noty.app` application ID, and tagged releases upload to Google Play along with the store listing. F-Droid and GitHub builds keep `com.noty.app` (#64, #76)
+- Room schemas are exported, and CI tests the migrations on an emulator (#70)
+- Updated the Android Gradle Plugin to 9.5.0 (#63)
+
 ## [1.0.6] - 2026-10-29
 
 ### Added
