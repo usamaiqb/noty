@@ -76,12 +76,12 @@ naming:
     # A file is named for the vocabulary it provides, not for whichever single class-like
     # declaration happens to be in it. ExpressiveSegments.kt holds the SegmentPosition enum,
     # four tokens and seven functions; renaming it SegmentPosition.kt would describe a
-    # twelfth of the file. sync.ps1 also matches shared-ui copies by filename, so renaming
-    # one locally makes -Check report it MISSING and the next sync re-add the original.
+    # twelfth of the file. The ui/expressive files are also kept identical to an external
+    # component set that is matched by filename, so they keep their names here.
     active: false
   TopLevelPropertyNaming:
     # Compose names design tokens in PascalCase and Material3's own source is consistent
     # about it (MinAlpha, MaxAlpha, DragMultiplier are all `private const val` Floats), so
-    # shared-ui's DisabledAlpha is following the library it wraps rather than breaking a
-    # convention. Widened here rather than renamed in canonical.
+    # ui/expressive's DisabledAlpha follows the library it wraps rather than breaking a
+    # convention. The pattern is widened instead of renaming the token.
     constantPattern: "[A-Z][_A-Za-z0-9]*"

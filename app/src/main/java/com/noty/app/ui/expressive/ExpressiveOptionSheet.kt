@@ -43,6 +43,10 @@ import androidx.compose.ui.unit.dp
  * [optionIcon] is optional and worth supplying when the glyph carries meaning the label
  * repeats slowly - sort directions, theme modes, text alignment.
  *
+ * [selectedDescription] labels the trailing check. It is a parameter rather than a literal for
+ * the same reason [SectionHeader]'s contentDescription is: only the caller can localise it, and
+ * a hard-coded English word is the one part of this component a screen reader reads aloud.
+ *
  * The option list scrolls. A sheet is bounded by the screen, and an unscrollable column
  * silently truncates its tail: network-scanner's language picker grows a row per locale
  * shipped, so the options that fall off the bottom are exactly the ones a user who needs
@@ -59,7 +63,8 @@ fun <T> ExpressiveOptionSheet(
     onDismiss: () -> Unit,
     key: (T) -> Any? = { optionLabel(it) },
     optionSupporting: (T) -> String? = { null },
-    optionIcon: (T) -> ImageVector? = { null }
+    optionIcon: (T) -> ImageVector? = { null },
+    selectedDescription: String = "Selected"
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val haptics = rememberExpressiveHaptics()
@@ -91,7 +96,8 @@ fun <T> ExpressiveOptionSheet(
                         onDismiss()
                     },
                     supporting = optionSupporting(option),
-                    icon = optionIcon(option)
+                    icon = optionIcon(option),
+                    selectedDescription = selectedDescription
                 )
             }
         }
@@ -122,7 +128,8 @@ fun ExpressiveOptionRow(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     supporting: String? = null,
-    icon: ImageVector? = null
+    icon: ImageVector? = null,
+    selectedDescription: String = "Selected"
 ) {
     val shape = RoundedCornerShape(20.dp)
     Surface(
@@ -183,7 +190,7 @@ fun ExpressiveOptionRow(
             if (selected) {
                 Icon(
                     imageVector = Icons.Rounded.Check,
-                    contentDescription = "Selected",
+                    contentDescription = selectedDescription,
                     tint = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
