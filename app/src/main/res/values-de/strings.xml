@@ -1,6 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
 
     <!-- App -->
+    <string name="app_name" translatable="false">Noty</string>
     <string name="app_tagline">Einfache Notizen, angeheftet als Benachrichtigung.</string>
 
     <!-- Actions reused across screens -->
@@ -49,11 +51,43 @@
     <string name="reminder_time_in_past">Diese Uhrzeit liegt in der Vergangenheit. Wähle eine andere Uhrzeit.</string>
     <string name="reminder_fallback_text">Erinnerung</string>
 
+    <!-- Notifications off: pinning can't work, so the app says so wherever it matters -->
+    <string name="notifications_off_banner">Benachrichtigungen sind deaktiviert. Daher kann Noty deine Notizen nicht anzeigen.</string>
+    <string name="notifications_turn_on">Aktivieren</string>
+    <string name="notifications_off_dialog_title">Benachrichtigungen aktivieren</string>
+    <string name="notifications_off_dialog_message">Noty heftet deine Notizen als Benachrichtigung an. Wenn Benachrichtigungen deaktiviert sind, können keine Notizen angeheftet werden.</string>
+
+    <!-- Messages for actions that didn't go through -->
+    <string name="message_save_failed">Die Notiz konnte nicht gespeichert werden</string>
+    <string name="message_update_failed">Die Notiz konnte nicht aktualisiert werden</string>
+    <string name="message_delete_failed">Die Notiz konnte nicht gelöscht werden</string>
+    <string name="message_reminder_needs_permission">Die Notiz wurde ohne ihre Erinnerung gespeichert: Die Berechtigung \"Wecker und Erinnerungen\" fehlt.</string>
+    <string name="message_reminder_time_passed">Die Notiz wurde ohne ihre Erinnerung gespeichert: Die Uhrzeit liegt in der Vergangenheit.</string>
+    <string name="message_export_failed">Deine Notizen konnten nicht exportiert werden</string>
+    <string name="message_import_failed">Diese Datei konnte nicht importiert werden</string>
+    <string name="message_import_not_a_backup">Diese Datei ist kein Noty-Backup</string>
+    <string name="message_import_newer_version">Dieses Backup stammt von einer neueren Version von Noty. Aktualisiere die App um es zu importieren.</string>
+    <string name="message_import_nothing_new">Nichts zu importieren: Alle Notizen in diesem Backup gibt es bereits</string>
+    <plurals name="message_exported">
+        <item quantity="one">%d Notiz exportiert</item>
+        <item quantity="other">%d Notizen exportiert</item>
+    </plurals>
+    <plurals name="message_imported">
+        <item quantity="one">%d Notiz importiert</item>
+        <item quantity="other">%d Notizen importiert</item>
+    </plurals>
+
     <!-- Settings -->
     <string name="settings_title">Einstellungen</string>
+    <string name="settings_pin_default_needs_notifications">Benachrichtigungen müssen aktiviert sein</string>
     <string name="settings_section_appearance">Aussehen</string>
     <string name="settings_section_notes">Notizen</string>
     <string name="settings_section_about">Über</string>
+    <string name="settings_section_backup">Backup</string>
+    <string name="settings_export_title">Notizen exportieren</string>
+    <string name="settings_export_subtitle">Speichere alle deine Notizen in einer Datei</string>
+    <string name="settings_import_title">Notizen importieren</string>
+    <string name="settings_import_subtitle">Notizen aus einem Noty-Backup hinzufügen. Vorhandene Notizen bleiben erhalten.</string>
     <string name="settings_theme_title">Thema</string>
     <string name="settings_theme_subtitle">Darstellung der App</string>
     <string name="settings_dynamic_color_title">Dynamische Systemfarben verwenden</string>
@@ -62,6 +96,7 @@
     <string name="settings_language_subtitle">Wähle die Sprache für Noty</string>
     <string name="settings_pin_default_title">Neue Notizen standardmäßig anheften</string>
     <string name="settings_pin_default_subtitle">Grundeinstellung ist ein Anheften der Notiz</string>
+    <string name="settings_github" translatable="false">GitHub</string>
     <!-- Prefixes the version read off the installed package. Quoted so aapt keeps the
          trailing space; the shared rememberAppVersionLabel() concatenates rather than
          formatting, so the space has to live here. -->
