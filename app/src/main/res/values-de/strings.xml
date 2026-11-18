@@ -2,7 +2,6 @@
 <resources>
 
     <!-- App -->
-    <string name="app_name" translatable="false">Noty</string>
     <string name="app_tagline">Einfache Notizen, angeheftet als Benachrichtigung.</string>
 
     <!-- Actions reused across screens -->
@@ -61,12 +60,12 @@
     <string name="message_save_failed">Die Notiz konnte nicht gespeichert werden</string>
     <string name="message_update_failed">Die Notiz konnte nicht aktualisiert werden</string>
     <string name="message_delete_failed">Die Notiz konnte nicht gelöscht werden</string>
-    <string name="message_reminder_needs_permission">Die Notiz wurde ohne ihre Erinnerung gespeichert: Die Berechtigung \"Wecker und Erinnerungen\" fehlt.</string>
+    <string name="message_reminder_needs_permission">Die Notiz wurde ohne ihre Erinnerung gespeichert: Die Berechtigung „Wecker und Erinnerungen“ fehlt.</string>
     <string name="message_reminder_time_passed">Die Notiz wurde ohne ihre Erinnerung gespeichert: Die Uhrzeit liegt in der Vergangenheit.</string>
     <string name="message_export_failed">Deine Notizen konnten nicht exportiert werden</string>
     <string name="message_import_failed">Diese Datei konnte nicht importiert werden</string>
     <string name="message_import_not_a_backup">Diese Datei ist kein Noty-Backup</string>
-    <string name="message_import_newer_version">Dieses Backup stammt von einer neueren Version von Noty. Aktualisiere die App um es zu importieren.</string>
+    <string name="message_import_newer_version">Dieses Backup stammt von einer neueren Version von Noty. Aktualisiere die App, um es zu importieren.</string>
     <string name="message_import_nothing_new">Nichts zu importieren: Alle Notizen in diesem Backup gibt es bereits</string>
     <plurals name="message_exported">
         <item quantity="one">%d Notiz exportiert</item>
@@ -96,7 +95,6 @@
     <string name="settings_language_subtitle">Wähle die Sprache für Noty</string>
     <string name="settings_pin_default_title">Neue Notizen standardmäßig anheften</string>
     <string name="settings_pin_default_subtitle">Grundeinstellung ist ein Anheften der Notiz</string>
-    <string name="settings_github" translatable="false">GitHub</string>
     <!-- Prefixes the version read off the installed package. Quoted so aapt keeps the
          trailing space; the shared rememberAppVersionLabel() concatenates rather than
          formatting, so the space has to live here. -->
