@@ -99,7 +99,8 @@ The APK is written to `app/build/outputs/apk/debug/`. See [CHANGELOG.md](CHANGEL
 | Language | Progress |
 | --- | --- |
 | English | ████████████ 100% (source) |
-| Deutsch | █████████░░░ 78% |
+| Deutsch | ████████████ 100% |
+| Español | ████████████ 100% |
 | 中文 (中国) | ███████████░ 89% |
 <!-- translations:end -->
 
