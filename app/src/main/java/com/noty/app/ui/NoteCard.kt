@@ -1,6 +1,5 @@
 package com.noty.app.ui
 
-import android.text.format.DateUtils
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -22,7 +21,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Notes
 import androidx.compose.material.icons.rounded.Alarm
 import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material3.DropdownMenu
@@ -30,6 +28,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,15 +39,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import android.text.format.DateUtils
 import com.noty.app.R
 import com.noty.app.data.Note
 import com.noty.app.ui.expressive.SegmentPosition
-import com.noty.app.ui.expressive.segmentShape
 import com.noty.app.ui.expressive.rememberExpressiveHaptics
+import com.noty.app.ui.expressive.segmentShape
 /** Material's standard disabled-content opacity. */
 private const val DisabledAlpha = 0.38f
 
@@ -93,13 +95,15 @@ fun NoteCard(
                         haptics.confirm()
                         onEditClick()
                     },
+                    // Long-press is the shortcut for Noty's main action. The ⋮ menu already
+                    // offers the same choices, and a second long-press reverses it.
                     onLongClick = {
                         if (pinBlocked) haptics.reject() else haptics.toggle(on = !note.isPinned)
                         onPinClick()
                     },
                     onLongClickLabel = stringResource(
-                            if (note.isPinned) R.string.cd_unpin_note else R.string.cd_pin_note
-                        )
+                        if (note.isPinned) R.string.cd_unpin_note else R.string.cd_pin_note
+                    )
                 )
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
@@ -198,8 +202,11 @@ fun NoteCard(
                             )
                         },
                         leadingIcon = {
+                            // Unpin shows the pin with a slash, the same glyph as the
+                            // notification's own Unpin action.
                             Icon(
-                                Icons.Rounded.PushPin,
+                                painter = if (note.isPinned) painterResource(R.drawable.ic_unpin)
+                                          else rememberVectorPainter(Icons.Rounded.PushPin),
                                 contentDescription = null,
                                 modifier = Modifier.alpha(pinAlpha)
                             )
@@ -211,28 +218,12 @@ fun NoteCard(
                         }
                     )
                     DropdownMenuItem(
-                        text = { Text(stringResource(R.string.action_edit)) },
-                        leadingIcon = { Icon(Icons.Rounded.Edit, contentDescription = null) },
-                        onClick = {
-                            haptics.confirm()
-                            menuExpanded = false
-                            onEditClick()
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                stringResource(R.string.action_delete),
-                                color = MaterialTheme.colorScheme.error
-                            )
-                        },
-                        leadingIcon = {
-                            Icon(
-                                Icons.Rounded.Delete,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.error
-                            )
-                        },
+                        text = { Text(stringResource(R.string.action_delete)) },
+                        leadingIcon = { Icon(Icons.Rounded.Delete, contentDescription = null) },
+                        colors = MenuDefaults.itemColors(
+                            textColor = MaterialTheme.colorScheme.error,
+                            leadingIconColor = MaterialTheme.colorScheme.error
+                        ),
                         onClick = {
                             haptics.longPress()
                             menuExpanded = false

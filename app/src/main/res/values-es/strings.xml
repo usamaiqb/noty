@@ -9,7 +9,6 @@
     <string name="action_cancel">Cancelar</string>
     <string name="action_next">Siguiente</string>
     <string name="action_ok">Aceptar</string>
-    <string name="action_edit">Editar</string>
     <string name="action_delete">Eliminar</string>
     <string name="action_pin">Fijar</string>
     <string name="action_unpin">Desfijar</string>
@@ -42,7 +41,6 @@
 
     <!-- Reminders -->
     <string name="reminder_add">Añadir recordatorio</string>
-    <string name="reminder_add_needs_permission">Añadir recordatorio: requiere permiso</string>
     <string name="reminder_permission_title">Permitir alarmas y recordatorios</string>
     <string name="reminder_permission_message">Noty necesita el permiso de alarmas y recordatorios para avisarte en el minuto exacto que elijas. Sin él, Android puede retrasar un recordatorio 10 minutos o más, por lo que los recordatorios permanecen desactivados.</string>
     <string name="reminder_time_dialog_title">Establecer hora</string>

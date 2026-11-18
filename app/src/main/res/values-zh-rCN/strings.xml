@@ -10,7 +10,6 @@
     <string name="action_cancel">取消</string>
     <string name="action_next">下一步</string>
     <string name="action_ok">确定</string>
-    <string name="action_edit">编辑</string>
     <string name="action_delete">删除</string>
     <string name="action_pin">固定</string>
     <string name="action_unpin">取消固定</string>
@@ -43,7 +42,6 @@
 
     <!-- Reminders -->
     <string name="reminder_add">添加提醒</string>
-    <string name="reminder_add_needs_permission">添加提醒（需要权限）</string>
     <string name="reminder_permission_title">允许闹钟和提醒</string>
     <string name="reminder_permission_message">Noty 需要“闹钟和提醒”权限才能在设定的时间准时提醒。没有该权限，Android 可能会把提醒延迟 10 分钟甚至更久，因此提醒功能将保持关闭。</string>
     <string name="reminder_time_dialog_title">设置时间</string>
