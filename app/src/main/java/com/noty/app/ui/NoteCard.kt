@@ -23,10 +23,8 @@ import androidx.compose.material.icons.rounded.Alarm
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.PushPin
-import androidx.compose.material3.DropdownMenuGroup
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.DropdownMenuPopup
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -58,7 +56,7 @@ private const val DisabledAlpha = 0.38f
 
 // ─── Note card ────────────────────────────────────────────────────────────────
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NoteCard(
     note: Note,
@@ -97,13 +95,15 @@ fun NoteCard(
                         haptics.confirm()
                         onEditClick()
                     },
-                    // Long-press opens the note's menu, as on most Android lists. It used to
-                    // toggle the pin, which a long press while scrolling could do by accident.
+                    // Long-press is the shortcut for Noty's main action. The ⋮ menu already
+                    // offers the same choices, and a second long-press reverses it.
                     onLongClick = {
-                        haptics.longPress()
-                        menuExpanded = true
+                        if (pinBlocked) haptics.reject() else haptics.toggle(on = !note.isPinned)
+                        onPinClick()
                     },
-                    onLongClickLabel = stringResource(R.string.cd_more_options)
+                    onLongClickLabel = stringResource(
+                        if (note.isPinned) R.string.cd_unpin_note else R.string.cd_pin_note
+                    )
                 )
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
@@ -190,61 +190,46 @@ fun NoteCard(
                         modifier = Modifier.size(18.dp)
                     )
                 }
-                DropdownMenuPopup(
+                DropdownMenu(
                     expanded = menuExpanded,
                     onDismissRequest = { menuExpanded = false }
                 ) {
-                    DropdownMenuGroup(shapes = MenuDefaults.groupShape(index = 0, count = 2)) {
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    stringResource(if (note.isPinned) R.string.action_unpin else R.string.action_pin),
-                                    modifier = Modifier.alpha(pinAlpha)
-                                )
-                            },
-                            shape = MenuDefaults.standaloneItemShape,
-                            leadingIcon = {
-                                // Unpin shows the pin with a slash, the same glyph as the
-                                // notification's own Unpin action.
-                                Icon(
-                                    painter = if (note.isPinned) painterResource(R.drawable.ic_unpin)
-                                              else rememberVectorPainter(Icons.Rounded.PushPin),
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .size(MenuDefaults.LeadingIconSize)
-                                        .alpha(pinAlpha)
-                                )
-                            },
-                            onClick = {
-                                if (pinBlocked) haptics.reject() else haptics.toggle(on = !note.isPinned)
-                                menuExpanded = false
-                                onPinClick()
-                            }
-                        )
-                    }
-                    // Its own group: the gap between groups sets the destructive action apart.
-                    DropdownMenuGroup(shapes = MenuDefaults.groupShape(index = 1, count = 2)) {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.action_delete)) },
-                            shape = MenuDefaults.standaloneItemShape,
-                            leadingIcon = {
-                                Icon(
-                                    Icons.Rounded.Delete,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(MenuDefaults.LeadingIconSize)
-                                )
-                            },
-                            colors = MenuDefaults.itemColors(
-                                textColor = MaterialTheme.colorScheme.error,
-                                leadingIconColor = MaterialTheme.colorScheme.error
-                            ),
-                            onClick = {
-                                haptics.longPress()
-                                menuExpanded = false
-                                onDeleteClick()
-                            }
-                        )
-                    }
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                stringResource(if (note.isPinned) R.string.action_unpin else R.string.action_pin),
+                                modifier = Modifier.alpha(pinAlpha)
+                            )
+                        },
+                        leadingIcon = {
+                            // Unpin shows the pin with a slash, the same glyph as the
+                            // notification's own Unpin action.
+                            Icon(
+                                painter = if (note.isPinned) painterResource(R.drawable.ic_unpin)
+                                          else rememberVectorPainter(Icons.Rounded.PushPin),
+                                contentDescription = null,
+                                modifier = Modifier.alpha(pinAlpha)
+                            )
+                        },
+                        onClick = {
+                            if (pinBlocked) haptics.reject() else haptics.toggle(on = !note.isPinned)
+                            menuExpanded = false
+                            onPinClick()
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.action_delete)) },
+                        leadingIcon = { Icon(Icons.Rounded.Delete, contentDescription = null) },
+                        colors = MenuDefaults.itemColors(
+                            textColor = MaterialTheme.colorScheme.error,
+                            leadingIconColor = MaterialTheme.colorScheme.error
+                        ),
+                        onClick = {
+                            haptics.longPress()
+                            menuExpanded = false
+                            onDeleteClick()
+                        }
+                    )
                 }
             }
         }
