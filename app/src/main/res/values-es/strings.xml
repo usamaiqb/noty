@@ -1,0 +1,135 @@
+<resources>
+
+    <!-- App -->
+    <string name="app_tagline">Notas sencillas, fijadas en tus notificaciones.</string>
+
+    <!-- Actions reused across screens -->
+    <string name="action_save">Guardar</string>
+    <string name="action_update">Actualizar</string>
+    <string name="action_cancel">Cancelar</string>
+    <string name="action_next">Siguiente</string>
+    <string name="action_ok">Aceptar</string>
+    <string name="action_edit">Editar</string>
+    <string name="action_delete">Eliminar</string>
+    <string name="action_pin">Fijar</string>
+    <string name="action_unpin">Desfijar</string>
+    <string name="action_open_settings">Abrir ajustes</string>
+    <string name="action_not_now">Ahora no</string>
+
+    <!-- Note list -->
+    <string name="home_new_note">Nueva nota</string>
+    <string name="home_section_pinned">Fijadas</string>
+    <string name="home_section_others">Otras</string>
+    <string name="home_empty_title">Todavía no hay notas</string>
+    <string name="home_empty_subtitle">Toca + Nueva nota para crear tu primera nota</string>
+
+    <!-- Search -->
+    <string name="search_placeholder">Buscar notas</string>
+    <string name="search_empty_title">No hay resultados para «%1$s»</string>
+    <string name="search_empty_subtitle">Prueba con otro término de búsqueda</string>
+
+    <!-- Add / edit sheet -->
+    <string name="sheet_title_new">Nueva nota</string>
+    <string name="sheet_title_edit">Editar nota</string>
+    <string name="sheet_pin_note">Fijar nota</string>
+    <string name="sheet_label_title">Título de la nota</string>
+    <string name="sheet_label_description">Descripción (opcional)</string>
+    <string name="sheet_error_title_required">El título es obligatorio</string>
+
+    <!-- Delete confirmation -->
+    <string name="delete_dialog_title">¿Eliminar esta nota?</string>
+    <string name="delete_dialog_message">¿Seguro que quieres eliminar «%1$s»?</string>
+
+    <!-- Reminders -->
+    <string name="reminder_add">Añadir recordatorio</string>
+    <string name="reminder_add_needs_permission">Añadir recordatorio: requiere permiso</string>
+    <string name="reminder_permission_title">Permitir alarmas y recordatorios</string>
+    <string name="reminder_permission_message">Noty necesita el permiso de alarmas y recordatorios para avisarte en el minuto exacto que elijas. Sin él, Android puede retrasar un recordatorio 10 minutos o más, por lo que los recordatorios permanecen desactivados.</string>
+    <string name="reminder_time_dialog_title">Establecer hora</string>
+    <string name="reminder_time_in_past">Esa hora ya ha pasado. Elige una posterior.</string>
+    <string name="reminder_fallback_text">Recordatorio</string>
+
+    <!-- Notifications off: pinning can't work, so the app says so wherever it matters -->
+    <string name="notifications_off_banner">Las notificaciones están desactivadas, por lo que Noty no puede mostrar tus notas en la barra de estado.</string>
+    <string name="notifications_turn_on">Activar</string>
+    <string name="notifications_off_dialog_title">Activar notificaciones</string>
+    <string name="notifications_off_dialog_message">Noty fija notas en la barra de estado como notificaciones. Mientras las notificaciones estén desactivadas, no se podrán fijar notas.</string>
+
+    <!-- Messages for actions that didn't go through -->
+    <string name="message_save_failed">No se ha podido guardar la nota</string>
+    <string name="message_update_failed">No se ha podido actualizar la nota</string>
+    <string name="message_delete_failed">No se ha podido eliminar la nota</string>
+    <string name="message_reminder_needs_permission">Nota guardada sin recordatorio: el permiso de alarmas y recordatorios está desactivado</string>
+    <string name="message_reminder_time_passed">Nota guardada sin recordatorio: esa hora ya ha pasado</string>
+    <string name="message_export_failed">No se han podido exportar tus notas</string>
+    <string name="message_import_failed">No se ha podido importar ese archivo</string>
+    <string name="message_import_not_a_backup">Ese archivo no es una copia de seguridad de Noty</string>
+    <string name="message_import_newer_version">Esa copia de seguridad es de una versión más reciente de Noty. Actualiza la app para importarla.</string>
+    <string name="message_import_nothing_new">No hay nada que importar: todas las notas de esa copia de seguridad ya están aquí</string>
+    <plurals name="message_exported">
+        <item quantity="one">Se ha exportado %d nota</item>
+        <item quantity="other">Se han exportado %d notas</item>
+    </plurals>
+    <plurals name="message_imported">
+        <item quantity="one">Se ha importado %d nota</item>
+        <item quantity="other">Se han importado %d notas</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_pin_default_needs_notifications">Requiere que las notificaciones estén activadas</string>
+    <string name="settings_section_appearance">Apariencia</string>
+    <string name="settings_section_notes">Notas</string>
+    <string name="settings_section_about">Acerca de</string>
+    <string name="settings_section_backup">Copia de seguridad</string>
+    <string name="settings_export_title">Exportar notas</string>
+    <string name="settings_export_subtitle">Guardar todas tus notas en un archivo</string>
+    <string name="settings_import_title">Importar notas</string>
+    <string name="settings_import_subtitle">Añade notas de una copia de seguridad de Noty. Se conservarán las notas existentes.</string>
+    <string name="settings_theme_title">Tema de la app</string>
+    <string name="settings_theme_subtitle">Apariencia general de la app</string>
+    <string name="settings_dynamic_color_title">Usar colores dinámicos</string>
+    <string name="settings_dynamic_color_subtitle">Adapta los colores de la app a tu fondo de pantalla</string>
+    <string name="settings_language_title">Idioma</string>
+    <string name="settings_language_subtitle">Elige el idioma de Noty</string>
+    <string name="settings_pin_default_title">Fijar notas nuevas de forma predeterminada</string>
+    <string name="settings_pin_default_subtitle">Las notas nuevas se fijan como notificaciones</string>
+    <!-- Prefixes the version read off the installed package. Quoted so aapt keeps the
+         trailing space; the shared rememberAppVersionLabel() concatenates rather than
+         formatting, so the space has to live here. -->
+    <string name="settings_version_prefix">"Versión "</string>
+    <string name="settings_version_unknown_name">desconocida</string>
+
+    <!-- Theme picker -->
+    <string name="theme_system">Sistema</string>
+    <string name="theme_light">Claro</string>
+    <string name="theme_dark">Oscuro</string>
+
+    <!-- Notification channels, shown in system settings -->
+    <string name="channel_notes_name">Notas persistentes</string>
+    <string name="channel_notes_description">Muestra tus notas activas</string>
+    <string name="channel_service_name">Servicio de Noty</string>
+    <string name="channel_service_description">Servicio en segundo plano para supervisar las notas</string>
+    <string name="channel_reminders_name">Recordatorios</string>
+    <string name="channel_reminders_description">Avisos de recordatorios de notas</string>
+
+    <!-- Foreground service notification -->
+    <string name="service_notification_text">Manteniendo tus notas visibles</string>
+
+    <!-- Quick Settings tile -->
+    <string name="tile_add_note">Nota rápida</string>
+    <string name="tile_subtitle">Toca para añadir</string>
+
+    <!-- Accessibility -->
+    <string name="cd_search_notes">Buscar notas</string>
+    <string name="cd_settings">Ajustes</string>
+    <string name="cd_back">Volver</string>
+    <string name="cd_close_search">Cerrar búsqueda</string>
+    <string name="cd_clear_search">Borrar búsqueda</string>
+    <string name="cd_more_options">Más opciones</string>
+    <string name="cd_reminder_set">Recordatorio establecido</string>
+    <string name="cd_remove_reminder">Quitar recordatorio</string>
+    <string name="cd_pin_note">Fijar nota</string>
+    <string name="cd_unpin_note">Desfijar nota</string>
+
+</resources>
