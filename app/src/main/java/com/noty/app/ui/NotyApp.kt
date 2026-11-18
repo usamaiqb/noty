@@ -142,104 +142,149 @@ fun NotyApp(
         searchQuery = ""
     }
 
+    val screen = when {
+        showAddSheet -> Screen.NewNote
+        noteToEdit != null -> Screen.EditNote(noteToEdit!!)
+        showSettings -> Screen.Settings
+        else -> Screen.Home
+    }
+
     AnimatedContent(
-        targetState = showSettings,
+        targetState = screen,
         transitionSpec = { fadeIn(tween(220)) togetherWith fadeOut(tween(150)) },
         label = "screens"
-    ) { settings ->
-        if (settings) {
-            SettingsScreen(
-                viewModel = viewModel,
-                backupViewModel = backupViewModel,
-                notificationsEnabled = notificationAccess.enabled,
-                onTurnOnNotifications = notificationAccess::turnOn,
-                snackbarHostState = snackbarHostState,
-                onNavigateBack = { showSettings = false }
-            )
-        } else {
-            Scaffold(
-                modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-                containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-                snackbarHost = { SnackbarHost(snackbarHostState) },
-                topBar = {
-                    AnimatedContent(
-                        targetState = searchActive,
-                        transitionSpec = { fadeIn(tween(150)) togetherWith fadeOut(tween(150)) },
-                        label = "topBar"
-                    ) { active ->
-                        if (active) {
-                            SearchTopBar(
-                                query = searchQuery,
-                                onQueryChange = { searchQuery = it },
-                                onClose = {
-                                    searchActive = false
-                                    searchQuery = ""
-                                },
-                                focusRequester = searchFocusRequester
+    ) { target ->
+        when (target) {
+            // Add note editor
+            Screen.NewNote ->
+                NoteEditor(
+                    defaultPinned = defaultPin,
+                    canPin = notificationAccess.enabled,
+                    onPinBlocked = notificationAccess::explain,
+                    onDismiss = { showAddSheet = false },
+                    onSave = { title, description, isPinned, reminderAt ->
+                        viewModel.insert(
+                            Note(
+                                title = title,
+                                description = if (description.isEmpty()) null else description,
+                                type = NoteType.NOTE,
+                                isPinned = isPinned,
+                                reminderAt = reminderAt
                             )
-                        } else {
-                            CollapsingLargeTopBar(
-                                title = stringResource(R.string.app_name),
-                                scrollBehavior = scrollBehavior,
-                                actions = {
-                                    IconButton(onClick = {
-                                        haptics.confirm()
-                                        searchActive = true
-                                    }) {
-                                        Icon(
-                                            Icons.Rounded.Search,
-                                            contentDescription = stringResource(R.string.cd_search_notes)
-                                        )
+                        )
+                        showAddSheet = false
+                    }
+                )
+            // Edit note editor
+            is Screen.EditNote ->
+                NoteEditor(
+                    note = target.note,
+                    canPin = notificationAccess.enabled,
+                    onPinBlocked = notificationAccess::explain,
+                    onDelete = { noteToDelete = target.note },
+                    onDismiss = { noteToEdit = null },
+                    onSave = { title, description, isPinned, reminderAt ->
+                        viewModel.update(
+                            target.note.withText(title, description.ifEmpty { null })
+                                .copy(isPinned = isPinned, reminderAt = reminderAt)
+                        )
+                        noteToEdit = null
+                    }
+                )
+            Screen.Settings ->
+                SettingsScreen(
+                    viewModel = viewModel,
+                    backupViewModel = backupViewModel,
+                    notificationsEnabled = notificationAccess.enabled,
+                    onTurnOnNotifications = notificationAccess::turnOn,
+                    snackbarHostState = snackbarHostState,
+                    onNavigateBack = { showSettings = false }
+                )
+            Screen.Home -> {
+                Scaffold(
+                    modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                    snackbarHost = { SnackbarHost(snackbarHostState) },
+                    topBar = {
+                        AnimatedContent(
+                            targetState = searchActive,
+                            transitionSpec = { fadeIn(tween(150)) togetherWith fadeOut(tween(150)) },
+                            label = "topBar"
+                        ) { active ->
+                            if (active) {
+                                SearchTopBar(
+                                    query = searchQuery,
+                                    onQueryChange = { searchQuery = it },
+                                    onClose = {
+                                        searchActive = false
+                                        searchQuery = ""
+                                    },
+                                    focusRequester = searchFocusRequester
+                                )
+                            } else {
+                                CollapsingLargeTopBar(
+                                    title = stringResource(R.string.app_name),
+                                    scrollBehavior = scrollBehavior,
+                                    actions = {
+                                        IconButton(onClick = {
+                                            haptics.confirm()
+                                            searchActive = true
+                                        }) {
+                                            Icon(
+                                                Icons.Rounded.Search,
+                                                contentDescription = stringResource(R.string.cd_search_notes)
+                                            )
+                                        }
+                                        IconButton(onClick = {
+                                            haptics.confirm()
+                                            showSettings = true
+                                        }) {
+                                            Icon(
+                                                Icons.Rounded.Settings,
+                                                contentDescription = stringResource(R.string.cd_settings)
+                                            )
+                                        }
                                     }
-                                    IconButton(onClick = {
-                                        haptics.confirm()
-                                        showSettings = true
-                                    }) {
-                                        Icon(
-                                            Icons.Rounded.Settings,
-                                            contentDescription = stringResource(R.string.cd_settings)
-                                        )
-                                    }
-                                }
+                                )
+                            }
+                        }
+                    },
+                    floatingActionButton = {
+                        ExtendedFloatingActionButton(
+                            text = { Text(stringResource(R.string.home_new_note)) },
+                            icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
+                            expanded = fabExpanded,
+                            onClick = {
+                                haptics.confirm()
+                                showAddSheet = true
+                            }
+                        )
+                    }
+                ) { innerPadding ->
+                    Column(modifier = Modifier.padding(innerPadding)) {
+                        // Shown even with no notes yet, so someone who declined notifications on
+                        // first launch learns why before they add anything.
+                        if (!notificationAccess.enabled) {
+                            NotificationsOffCard(
+                                onTurnOn = notificationAccess::turnOn,
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                             )
                         }
-                    }
-                },
-                floatingActionButton = {
-                    ExtendedFloatingActionButton(
-                        text = { Text(stringResource(R.string.home_new_note)) },
-                        icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
-                        expanded = fabExpanded,
-                        onClick = {
-                            haptics.confirm()
-                            showAddSheet = true
+                        when {
+                            displayedNotes.isEmpty() -> EmptyStateContent(
+                                modifier = Modifier.weight(1f),
+                                searchQuery = if (searchActive) searchQuery else ""
+                            )
+                            else -> NotesList(
+                                notes = displayedNotes,
+                                listState = listState,
+                                canPin = notificationAccess.enabled,
+                                onEditClick = { noteToEdit = it },
+                                onPinClick = onPinToggle,
+                                onDeleteClick = { noteToDelete = it },
+                                modifier = Modifier.weight(1f)
+                            )
                         }
-                    )
-                }
-            ) { innerPadding ->
-                Column(modifier = Modifier.padding(innerPadding)) {
-                    // Shown even with no notes yet, so someone who declined notifications on
-                    // first launch learns why before they add anything.
-                    if (!notificationAccess.enabled) {
-                        NotificationsOffCard(
-                            onTurnOn = notificationAccess::turnOn,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                        )
-                    }
-                    when {
-                        displayedNotes.isEmpty() -> EmptyStateContent(
-                            modifier = Modifier.weight(1f),
-                            searchQuery = if (searchActive) searchQuery else ""
-                        )
-                        else -> NotesList(
-                            notes = displayedNotes,
-                            listState = listState,
-                            canPin = notificationAccess.enabled,
-                            onEditClick = { noteToEdit = it },
-                            onPinClick = onPinToggle,
-                            onDeleteClick = { noteToDelete = it },
-                            modifier = Modifier.weight(1f)
-                        )
                     }
                 }
             }
@@ -248,45 +293,6 @@ fun NotyApp(
 
     LaunchedEffect(searchActive) {
         if (searchActive) searchFocusRequester.requestFocus()
-    }
-
-    // Add note bottom sheet
-    if (showAddSheet) {
-        NoteBottomSheet(
-            defaultPinned = defaultPin,
-            canPin = notificationAccess.enabled,
-            onPinBlocked = notificationAccess::explain,
-            onDismiss = { showAddSheet = false },
-            onSave = { title, description, isPinned, reminderAt ->
-                viewModel.insert(
-                    Note(
-                        title = title,
-                        description = if (description.isEmpty()) null else description,
-                        type = NoteType.NOTE,
-                        isPinned = isPinned,
-                        reminderAt = reminderAt
-                    )
-                )
-                showAddSheet = false
-            }
-        )
-    }
-
-    // Edit note bottom sheet
-    noteToEdit?.let { note ->
-        NoteBottomSheet(
-            note = note,
-            canPin = notificationAccess.enabled,
-            onPinBlocked = notificationAccess::explain,
-            onDismiss = { noteToEdit = null },
-            onSave = { title, description, isPinned, reminderAt ->
-                viewModel.update(
-                    note.withText(title, description.ifEmpty { null })
-                        .copy(isPinned = isPinned, reminderAt = reminderAt)
-                )
-                noteToEdit = null
-            }
-        )
     }
 
     // Delete confirmation dialog
@@ -300,6 +306,8 @@ fun NotyApp(
                     onClick = {
                         viewModel.delete(note)
                         noteToDelete = null
+                        // Deleted from inside the editor: there is nothing left to edit.
+                        if (noteToEdit?.id == note.id) noteToEdit = null
                     }
                 ) {
                     Text(stringResource(R.string.action_delete), color = MaterialTheme.colorScheme.error)
@@ -315,6 +323,14 @@ fun NotyApp(
 
     NotificationAccessDialog(notificationAccess)
 
+}
+
+/** What NotyApp shows full screen. The editor is a screen, like Settings, not a window. */
+private sealed interface Screen {
+    data object Home : Screen
+    data object Settings : Screen
+    data object NewNote : Screen
+    data class EditNote(val note: Note) : Screen
 }
 
 // ─── Search top bar ───────────────────────────────────────────────────────────

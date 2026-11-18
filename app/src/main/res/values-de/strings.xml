@@ -10,7 +10,6 @@
     <string name="action_cancel">Abbrechen</string>
     <string name="action_next">Weiter</string>
     <string name="action_ok">OK</string>
-    <string name="action_edit">Bearbeiten</string>
     <string name="action_delete">Löschen</string>
     <string name="action_pin">Anheften</string>
     <string name="action_unpin">Ablösen</string>
@@ -43,7 +42,6 @@
 
     <!-- Reminders -->
     <string name="reminder_add">Erinnerung hinzufügen</string>
-    <string name="reminder_add_needs_permission">Erinnerung hinzufügen — braucht die Berechtigung</string>
     <string name="reminder_permission_title">Erlaube Wecker und Erinnerungen</string>
     <string name="reminder_permission_message">Noty braucht die Berechtigung \"Wecker und Erinnerungen\" um dich zum genauen Zeitpunkt den du ausgewählt hast zu erinnern. Ohne diese Berechtigung kann Android die Erinnerung um 10 Minuten oder mehr verzögern. Daher bleiben sie ausgeschaltet.</string>
     <string name="reminder_time_dialog_title">Uhrzeit einstellen</string>

@@ -10,12 +10,13 @@
     <string name="action_cancel">Cancel</string>
     <string name="action_next">Next</string>
     <string name="action_ok">OK</string>
-    <string name="action_edit">Edit</string>
     <string name="action_delete">Delete</string>
     <string name="action_pin">Pin</string>
     <string name="action_unpin">Unpin</string>
     <string name="action_open_settings">Open settings</string>
     <string name="action_not_now">Not now</string>
+    <string name="action_discard">Discard</string>
+    <string name="action_keep_editing">Keep editing</string>
 
     <!-- Note list -->
     <string name="home_new_note">New Note</string>
@@ -41,9 +42,12 @@
     <string name="delete_dialog_title">Delete this note?</string>
     <string name="delete_dialog_message">Are you sure you want to delete \'%1$s\'?</string>
 
+    <!-- Closing the note sheet with unsaved changes -->
+    <string name="discard_dialog_title_new">Discard this note?</string>
+    <string name="discard_dialog_title_edit">Discard your changes?</string>
+
     <!-- Reminders -->
     <string name="reminder_add">Add reminder</string>
-    <string name="reminder_add_needs_permission">Add reminder — needs permission</string>
     <string name="reminder_permission_title">Allow alarms &amp; reminders</string>
     <string name="reminder_permission_message">Noty needs the \"Alarms &amp; reminders\" permission to notify you at the exact minute you pick. Without it Android can hold a reminder back by 10 minutes or more, so reminders stay switched off.</string>
     <string name="reminder_time_dialog_title">Set time</string>
@@ -126,6 +130,7 @@
     <string name="cd_search_notes">Search notes</string>
     <string name="cd_settings">Settings</string>
     <string name="cd_back">Back</string>
+    <string name="cd_close_editor">Close</string>
     <string name="cd_close_search">Close search</string>
     <string name="cd_clear_search">Clear search</string>
     <string name="cd_more_options">More options</string>
