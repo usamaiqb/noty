@@ -34,7 +34,8 @@ data class ImportPlan(
             val toReplace = mutableListOf<Note>()
             var unchanged = incoming.size - latest.size
             for (note in latest) {
-                val reminder = note.reminderAt?.takeIf { keepReminders && it > now }
+                // Pinned wins over a schedule, as everywhere else.
+                val reminder = note.reminderAt?.takeIf { !note.isPinned && keepReminders && it > now }
                 val clean = note.copy(id = 0, reminderAt = reminder)
                 val local = byUuid[note.uuid]
                 when {

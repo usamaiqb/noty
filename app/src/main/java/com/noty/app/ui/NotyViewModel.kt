@@ -13,6 +13,7 @@ import com.noty.app.R
 import com.noty.app.data.AppDatabase
 import com.noty.app.data.NotyRepository
 import com.noty.app.data.Note
+import com.noty.app.data.withPinWinning
 import com.noty.app.utils.NotificationHelper
 import com.noty.app.utils.ReminderScheduler
 import com.noty.app.utils.ThemeManager
@@ -32,8 +33,8 @@ enum class NoteMessage(@StringRes private val res: Int) : UserMessage {
     SAVE_FAILED(R.string.message_save_failed),
     UPDATE_FAILED(R.string.message_update_failed),
     DELETE_FAILED(R.string.message_delete_failed),
-    REMINDER_NEEDS_PERMISSION(R.string.message_reminder_needs_permission),
-    REMINDER_TIME_PASSED(R.string.message_reminder_time_passed);
+    SCHEDULE_NEEDS_PERMISSION(R.string.message_schedule_needs_permission),
+    SCHEDULE_TIME_PASSED(R.string.message_schedule_time_passed);
 
     override fun text(resources: Resources): String = resources.getString(res)
 }
@@ -92,7 +93,9 @@ class NotyViewModel(application: Application) : AndroidViewModel(application) {
         notificationHelper.syncNotifications(repository.getAllNotes().first())
     }
 
-    fun insert(note: Note) = viewModelScope.launch {
+    fun insert(newNote: Note) = viewModelScope.launch {
+        // A note is pinned or scheduled, never both; the editor keeps to that already.
+        val note = newNote.withPinWinning()
         val id = repository.insert(note)
         if (id <= 0) {
             _messages.send(NoteMessage.SAVE_FAILED)
@@ -112,7 +115,8 @@ class NotyViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun update(note: Note) = viewModelScope.launch {
+    fun update(edited: Note) = viewModelScope.launch {
+        val note = edited.withPinWinning()
         // Leave notifications and alarms alone if the change never reached the database,
         // so the shade keeps matching what is stored.
         if (!repository.update(note)) {
@@ -141,7 +145,9 @@ class NotyViewModel(application: Application) : AndroidViewModel(application) {
             return@launch
         }
         if (pinned) {
-            notificationHelper.showNotification(note.copy(isPinned = true))
+            // Pinning now replaces a schedule; the database already dropped its time.
+            ReminderScheduler.cancel(getApplication(), note.id)
+            notificationHelper.showNotification(note.copy(isPinned = true, reminderAt = null))
         } else {
             notificationHelper.cancelNotification(note.id.toInt())
         }
@@ -154,14 +160,13 @@ class NotyViewModel(application: Application) : AndroidViewModel(application) {
         }
         notificationHelper.cancelNotification(note.id.toInt())
         ReminderScheduler.cancel(getApplication(), note.id)
-        notificationHelper.cancelReminderNotification(note.id.toInt())
     }
 
     private fun reminderNotSetReason(): NoteMessage =
         if (ReminderScheduler.canScheduleExact(getApplication())) {
-            NoteMessage.REMINDER_TIME_PASSED
+            NoteMessage.SCHEDULE_TIME_PASSED
         } else {
-            NoteMessage.REMINDER_NEEDS_PERMISSION
+            NoteMessage.SCHEDULE_NEEDS_PERMISSION
         }
 
     fun setTheme(mode: ThemeManager.ThemeMode) = viewModelScope.launch {

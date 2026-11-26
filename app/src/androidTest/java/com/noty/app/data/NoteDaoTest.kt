@@ -66,6 +66,17 @@ class NoteDaoTest {
     }
 
     @Test
+    fun setPinned_pinning_clearsTheSchedule_only() = runBlocking {
+        // Scheduled: unpinned with a time. Pinning it now replaces the schedule.
+        val scheduled = note("Note", createdAt = 1_000L).copy(isPinned = false)
+        val id = dao.insertNote(scheduled)
+
+        dao.setPinned(id, true)
+
+        assertEquals(scheduled.copy(id = id, isPinned = true, reminderAt = null), dao.getNoteById(id))
+    }
+
+    @Test
     fun clearReminder_changesOnlyTheReminder() = runBlocking {
         val id = dao.insertNote(note("Note", createdAt = 1_000L))
 

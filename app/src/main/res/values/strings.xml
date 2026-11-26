@@ -46,13 +46,20 @@
     <string name="discard_dialog_title_new">Discard this note?</string>
     <string name="discard_dialog_title_edit">Discard your changes?</string>
 
-    <!-- Reminders -->
-    <string name="reminder_add">Add reminder</string>
+    <!-- Scheduling: pin a note later -->
+    <!-- The editor's Pin menu: when the note gets pinned, one choice of three -->
+    <string name="pin_choice_off">Don\'t pin</string>
+    <string name="pin_choice_now">Pin now</string>
+    <string name="pin_choice_later">Pin later…</string>
+    <string name="pin_choice_later_at">Pin later · %1$s</string>
+    <!-- A scheduled time, on the note card and in the editor -->
+    <string name="schedule_today">Today, %1$s</string>
+    <string name="schedule_tomorrow">Tomorrow, %1$s</string>
+    <string name="cd_pin_options">Pin options</string>
     <string name="reminder_permission_title">Allow alarms &amp; reminders</string>
-    <string name="reminder_permission_message">Noty needs the \"Alarms &amp; reminders\" permission to notify you at the exact minute you pick. Without it Android can hold a reminder back by 10 minutes or more, so reminders stay switched off.</string>
+    <string name="schedule_permission_message">Noty needs the \"Alarms &amp; reminders\" permission to pin your note at the exact minute you pick. Without it Android can hold it back by 10 minutes or more, so scheduling stays switched off.</string>
     <string name="reminder_time_dialog_title">Set time</string>
     <string name="reminder_time_in_past">That time has already passed. Pick a later time.</string>
-    <string name="reminder_fallback_text">Reminder</string>
 
     <!-- Notifications off: pinning can't work, so the app says so wherever it matters -->
     <string name="notifications_off_banner">Notifications are off, so Noty can\'t show your notes in the status bar.</string>
@@ -64,8 +71,8 @@
     <string name="message_save_failed">Couldn\'t save the note</string>
     <string name="message_update_failed">Couldn\'t update the note</string>
     <string name="message_delete_failed">Couldn\'t delete the note</string>
-    <string name="message_reminder_needs_permission">Note saved without its reminder: the alarms &amp; reminders permission is off</string>
-    <string name="message_reminder_time_passed">Note saved without its reminder: that time has already passed</string>
+    <string name="message_schedule_needs_permission">Note saved without its schedule: the alarms &amp; reminders permission is off</string>
+    <string name="message_schedule_time_passed">Note saved without its schedule: that time has already passed</string>
     <string name="message_export_failed">Couldn\'t export your notes</string>
     <string name="message_import_failed">Couldn\'t import that file</string>
     <string name="message_import_not_a_backup">That file isn\'t a Noty backup</string>
@@ -116,8 +123,8 @@
     <string name="channel_notes_description">Shows your active notes</string>
     <string name="channel_service_name">Noty Service</string>
     <string name="channel_service_description">Background service for monitoring notes</string>
-    <string name="channel_reminders_name">Reminders</string>
-    <string name="channel_reminders_description">Alerts for note reminders</string>
+    <string name="channel_scheduled_name">Scheduled notes</string>
+    <string name="channel_scheduled_description">Alerts when a scheduled note is pinned</string>
 
     <!-- Foreground service notification -->
     <string name="service_notification_text">Keeping your notes visible</string>
@@ -134,8 +141,8 @@
     <string name="cd_close_search">Close search</string>
     <string name="cd_clear_search">Clear search</string>
     <string name="cd_more_options">More options</string>
-    <string name="cd_reminder_set">Reminder set</string>
-    <string name="cd_remove_reminder">Remove reminder</string>
+    <string name="cd_scheduled">Scheduled</string>
+    <string name="cd_remove_schedule">Remove schedule</string>
     <string name="cd_pin_note">Pin note</string>
     <string name="cd_unpin_note">Unpin note</string>
 

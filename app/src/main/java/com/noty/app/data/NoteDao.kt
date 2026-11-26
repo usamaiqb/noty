@@ -29,7 +29,11 @@ interface NoteDao {
     // Changes the app makes on its own (a notification action, a reminder firing) touch only
     // their column, so they can't overwrite an edit made in the meantime with a stale copy.
 
-    @Query("UPDATE notes SET isPinned = :pinned WHERE id = :noteId")
+    /** Pinning clears any schedule: a note is pinned or scheduled, never both. */
+    @Query(
+        "UPDATE notes SET isPinned = :pinned, " +
+            "reminderAt = CASE WHEN :pinned THEN NULL ELSE reminderAt END WHERE id = :noteId"
+    )
     suspend fun setPinned(noteId: Long, pinned: Boolean)
 
     @Query("UPDATE notes SET reminderAt = NULL WHERE id = :noteId")

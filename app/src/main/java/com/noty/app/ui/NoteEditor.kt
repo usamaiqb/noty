@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,11 +16,12 @@ import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.PushPin
-import androidx.compose.material.icons.rounded.Alarm
+import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.PushPin
+import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -27,6 +29,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingToolbarDefaults
 import androidx.compose.material3.HorizontalFloatingToolbar
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconToggleButton
@@ -57,6 +61,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.material3.RadioButton
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -68,6 +77,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import com.noty.app.R
 import com.noty.app.data.Note
+import com.noty.app.data.withPinWinning
 import com.noty.app.ui.expressive.rememberExpressiveHaptics
 import com.noty.app.utils.ReminderScheduler
 import java.util.Calendar
@@ -82,6 +92,9 @@ import java.util.TimeZone
  * be saved, so it shouldn't stop the editor closing. A new note counts only what was entered,
  * not the pin toggle: it starts from a setting, and asking "Discard?" over an empty note
  * whose only change is that toggle would be noise.
+ *
+ * An edit is compared with the note as the pinned-or-scheduled rule reads it, since that is
+ * what the editor shows: a pinned note saved with a time from before the rule opens without it.
  */
 internal fun hasUnsavedChanges(
     original: Note?,
@@ -92,10 +105,11 @@ internal fun hasUnsavedChanges(
 ): Boolean = if (original == null) {
     title.isNotBlank() || description.isNotBlank() || reminderAt != null
 } else {
-    title.trim() != original.title ||
-        description.trim() != original.description.orEmpty() ||
-        isPinned != original.isPinned ||
-        reminderAt != original.reminderAt
+    val shown = original.withPinWinning()
+    title.trim() != shown.title ||
+        description.trim() != shown.description.orEmpty() ||
+        isPinned != shown.isPinned ||
+        reminderAt != shown.reminderAt
 }
 
 /**
@@ -120,7 +134,8 @@ fun NoteEditor(
     // note keeps its state, and can still be unpinned.
     var isPinned by remember { mutableStateOf(note?.isPinned ?: (defaultPinned && canPin)) }
     val pinBlocked = !isPinned && !canPin
-    var reminderAt by remember { mutableStateOf(note?.reminderAt) }
+    // Pinned or scheduled, never both. Pin on clears the time; picking a time turns Pin off.
+    var reminderAt by remember { mutableStateOf(note?.withPinWinning()?.reminderAt) }
     var titleError by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
@@ -162,7 +177,7 @@ fun NoteEditor(
 
     // A reminder is a notification, so it needs notifications first (same explanation as
     // the pin), then exact alarms. Without either it would fire unseen.
-    val openReminderPicker = {
+    val openSchedulePicker = {
         when {
             !canPin -> {
                 haptics.reject()
@@ -230,33 +245,30 @@ fun NoteEditor(
                     }
                 }
             ) {
-                val pinLabel = stringResource(if (isPinned) R.string.cd_unpin_note else R.string.cd_pin_note)
-                WithTooltip(pinLabel) {
-                    // The state is carried by the icon: filled when pinned, outlined when not.
-                    IconToggleButton(
-                        checked = isPinned,
-                        onCheckedChange = { checked ->
-                            if (pinBlocked) {
-                                haptics.reject()
-                                onPinBlocked()
-                            } else {
-                                haptics.toggle(on = checked)
-                                isPinned = checked
-                            }
+                // Pin is a one-tap toggle; the clock schedules a pin for later. Once a time is set
+                // the clock alone stands for the choice, so nothing can drop that time quietly.
+                PinControls(
+                    isPinned = isPinned,
+                    scheduledAt = reminderAt,
+                    canPin = canPin,
+                    canSchedule = canPin && canScheduleReminders,
+                    onDontPin = {
+                        haptics.toggle(on = false)
+                        isPinned = false
+                        reminderAt = null
+                    },
+                    onPinNow = {
+                        if (pinBlocked) {
+                            haptics.reject()
+                            onPinBlocked()
+                        } else {
+                            haptics.toggle(on = true)
+                            isPinned = true
+                            reminderAt = null
                         }
-                    ) {
-                        Icon(
-                            if (isPinned) Icons.Rounded.PushPin else Icons.Outlined.PushPin,
-                            contentDescription = pinLabel
-                        )
-                    }
-                }
-                val reminderLabel = stringResource(R.string.reminder_add)
-                WithTooltip(reminderLabel) {
-                    IconButton(onClick = openReminderPicker) {
-                        Icon(Icons.Rounded.Alarm, contentDescription = reminderLabel)
-                    }
-                }
+                    },
+                    onPinLater = openSchedulePicker
+                )
             }
         }
     ) { padding ->
@@ -290,23 +302,23 @@ fun NoteEditor(
                     .fillMaxWidth()
                     .focusRequester(titleFocus)
             )
-            // A set reminder shows as a chip: tap to change it, ✕ to remove it.
+            // A scheduled pin shows as a chip: tap to change the time, ✕ to remove it.
             reminderAt?.let { at ->
                 InputChip(
                     selected = true,
-                    onClick = openReminderPicker,
+                    onClick = openSchedulePicker,
                     label = { Text(formatReminderTime(context, at)) },
                     leadingIcon = {
                         Icon(
-                            Icons.Rounded.Alarm,
-                            contentDescription = null,
+                            Icons.Rounded.Schedule,
+                            contentDescription = stringResource(R.string.cd_scheduled),
                             modifier = Modifier.size(InputChipDefaults.IconSize)
                         )
                     },
                     trailingIcon = {
                         Icon(
                             Icons.Rounded.Close,
-                            contentDescription = stringResource(R.string.cd_remove_reminder),
+                            contentDescription = stringResource(R.string.cd_remove_schedule),
                             modifier = Modifier
                                 .size(InputChipDefaults.IconSize)
                                 .clickable(role = Role.Button) {
@@ -372,10 +384,10 @@ fun NoteEditor(
     if (showReminderPermissionDialog) {
         AlertDialog(
             onDismissRequest = { showReminderPermissionDialog = false },
-            icon = { Icon(Icons.Rounded.Alarm, contentDescription = null) },
+            icon = { Icon(Icons.Rounded.Schedule, contentDescription = null) },
             title = { Text(stringResource(R.string.reminder_permission_title)) },
             text = {
-                Text(stringResource(R.string.reminder_permission_message))
+                Text(stringResource(R.string.schedule_permission_message))
             },
             confirmButton = {
                 TextButton(
@@ -501,6 +513,8 @@ fun NoteEditor(
                         } else {
                             haptics.confirm()
                             reminderAt = candidate
+                            // It gets pinned at that time, so it isn't pinned until then.
+                            isPinned = false
                             timeInPastError = false
                             showTimePicker = false
                         }
@@ -532,5 +546,121 @@ private fun WithTooltip(text: String, content: @Composable () -> Unit) {
         tooltip = { PlainTooltip { Text(text) } },
         state = rememberTooltipState(),
         content = content
+    )
+}
+
+private enum class PinState { OFF, NOW, LATER }
+
+private class PinOption(
+    val state: PinState,
+    val text: String,
+    val available: Boolean,
+    val choose: () -> Unit
+)
+
+/** Material's standard disabled-content opacity. */
+private const val DisabledAlpha = 0.38f
+
+/**
+ * The editor's pin controls.
+ *
+ * Not scheduled: a Pin toggle (one tap, the common case) and a clock that opens the date and
+ * time pickers. Scheduled: the Pin toggle steps aside and the clock opens a single-select menu
+ * (Don't pin, Pin now, Pin at the time), so the picked time is only given up by a labelled
+ * choice, never as the side effect of a tap. Clearing the schedule brings the toggle back.
+ *
+ * A control the app can't honour reads as disabled: pinning without notifications, scheduling
+ * without notifications or exact alarms. Like every blocked pin control in the app it stays
+ * tappable, so a tap explains what's missing and how to turn it on.
+ */
+@Composable
+private fun PinControls(
+    isPinned: Boolean,
+    scheduledAt: Long?,
+    canPin: Boolean,
+    canSchedule: Boolean,
+    onDontPin: () -> Unit,
+    onPinNow: () -> Unit,
+    onPinLater: () -> Unit
+) {
+    if (scheduledAt != null) {
+        ScheduledPinMenu(scheduledAt, canPin, onDontPin, onPinNow, onChangeTime = onPinLater)
+        return
+    }
+    val pinLabel = stringResource(if (isPinned) R.string.cd_unpin_note else R.string.cd_pin_note)
+    WithTooltip(pinLabel) {
+        // The state is carried by the icon: filled when pinned, outlined when not.
+        IconToggleButton(
+            checked = isPinned,
+            onCheckedChange = { pinned -> if (pinned) onPinNow() else onDontPin() },
+            modifier = Modifier.alpha(if (!isPinned && !canPin) DisabledAlpha else 1f)
+        ) {
+            Icon(if (isPinned) Icons.Rounded.PushPin else Icons.Outlined.PushPin, contentDescription = pinLabel)
+        }
+    }
+    val scheduleLabel = stringResource(R.string.pin_choice_later)
+    WithTooltip(scheduleLabel) {
+        IconButton(
+            onClick = onPinLater,
+            modifier = Modifier.alpha(if (canSchedule) 1f else DisabledAlpha)
+        ) {
+            Icon(Icons.Outlined.Schedule, contentDescription = scheduleLabel)
+        }
+    }
+}
+
+/** The clock on a scheduled note: when the note gets pinned, as a single-select menu. */
+@Composable
+private fun ScheduledPinMenu(
+    scheduledAt: Long,
+    canPin: Boolean,
+    onDontPin: () -> Unit,
+    onPinNow: () -> Unit,
+    onChangeTime: () -> Unit
+) {
+    val context = LocalContext.current
+    val pinAt = stringResource(R.string.pin_choice_later_at, formatReminderTime(context, scheduledAt))
+    val options = listOf(
+        PinOption(PinState.OFF, stringResource(R.string.pin_choice_off), available = true, onDontPin),
+        PinOption(PinState.NOW, stringResource(R.string.pin_choice_now), available = canPin, onPinNow),
+        // The current choice; picking it again changes the time.
+        PinOption(PinState.LATER, pinAt, available = true, onChangeTime)
+    )
+    val label = stringResource(R.string.cd_pin_options)
+    var menuExpanded by remember { mutableStateOf(false) }
+
+    Box {
+        WithTooltip(label) {
+            IconButton(
+                onClick = { menuExpanded = true },
+                modifier = Modifier.semantics { stateDescription = pinAt }
+            ) {
+                Icon(Icons.Rounded.Schedule, contentDescription = label)
+            }
+        }
+        DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
+            options.forEach { option ->
+                PinOptionItem(option, selected = option.state == PinState.LATER) {
+                    menuExpanded = false
+                    option.choose()
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PinOptionItem(option: PinOption, selected: Boolean, onClick: () -> Unit) {
+    // The current choice never dims: it's what the note is, even if it couldn't be chosen
+    // again right now.
+    val dimmed = !option.available && !selected
+    DropdownMenuItem(
+        text = { Text(option.text) },
+        // A radio marks the one current choice, the standard single-select menu.
+        leadingIcon = { RadioButton(selected = selected, onClick = null) },
+        onClick = onClick,
+        modifier = Modifier
+            .alpha(if (dimmed) DisabledAlpha else 1f)
+            .semantics { this.selected = selected }
     )
 }

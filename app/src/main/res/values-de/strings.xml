@@ -40,13 +40,20 @@
     <string name="delete_dialog_title">Diese Notiz löschen?</string>
     <string name="delete_dialog_message">Bist du sicher, dass du \'%1$s\' löschen möchtest?</string>
 
-    <!-- Reminders -->
-    <string name="reminder_add">Erinnerung hinzufügen</string>
+    <!-- Scheduling: pin a note later -->
+    <!-- The editor's Pin menu: when the note gets pinned, one choice of three -->
+    <string name="pin_choice_off">Nicht anheften</string>
+    <string name="pin_choice_now">Jetzt anheften</string>
+    <string name="pin_choice_later">Später anheften…</string>
+    <string name="pin_choice_later_at">Später anheften · %1$s</string>
+    <!-- A scheduled time, on the note card and in the editor -->
+    <string name="schedule_today">Heute, %1$s</string>
+    <string name="schedule_tomorrow">Morgen, %1$s</string>
+    <string name="cd_pin_options">Anheft-Optionen</string>
     <string name="reminder_permission_title">Erlaube Wecker und Erinnerungen</string>
-    <string name="reminder_permission_message">Noty braucht die Berechtigung \"Wecker und Erinnerungen\" um dich zum genauen Zeitpunkt den du ausgewählt hast zu erinnern. Ohne diese Berechtigung kann Android die Erinnerung um 10 Minuten oder mehr verzögern. Daher bleiben sie ausgeschaltet.</string>
+    <string name="schedule_permission_message">Noty braucht die Berechtigung „Wecker und Erinnerungen“, um deine Notiz genau zur gewählten Minute anzuheften. Ohne diese Berechtigung kann Android das um 10 Minuten oder mehr verzögern. Daher bleibt das Planen ausgeschaltet.</string>
     <string name="reminder_time_dialog_title">Uhrzeit einstellen</string>
     <string name="reminder_time_in_past">Diese Uhrzeit liegt in der Vergangenheit. Wähle eine andere Uhrzeit.</string>
-    <string name="reminder_fallback_text">Erinnerung</string>
 
     <!-- Notifications off: pinning can't work, so the app says so wherever it matters -->
     <string name="notifications_off_banner">Benachrichtigungen sind deaktiviert. Daher kann Noty deine Notizen nicht anzeigen.</string>
@@ -58,8 +65,8 @@
     <string name="message_save_failed">Die Notiz konnte nicht gespeichert werden</string>
     <string name="message_update_failed">Die Notiz konnte nicht aktualisiert werden</string>
     <string name="message_delete_failed">Die Notiz konnte nicht gelöscht werden</string>
-    <string name="message_reminder_needs_permission">Die Notiz wurde ohne ihre Erinnerung gespeichert: Die Berechtigung „Wecker und Erinnerungen“ fehlt.</string>
-    <string name="message_reminder_time_passed">Die Notiz wurde ohne ihre Erinnerung gespeichert: Die Uhrzeit liegt in der Vergangenheit.</string>
+    <string name="message_schedule_needs_permission">Die Notiz wurde ohne Planung gespeichert: Die Berechtigung „Wecker und Erinnerungen“ fehlt.</string>
+    <string name="message_schedule_time_passed">Die Notiz wurde ohne Planung gespeichert: Die Uhrzeit liegt in der Vergangenheit.</string>
     <string name="message_export_failed">Deine Notizen konnten nicht exportiert werden</string>
     <string name="message_import_failed">Diese Datei konnte nicht importiert werden</string>
     <string name="message_import_not_a_backup">Diese Datei ist kein Noty-Backup</string>
@@ -109,8 +116,8 @@
     <string name="channel_notes_description">Zeigt deine aktiven Notizen an</string>
     <string name="channel_service_name">Noty Hintergrunddienst</string>
     <string name="channel_service_description">Hintergrunddienst zur Überwachung deiner Notizen</string>
-    <string name="channel_reminders_name">Erinnerungen</string>
-    <string name="channel_reminders_description">Alarme für Erinnerungen</string>
+    <string name="channel_scheduled_name">Geplante Notizen</string>
+    <string name="channel_scheduled_description">Meldet sich, wenn eine geplante Notiz angeheftet wird</string>
 
     <!-- Foreground service notification -->
     <string name="service_notification_text">Deine Notizen werden sichtbar gehalten</string>
@@ -126,8 +133,8 @@
     <string name="cd_close_search">Suche schließen</string>
     <string name="cd_clear_search">Suche leeren</string>
     <string name="cd_more_options">Weitere Optionen</string>
-    <string name="cd_reminder_set">Erinnerung gesetzt</string>
-    <string name="cd_remove_reminder">Erinnerung entfernen</string>
+    <string name="cd_scheduled">Geplant</string>
+    <string name="cd_remove_schedule">Planung entfernen</string>
     <string name="cd_pin_note">Notiz anheften</string>
     <string name="cd_unpin_note">Notiz ablösen</string>
 

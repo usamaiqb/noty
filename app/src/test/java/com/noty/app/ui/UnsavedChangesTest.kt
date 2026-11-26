@@ -13,14 +13,15 @@ class UnsavedChangesTest {
         title = "Title",
         description = "Text",
         type = NoteType.NOTE,
-        isPinned = true,
+        // Scheduled: unpinned, with a time.
+        isPinned = false,
         reminderAt = 5_000L
     )
 
     private fun edited(
         title: String = "Title",
         description: String = "Text",
-        isPinned: Boolean = true,
+        isPinned: Boolean = false,
         reminderAt: Long? = 5_000L
     ) = hasUnsavedChanges(note, title, description, isPinned, reminderAt)
 
@@ -67,14 +68,21 @@ class UnsavedChangesTest {
     @Test
     fun edit_noDescription_emptyField_hasNoChanges() {
         val bare = note.copy(description = null)
-        assertFalse(hasUnsavedChanges(bare, "Title", "", isPinned = true, reminderAt = 5_000L))
+        assertFalse(hasUnsavedChanges(bare, "Title", "", isPinned = false, reminderAt = 5_000L))
     }
 
     @Test
     fun edit_eachField_hasChanges() {
         assertTrue(edited(title = "Other"))
         assertTrue(edited(description = "Other"))
-        assertTrue(edited(isPinned = false))
+        assertTrue(edited(isPinned = true))
         assertTrue(edited(reminderAt = null))
+    }
+
+    @Test
+    fun edit_pinnedWithATimeFromBeforeTheRule_opensAsPinned_hasNoChanges() {
+        // The editor shows such a note pinned, with no time; that alone isn't an edit.
+        val legacy = note.copy(isPinned = true, reminderAt = 5_000L)
+        assertFalse(hasUnsavedChanges(legacy, "Title", "Text", isPinned = true, reminderAt = null))
     }
 }
