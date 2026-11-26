@@ -156,16 +156,12 @@ fun NoteCard(
                     )
                 }
                 Spacer(modifier = Modifier.height(4.dp))
+                // The schedule comes first: it's what will happen to the note, and on a line too
+                // long to fit it's the edit time that gets cut, not the schedule.
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = relativeTime,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
                     // Only a scheduled note shows its time; a pinned one is already in the shade.
                     note.reminderAt?.takeIf { note.isScheduled }?.let { reminderAt ->
                         val context = LocalContext.current
-                        Spacer(modifier = Modifier.width(8.dp))
                         Icon(
                             imageVector = Icons.Rounded.Schedule,
                             // The time alone doesn't say what it is; this does, for TalkBack.
@@ -178,10 +174,19 @@ fun NoteCard(
                             text = formatReminderTime(context, reminderAt),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.primary,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
+                            maxLines = 1
                         )
+                        Spacer(modifier = Modifier.width(8.dp))
                     }
+                    Text(
+                        text = relativeTime,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        // Takes only the room left over, so it's the part that shortens.
+                        modifier = Modifier.weight(1f, fill = false)
+                    )
                 }
             }
             Box {
