@@ -1,0 +1,152 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+
+    <!-- App -->
+    <string name="app_tagline">Jednoduché poznámky připnuté k vašim oznámením.</string>
+
+    <!-- Actions reused across screens -->
+    <string name="action_save">Uložit</string>
+    <string name="action_update">Aktualizovat</string>
+    <string name="action_cancel">Zrušit</string>
+    <string name="action_next">Další</string>
+    <string name="action_ok">OK</string>
+    <string name="action_delete">Odstranit</string>
+    <string name="action_pin">Připnout</string>
+    <string name="action_unpin">Odepnout</string>
+    <string name="action_open_settings">Otevřít nastavení</string>
+    <string name="action_not_now">Nyní ne</string>
+    <string name="action_discard">Zrušit</string>
+    <string name="action_keep_editing">Pokračovat v úpravách</string>
+
+    <!-- Note list -->
+    <string name="home_new_note">Nová poznámka</string>
+    <string name="home_section_pinned">Připnuto</string>
+    <string name="home_section_others">Ostatní</string>
+    <string name="home_empty_title">Zatím žádné poznámky</string>
+    <string name="home_empty_subtitle">Klepněte na + Nová poznámka a vytvořte svou první poznámku</string>
+
+    <!-- Search -->
+    <string name="search_placeholder">Vyhledat poznámku</string>
+    <string name="search_empty_title">Žádné výsledky pro \"%1$s\"</string>
+    <string name="search_empty_subtitle">Zkuste zadat jiný vyhledávací výraz</string>
+
+    <!-- Add / edit sheet -->
+    <string name="sheet_title_new">Nová poznámka</string>
+    <string name="sheet_title_edit">Upravit poznámku</string>
+    <string name="sheet_pin_note">Připnout poznámku</string>
+    <string name="sheet_label_title">Název poznámky</string>
+    <string name="sheet_label_description">Popis (volitelné)</string>
+    <string name="sheet_error_title_required">Název je povinný</string>
+
+    <!-- Delete confirmation -->
+    <string name="delete_dialog_title">Smazat tuto poznámku?</string>
+    <string name="delete_dialog_message">Opravdu chcete smazat \'%1$s\'?</string>
+
+    <!-- Closing the note sheet with unsaved changes -->
+    <string name="discard_dialog_title_new">Zahodit tuto poznámku?</string>
+    <string name="discard_dialog_title_edit">Chcete změny zrušit?</string>
+
+    <!-- Scheduling: pin a note later -->
+    <!-- The editor's Pin menu: when the note gets pinned, one choice of three -->
+    <string name="pin_choice_off">Nepřipínat</string>
+    <string name="pin_choice_now">Připnout hned</string>
+    <string name="pin_choice_later">Připnout později…</string>
+    <string name="pin_choice_later_at">Připnout později · %1$s</string>
+    <!-- A scheduled time, on the note card and in the editor -->
+    <string name="schedule_today">Dnes, %1$s</string>
+    <string name="schedule_tomorrow">Zítra, %1$s</string>
+    <string name="cd_pin_options">Možnosti připnutí</string>
+    <string name="reminder_permission_title">Povolit budíky a připomenutí</string>
+    <string name="schedule_permission_message">Aplikace Noty potřebuje oprávnění \"Budíky a připomenutí\", aby mohla připnout vaši poznámku přesně v nastavenou minutu. Bez tohoto oprávnění ji může Android zpozdit o 10 minut i více, proto zůstává plánování vypnuté.</string>
+    <string name="reminder_time_dialog_title">Nastavit čas</string>
+    <string name="reminder_time_in_past">Tento čas už uplynul. Vyberte si jiný čas.</string>
+
+    <!-- Notifications off: pinning can't work, so the app says so wherever it matters -->
+    <string name="notifications_off_banner">Oznámení jsou vypnutá, takže aplikace Noty nemůže zobrazovat vaše poznámky na stavové liště.</string>
+    <string name="notifications_turn_on">Zapnout</string>
+    <string name="notifications_off_dialog_title">Zapnout oznámení</string>
+    <string name="notifications_off_dialog_message">Aplikace Noty připíná poznámky na stavovou lištu jako oznámení. Pokud jsou oznámení vypnutá, nelze poznámky připnout.</string>
+
+    <!-- Messages for actions that didn't go through -->
+    <string name="message_save_failed">Poznámku se nepodařilo uložit</string>
+    <string name="message_update_failed">Nepodařilo se aktualizovat poznámku</string>
+    <string name="message_delete_failed">Poznámku se nepodařilo smazat</string>
+    <string name="message_schedule_needs_permission">Poznámka byla uložena bez naplánování: oprávnění pro budíky a připomenutí je vypnuté</string>
+    <string name="message_schedule_time_passed">Poznámka byla uložena bez naplánování: daný čas již uplynul</string>
+    <string name="message_export_failed">Nepodařilo se exportovat vaše poznámky</string>
+    <string name="message_import_failed">Tento soubor se nepodařilo importovat</string>
+    <string name="message_import_not_a_backup">Tento soubor není zálohou Noty</string>
+    <string name="message_import_newer_version">Tato záloha pochází z novější verze aplikace Noty. Chcete-li ji importovat, aktualizujte aplikaci.</string>
+    <string name="message_import_nothing_new">Není co importovat: všechny poznámky z této zálohy už jsou v aplikaci</string>
+    <plurals name="message_exported">
+        <item quantity="one">Byla exportována %d poznámka</item>
+        <item quantity="few">Byly exportovány %d poznámky</item>
+        <item quantity="many">Bylo exportováno %d poznámek</item>
+        <item quantity="other">Bylo exportováno %d poznámek</item>
+    </plurals>
+    <plurals name="message_imported">
+        <item quantity="one">Importována %d poznámka</item>
+        <item quantity="few">Importovány %d poznámky</item>
+        <item quantity="many">Importováno %d poznámek</item>
+        <item quantity="other">Importováno %d poznámek</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="settings_title">Nastavení</string>
+    <string name="settings_pin_default_needs_notifications">Musí být zapnuté oznámení</string>
+    <string name="settings_section_appearance">Vzhled</string>
+    <string name="settings_section_notes">Poznámky</string>
+    <string name="settings_section_about">O aplikaci</string>
+    <string name="settings_section_backup">Záloha</string>
+    <string name="settings_export_title">Exportovat poznámky</string>
+    <string name="settings_export_subtitle">Uložte všechny své poznámky do souboru</string>
+    <string name="settings_import_title">Importovat poznámky</string>
+    <string name="settings_import_subtitle">Přidejte poznámky ze zálohy aplikace Noty. Poznámky, které zde již jsou, zůstanou zachovány.</string>
+    <string name="settings_theme_title">Téma aplikace</string>
+    <string name="settings_theme_subtitle">Celkový vzhled aplikace</string>
+    <string name="settings_dynamic_color_title">Použít dynamické barvy</string>
+    <string name="settings_dynamic_color_subtitle">Nastavit barvu aplikace podle pozadí</string>
+    <string name="settings_language_title">Jazyk</string>
+    <string name="settings_language_subtitle">Vyberte jazyk, který má Noty používat</string>
+    <string name="settings_pin_default_title">Ve výchozím nastavení připnout nové poznámky</string>
+    <string name="settings_pin_default_subtitle">Nové poznámky se zpočátku zobrazují jako připnuté oznámení</string>
+    <!-- Prefixes the version read off the installed package. Quoted so aapt keeps the
+         trailing space; the shared rememberAppVersionLabel() concatenates rather than
+         formatting, so the space has to live here. -->
+    <string name="settings_version_prefix">"Verze "</string>
+    <string name="settings_version_unknown_name">neznámá</string>
+
+    <!-- Theme picker -->
+    <string name="theme_system">Systém</string>
+    <string name="theme_light">Světlý</string>
+    <string name="theme_dark">Tmavý</string>
+
+    <!-- Notification channels, shown in system settings -->
+    <string name="channel_notes_name">Trvalé poznámky</string>
+    <string name="channel_notes_description">Zobrazit vaše aktivní poznámky</string>
+    <string name="channel_service_name">Služba Noty</string>
+    <string name="channel_service_description">Služba běžící na pozadí pro sledování poznámek</string>
+    <string name="channel_scheduled_name">Naplánované poznámky</string>
+    <string name="channel_scheduled_description">Upozornění, když se naplánovaná poznámka připne</string>
+
+    <!-- Foreground service notification -->
+    <string name="service_notification_text">Udržuje vaše poznámky viditelné</string>
+
+    <!-- Quick Settings tile -->
+    <string name="tile_add_note">Rychlá poznámka</string>
+    <string name="tile_subtitle">Klepnutím přidáte</string>
+
+    <!-- Accessibility -->
+    <string name="cd_search_notes">Vyhledat poznámky</string>
+    <string name="cd_settings">Nastavení</string>
+    <string name="cd_back">Zpět</string>
+    <string name="cd_close_editor">Zavřít</string>
+    <string name="cd_close_search">Zavřít vyhledávání</string>
+    <string name="cd_clear_search">Vymazat vyhledávání</string>
+    <string name="cd_more_options">Další možnosti</string>
+    <string name="cd_scheduled">Naplánováno</string>
+    <string name="cd_remove_schedule">Odstranit naplánování</string>
+    <string name="cd_pin_note">Připnout poznámku</string>
+    <string name="cd_unpin_note">Odepnout poznámku</string>
+
+</resources>
