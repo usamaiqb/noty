@@ -39,13 +39,20 @@
     <string name="delete_dialog_title">¿Eliminar esta nota?</string>
     <string name="delete_dialog_message">¿Seguro que quieres eliminar «%1$s»?</string>
 
-    <!-- Reminders -->
-    <string name="reminder_add">Añadir recordatorio</string>
+    <!-- Scheduling: pin a note later -->
+    <!-- The editor's Pin menu: when the note gets pinned, one choice of three -->
+    <string name="pin_choice_off">No fijar</string>
+    <string name="pin_choice_now">Fijar ahora</string>
+    <string name="pin_choice_later">Fijar más tarde…</string>
+    <string name="pin_choice_later_at">Fijar más tarde · %1$s</string>
+    <!-- A scheduled time, on the note card and in the editor -->
+    <string name="schedule_today">Hoy, %1$s</string>
+    <string name="schedule_tomorrow">Mañana, %1$s</string>
+    <string name="cd_pin_options">Opciones de fijado</string>
     <string name="reminder_permission_title">Permitir alarmas y recordatorios</string>
-    <string name="reminder_permission_message">Noty necesita el permiso de alarmas y recordatorios para avisarte en el minuto exacto que elijas. Sin él, Android puede retrasar un recordatorio 10 minutos o más, por lo que los recordatorios permanecen desactivados.</string>
+    <string name="schedule_permission_message">Noty necesita el permiso de alarmas y recordatorios para fijar tu nota en el minuto exacto que elijas. Sin él, Android puede retrasarlo 10 minutos o más, por lo que la programación permanece desactivada.</string>
     <string name="reminder_time_dialog_title">Establecer hora</string>
     <string name="reminder_time_in_past">Esa hora ya ha pasado. Elige una posterior.</string>
-    <string name="reminder_fallback_text">Recordatorio</string>
 
     <!-- Notifications off: pinning can't work, so the app says so wherever it matters -->
     <string name="notifications_off_banner">Las notificaciones están desactivadas, por lo que Noty no puede mostrar tus notas en la barra de estado.</string>
@@ -57,8 +64,8 @@
     <string name="message_save_failed">No se ha podido guardar la nota</string>
     <string name="message_update_failed">No se ha podido actualizar la nota</string>
     <string name="message_delete_failed">No se ha podido eliminar la nota</string>
-    <string name="message_reminder_needs_permission">Nota guardada sin recordatorio: el permiso de alarmas y recordatorios está desactivado</string>
-    <string name="message_reminder_time_passed">Nota guardada sin recordatorio: esa hora ya ha pasado</string>
+    <string name="message_schedule_needs_permission">Nota guardada sin programar: el permiso de alarmas y recordatorios está desactivado</string>
+    <string name="message_schedule_time_passed">Nota guardada sin programar: esa hora ya ha pasado</string>
     <string name="message_export_failed">No se han podido exportar tus notas</string>
     <string name="message_import_failed">No se ha podido importar ese archivo</string>
     <string name="message_import_not_a_backup">Ese archivo no es una copia de seguridad de Noty</string>
@@ -108,8 +115,8 @@
     <string name="channel_notes_description">Muestra tus notas activas</string>
     <string name="channel_service_name">Servicio de Noty</string>
     <string name="channel_service_description">Servicio en segundo plano para supervisar las notas</string>
-    <string name="channel_reminders_name">Recordatorios</string>
-    <string name="channel_reminders_description">Avisos de recordatorios de notas</string>
+    <string name="channel_scheduled_name">Notas programadas</string>
+    <string name="channel_scheduled_description">Avisa cuando se fija una nota programada</string>
 
     <!-- Foreground service notification -->
     <string name="service_notification_text">Manteniendo tus notas visibles</string>
@@ -125,8 +132,8 @@
     <string name="cd_close_search">Cerrar búsqueda</string>
     <string name="cd_clear_search">Borrar búsqueda</string>
     <string name="cd_more_options">Más opciones</string>
-    <string name="cd_reminder_set">Recordatorio establecido</string>
-    <string name="cd_remove_reminder">Quitar recordatorio</string>
+    <string name="cd_scheduled">Programada</string>
+    <string name="cd_remove_schedule">Quitar programación</string>
     <string name="cd_pin_note">Fijar nota</string>
     <string name="cd_unpin_note">Desfijar nota</string>
 

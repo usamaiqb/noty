@@ -40,13 +40,20 @@
     <string name="delete_dialog_title">删除这条便签？</string>
     <string name="delete_dialog_message">确定要删除“%1$s”吗？</string>
 
-    <!-- Reminders -->
-    <string name="reminder_add">添加提醒</string>
+    <!-- Scheduling: pin a note later -->
+    <!-- The editor's Pin menu: when the note gets pinned, one choice of three -->
+    <string name="pin_choice_off">不固定</string>
+    <string name="pin_choice_now">立即固定</string>
+    <string name="pin_choice_later">稍后固定…</string>
+    <string name="pin_choice_later_at">稍后固定 · %1$s</string>
+    <!-- A scheduled time, on the note card and in the editor -->
+    <string name="schedule_today">今天 %1$s</string>
+    <string name="schedule_tomorrow">明天 %1$s</string>
+    <string name="cd_pin_options">固定选项</string>
     <string name="reminder_permission_title">允许闹钟和提醒</string>
-    <string name="reminder_permission_message">Noty 需要“闹钟和提醒”权限才能在设定的时间准时提醒。没有该权限，Android 可能会把提醒延迟 10 分钟甚至更久，因此提醒功能将保持关闭。</string>
+    <string name="schedule_permission_message">Noty 需要“闹钟和提醒”权限才能在设定的时间准时固定便签。没有该权限，Android 可能会延迟 10 分钟甚至更久，因此定时功能将保持关闭。</string>
     <string name="reminder_time_dialog_title">设置时间</string>
     <string name="reminder_time_in_past">该时间已过，请选择更晚的时间。</string>
-    <string name="reminder_fallback_text">提醒</string>
 
     <!-- Settings -->
     <string name="notifications_off_banner">通知权限已关闭，Noty 无法在通知栏显示便签</string>
@@ -56,8 +63,8 @@
     <string name="message_save_failed">无法保存便签</string>
     <string name="message_update_failed">无法更新便签</string>
     <string name="message_delete_failed">无法删除便签</string>
-    <string name="message_reminder_needs_permission">便签已保存，但未设置提醒：“闹钟和提醒”权限已关闭</string>
-    <string name="message_reminder_time_passed">便签已保存，但未设置提醒：所选时间已过</string>
+    <string name="message_schedule_needs_permission">便签已保存，但未设置定时：“闹钟和提醒”权限已关闭</string>
+    <string name="message_schedule_time_passed">便签已保存，但未设置定时：所选时间已过</string>
     <string name="settings_title">设置</string>
     <string name="settings_pin_default_needs_notifications">需要打开通知权限</string>
     <string name="settings_section_appearance">外观</string>
@@ -87,8 +94,8 @@
     <string name="channel_notes_description">显示当前生效的便签</string>
     <string name="channel_service_name">Noty 服务</string>
     <string name="channel_service_description">用于监控便签的后台服务</string>
-    <string name="channel_reminders_name">提醒</string>
-    <string name="channel_reminders_description">便签到期时的提醒</string>
+    <string name="channel_scheduled_name">定时便签</string>
+    <string name="channel_scheduled_description">定时便签被固定时发出提醒</string>
 
     <!-- Foreground service notification -->
     <string name="service_notification_text">正在显示便签</string>
@@ -104,8 +111,8 @@
     <string name="cd_close_search">关闭搜索</string>
     <string name="cd_clear_search">清除搜索</string>
     <string name="cd_more_options">更多选项</string>
-    <string name="cd_reminder_set">已设置提醒</string>
-    <string name="cd_remove_reminder">移除提醒</string>
+    <string name="cd_scheduled">已定时</string>
+    <string name="cd_remove_schedule">移除定时</string>
     <string name="cd_pin_note">固定便签</string>
     <string name="cd_unpin_note">取消固定便签</string>
 

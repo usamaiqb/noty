@@ -8,7 +8,6 @@ import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.graphics.createBitmap
-import androidx.core.net.toUri
 import com.noty.app.R
 import com.noty.app.data.Note
 import com.noty.app.ui.MainActivity
@@ -18,7 +17,8 @@ class NotificationHelper(private val context: Context) {
     companion object {
         const val CHANNEL_ID = "noty_persistent_channel"
         const val CHANNEL_ID_SERVICE = "noty_service_channel"
-        const val CHANNEL_ID_REMINDERS = "noty_reminders_channel"
+        // Kept from when this channel was "Reminders", so the user's settings for it carry over.
+        const val CHANNEL_ID_SCHEDULED = "noty_reminders_channel"
         const val ACTION_DELETE = "com.noty.app.ACTION_DELETE"
         const val ACTION_DISMISSED = "com.noty.app.ACTION_DISMISSED"
         const val ACTION_UNPIN = "com.noty.app.ACTION_UNPIN"
@@ -74,18 +74,27 @@ class NotificationHelper(private val context: Context) {
         }
         notificationManager.createNotificationChannel(serviceChannel)
 
-        // Channel for scheduled reminders (alerting)
-        val remindersChannel = NotificationChannel(
-            CHANNEL_ID_REMINDERS,
-            context.getString(R.string.channel_reminders_name),
+        // The moment a scheduled note arrives. Its own channel because the user controls each
+        // channel's sound: a post can be quieter than its channel but never louder, and a user
+        // who mutes the persistent "Notes" channel still wants to hear a scheduled note land.
+        // Re-creating a channel with the same id renames it and keeps the user's settings.
+        val scheduledChannel = NotificationChannel(
+            CHANNEL_ID_SCHEDULED,
+            context.getString(R.string.channel_scheduled_name),
             NotificationManager.IMPORTANCE_HIGH
         ).apply {
-            description = context.getString(R.string.channel_reminders_description)
+            description = context.getString(R.string.channel_scheduled_description)
         }
-        notificationManager.createNotificationChannel(remindersChannel)
+        notificationManager.createNotificationChannel(scheduledChannel)
     }
 
-    fun showNotification(note: Note) {
+    /**
+     * Posts a pinned note's notification, the only one a note ever has, under its own id.
+     *
+     * [alert] is for the moment a scheduled note arrives: it posts on the alerting channel
+     * so it sounds and peeks once. Every later re-post (an edit, a sync) is quiet, on "Notes".
+     */
+    fun showNotification(note: Note, alert: Boolean = false) {
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
@@ -97,11 +106,11 @@ class NotificationHelper(private val context: Context) {
         // Using the new custom pen nib icon for the status bar
         val icon = R.drawable.ic_stat_noty
 
-        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+        val builder = NotificationCompat.Builder(context, if (alert) CHANNEL_ID_SCHEDULED else CHANNEL_ID)
             .setSmallIcon(icon)
             .setContentTitle(note.title)
             .setContentText(note.description)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setPriority(if (alert) NotificationCompat.PRIORITY_HIGH else NotificationCompat.PRIORITY_DEFAULT)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
             .setOngoing(true)
@@ -129,6 +138,9 @@ class NotificationHelper(private val context: Context) {
             deletePendingIntent(note.id)
         )
 
+        // Updating a posted notification in place can suppress the heads-up alert (and
+        // setOnlyAlertOnce silences updates), so clear the quiet one first.
+        if (alert) notificationManager.cancel(note.id.toInt())
         notificationManager.notify(note.id.toInt(), builder.build())
     }
 
@@ -142,61 +154,6 @@ class NotificationHelper(private val context: Context) {
             .setPriority(NotificationCompat.PRIORITY_MIN)
             .setOngoing(true)
             .build()
-    }
-
-    /**
-     * Fires a note's reminder.
-     *
-     * A note has at most one notification at a time, posted under its own id.
-     * For a pinned note this replaces the quiet persistent one instead of
-     * adding a second entry: it alerts, then stays in the shade, because that
-     * is what pinning means. An unpinned note gets a dismissible one-shot.
-     */
-    fun showReminderNotification(note: Note) {
-        val intent = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            // Distinct data URI keeps this PendingIntent separate from the pinned-note one
-            data = "noty://reminder/${note.id}".toUri()
-        }
-        val pendingIntent: PendingIntent = PendingIntent.getActivity(
-            context, note.id.toInt(), intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
-
-        val reminderText = note.description ?: context.getString(R.string.reminder_fallback_text)
-        val builder = NotificationCompat.Builder(context, CHANNEL_ID_REMINDERS)
-            .setSmallIcon(R.drawable.ic_stat_noty)
-            .setContentTitle(note.title)
-            .setContentText(reminderText)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(reminderText))
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setCategory(NotificationCompat.CATEGORY_REMINDER)
-            // Pinning decides what happens after the alert: a pinned note stays
-            // put and keeps its shade actions, an unpinned one is dismissible.
-            .setOngoing(note.isPinned)
-            .setAutoCancel(!note.isPinned)
-            .setContentIntent(pendingIntent)
-
-        if (note.isPinned) {
-            builder.addAction(
-                R.drawable.ic_unpin,
-                context.getString(R.string.action_unpin),
-                unpinPendingIntent(note.id)
-            )
-            builder.addAction(
-            R.drawable.ic_delete,
-            context.getString(R.string.action_delete),
-            deletePendingIntent(note.id)
-        )
-            // Deliberately only for the pinned branch: ACTION_DISMISSED deletes
-            // an unpinned note, so swiping away a fired one-shot must not fire it.
-            builder.setDeleteIntent(dismissPendingIntent(note.id))
-            // Updating a posted notification in place can suppress the heads-up
-            // alert, so clear the quiet one before re-posting.
-            notificationManager.cancel(note.id.toInt())
-        }
-
-        notificationManager.notify(note.id.toInt(), builder.build())
     }
 
     // Request-code offsets keep these distinct from the content intent and from
@@ -235,12 +192,6 @@ class NotificationHelper(private val context: Context) {
     }
 
     fun cancelNotification(noteId: Int) {
-        notificationManager.cancel(noteId)
-    }
-
-    fun cancelReminderNotification(noteId: Int) {
-        // A note has one notification identity; kept as a named entry point so
-        // call sites still read clearly.
         notificationManager.cancel(noteId)
     }
 

@@ -10,13 +10,20 @@ class ImportPlanTest {
 
     private val now = 10_000L
 
-    private fun note(uuid: String, updatedAt: Long, id: Long = 0, reminderAt: Long? = null) = Note(
+    private fun note(
+        uuid: String,
+        updatedAt: Long,
+        id: Long = 0,
+        reminderAt: Long? = null,
+        isPinned: Boolean = false
+    ) = Note(
         id = id,
         uuid = uuid,
         title = "Note $uuid at $updatedAt",
         type = NoteType.NOTE,
         createdAt = 1_000L,
         updatedAt = updatedAt,
+        isPinned = isPinned,
         reminderAt = reminderAt
     )
 
@@ -68,6 +75,15 @@ class ImportPlanTest {
 
         assertNull(result.toInsert.single { it.uuid == "past" }.reminderAt)
         assertEquals(now + 1, result.toInsert.single { it.uuid == "future" }.reminderAt)
+    }
+
+    @Test
+    fun pinnedNoteWithATime_importsPinned_withoutTheSchedule() {
+        val result = plan(listOf(note("a", 2_000L, reminderAt = now + 1, isPinned = true)), emptyList())
+
+        val imported = result.toInsert.single()
+        assertEquals(true, imported.isPinned)
+        assertNull(imported.reminderAt)
     }
 
     @Test

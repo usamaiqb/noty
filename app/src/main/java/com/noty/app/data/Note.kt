@@ -22,8 +22,19 @@ data class Note(
     // add the column; the migration then copies createdAt into it.
     @ColumnInfo(defaultValue = "0") val updatedAt: Long = createdAt,
     val isPinned: Boolean = true,
+    // When a scheduled note gets pinned. Only meaningful on an unpinned note: see isScheduled.
     val reminderAt: Long? = null
 )
+
+/**
+ * Waiting to be pinned at [Note.reminderAt]. A note is unpinned, pinned or scheduled: pinned and
+ * scheduled are exclusive, and pinned wins. Notes saved before that rule can still be pinned
+ * with a time; they read as pinned, and the alarm clears the time when it fires.
+ */
+val Note.isScheduled: Boolean get() = !isPinned && reminderAt != null
+
+/** The note as the pinned-or-scheduled rule reads it: a pinned note has no schedule. */
+fun Note.withPinWinning(): Note = if (isPinned && reminderAt != null) copy(reminderAt = null) else this
 
 /**
  * The note with new text. [Note.updatedAt] moves only when the text actually changed, so

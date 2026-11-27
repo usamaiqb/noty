@@ -38,4 +38,18 @@ class NoteTest {
         assertEquals(null, edited.description)
         assertEquals(5_000L, edited.updatedAt)
     }
+
+    @Test
+    fun isScheduled_onlyForAnUnpinnedNoteWithATime() {
+        assertEquals(true, note.copy(isPinned = false, reminderAt = 9_000L).isScheduled)
+        assertEquals(false, note.copy(isPinned = true, reminderAt = 9_000L).isScheduled)
+        assertEquals(false, note.copy(isPinned = false, reminderAt = null).isScheduled)
+    }
+
+    @Test
+    fun withPinWinning_dropsTheTimeOfAPinnedNote_only() {
+        assertEquals(null, note.copy(isPinned = true, reminderAt = 9_000L).withPinWinning().reminderAt)
+        val scheduled = note.copy(isPinned = false, reminderAt = 9_000L)
+        assertSame(scheduled, scheduled.withPinWinning())
+    }
 }
