@@ -1,0 +1,5 @@
+• Schedule a note to pin itself at a set time
+• New full-screen editor that asks before discarding changes
+• Delete a note right from the editor
+• Czech and Spanish translations; German completed
+• Switches are easier to read and work better with screen readers

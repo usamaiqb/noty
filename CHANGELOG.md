@@ -1,3 +1,24 @@
+## [1.0.8] - 2026-11-27
+
+### Added
+- Schedule a note to pin later. A note is now unpinned, pinned, or scheduled to pin at a set time, never both pinned and scheduled. At that time it is pinned and posted once with an alert, then stays pinned like any other note. In the editor, Pin is a one-tap toggle and a clock sets a time. Once a time is set, a menu offers Don't pin, Pin now, or Pin later. Scheduled notes show a clock and their time on the list, as "Today, 4:24 PM", "Tomorrow, 9:00 AM" or a date. The alert channel is renamed "Scheduled notes" and keeps your existing settings (#104)
+- A full-screen note editor replaces the bottom sheet. It has room for long text, and the description fills the screen and scrolls. Close, back and the back gesture ask before discarding unsaved changes. An existing note can be deleted from the editor. Save, pin and schedule sit in a floating toolbar above the keyboard (#96)
+- Czech translation, contributed by TomawsCZ (#105)
+- Complete Spanish translation (#94)
+
+### Improved
+- Complete German translation (#90)
+- Long-pressing a note toggles its pin again, and TalkBack announces it as "Pin note" or "Unpin note" (#96)
+- Settings switches are announced by screen readers as switches with their on/off state (#89)
+
+### Fixed
+- With dynamic color on a light theme, the check on a turned-on switch was invisible (#89)
+- Tapping ✓ on an unchanged note no longer rewrites it or re-posts its notification (#96)
+
+### Changed
+- Updated the Android Gradle Plugin to 9.5.1, Gradle to 9.9.1, KSP to 2.3.13 and kotlinx-serialization-json (#85, #86, #92, #93)
+- The release workflow passes the secrets the Google Play upload needs (#88)
+
 ## [1.0.7] - 2026-11-07
 
 ### Added
