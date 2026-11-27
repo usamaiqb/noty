@@ -11,7 +11,7 @@ Every note you create appears as a notification that stays in your status bar. Y
 Notes are restored automatically after a phone restart. The app runs a lightweight background service to keep your notifications alive even after you close the app.
 
 ✏️ Add, Edit, Delete — Instantly
-Create notes with a title and optional description. Edit or delete any note with a tap. A confirmation step prevents accidental deletions.
+Write notes in a full-screen editor, with a title and optional description. Edit or delete any note with a tap. Noty asks before discarding unsaved changes, and a confirmation step prevents accidental deletions.
 
 📌 Pin or Unpin Anytime
 Choose which notes appear as notifications. Pin a note and it shows up in your status bar, locked in place until you remove it. Unpin it and it quietly moves back to the app — no notification, no clutter. Switch between pinned and unpinned at any time, directly from the notification or from the app.
@@ -28,8 +28,8 @@ Open Settings to switch themes, toggle wallpaper-based dynamic color on Android 
 🔍 Search Your Notes
 Quickly filter your notes by title or description with the built-in search bar.
 
-⏰ Reminders
-Set a one-time reminder on any note with a date and time picker. Noty fires a notification right on time using exact alarms, so you never miss it.
+⏰ Pin Later
+Not needed yet? Schedule a note to pin itself at a date and time you choose. Noty uses exact alarms to pin it right on time with an alert, and from then on it stays pinned like any other note.
 
 💾 Back Up and Restore
 Export all your notes to a file, then import them on a new phone or after reinstalling. Importing merges with the notes you already have: nothing is overwritten unless the backup holds a newer edit.
@@ -39,8 +39,8 @@ Noty is entirely local. No accounts, no cloud, no network access. Your notes nev
 
 PERMISSIONS EXPLAINED
 • Notifications — required to show your notes as persistent notifications
-• Run at Startup — used to restore your notes and reschedule reminders after your phone restarts
+• Run at Startup — used to restore your notes and their schedules after your phone restarts
 • Foreground Service — allows Noty to keep notifications active in the background
-• Exact Alarms — used to deliver note reminders at the exact time you set
+• Exact Alarms — used to pin scheduled notes at the exact time you set
 
 No ads. No in-app purchases. No data collection.

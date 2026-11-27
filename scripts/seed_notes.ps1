@@ -19,6 +19,8 @@
 #
 # Pinned notes only reach the notification shade once the app posts them:
 # reinstall the APK afterwards (MY_PACKAGE_REPLACED restores them) or reboot.
+# The scheduled note's alarm is only set when the app reschedules (reinstall,
+# reboot or a permission grant); the card shows its time either way.
 # ─────────────────────────────────────────────────────────────────────────────
 
 param(
@@ -79,19 +81,16 @@ $now      = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
 $oneHour  = 3600000
 $oneDay   = 86400000
 $oneWeek  = 7 * $oneDay
+# 9:00 AM tomorrow, device-local, so the card reads "Tomorrow, 9:00 AM"
+# (assumes the host and the device share a time zone)
+$tomorrow9am = [DateTimeOffset]::new([DateTime]::Today.AddDays(1).AddHours(9)).ToUnixTimeMilliseconds()
 
 # ── sample notes ─────────────────────────────────────────────────────────────
 #  Schema (v8): id (auto), uuid, title, description, type (NOTE|REMINDER|WORK),
 #  createdAt, updatedAt, isPinned (1/0), reminderAt
+#  An unpinned note with reminderAt is scheduled to pin at that time.
 $notes = @(
     # ── Pinned notes ──────────────────────────────────────────────────────────
-    @{
-        title       = "Review pull request"
-        description = "#42 — auth refactor"
-        type        = "WORK"
-        createdAt   = $now - $oneHour
-        isPinned    = 1
-    },
     @{
         title       = "Call dentist"
         description = "Book appointment for Tuesday"
@@ -109,24 +108,18 @@ $notes = @(
 
     # ── Unpinned notes ────────────────────────────────────────────────────────
     @{
+        title       = "Pay rent"
+        description = "Transfer before the 1st to avoid the late fee."
+        type        = "REMINDER"
+        createdAt   = $now - (5 * $oneHour)
+        isPinned    = 0
+        reminderAt  = $tomorrow9am
+    },
+    @{
         title       = "Weekend reading"
         description = "Finish chapter 4 of Atomic Habits and start Deep Work."
         type        = "NOTE"
         createdAt   = $now - $oneDay
-        isPinned    = 0
-    },
-    @{
-        title       = "Team lunch"
-        description = "Friday 1 PM at the Italian place on 5th. Confirm with Sara and Jake."
-        type        = "REMINDER"
-        createdAt   = $now - (2 * $oneDay)
-        isPinned    = 0
-    },
-    @{
-        title       = "Gift ideas for Mom"
-        description = "Silk scarf, the cookbook she mentioned, or a pottery class"
-        type        = "NOTE"
-        createdAt   = $now - (4 * $oneDay)
         isPinned    = 0
     }
 )
@@ -141,11 +134,13 @@ foreach ($note in $notes) {
 
     $uuid  = [guid]::NewGuid().ToString()
 
-    $sql = "INSERT INTO notes (uuid, title, description, type, createdAt, updatedAt, isPinned) " +
-           "VALUES ('$uuid', '$title', '$desc', '$($note.type)', $($note.createdAt), $($note.createdAt), $($note.isPinned));"
+    $reminderAt = if ($note.reminderAt) { $note.reminderAt } else { "NULL" }
+
+    $sql = "INSERT INTO notes (uuid, title, description, type, createdAt, updatedAt, isPinned, reminderAt) " +
+           "VALUES ('$uuid', '$title', '$desc', '$($note.type)', $($note.createdAt), $($note.createdAt), $($note.isPinned), $reminderAt);"
 
     Invoke-Sql $sql
-    $pin = if ($note.isPinned) { "[pinned]" } else { "        " }
+    $pin = if ($note.isPinned) { "[pinned]" } elseif ($note.reminderAt) { "[sched] " } else { "        " }
     Write-Host "  + $pin $($note.title)" -ForegroundColor Green
 }
 
