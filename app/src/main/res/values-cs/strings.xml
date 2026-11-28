@@ -57,7 +57,7 @@
     <string name="schedule_tomorrow">Zítra, %1$s</string>
     <string name="cd_pin_options">Možnosti připnutí</string>
     <string name="reminder_permission_title">Povolit budíky a připomenutí</string>
-    <string name="schedule_permission_message">Aplikace Noty potřebuje oprávnění \"Budíky a připomenutí\", aby mohla připnout vaši poznámku přesně v nastavenou minutu. Bez tohoto oprávnění ji může Android zpozdit o 10 minut i více, proto zůstává plánování vypnuté.</string>
+    <string name="schedule_permission_message">Aplikace Noty potřebuje oprávnění \"Budíky a připomenutí\", aby mohla vaši poznámku připnout přesně v čase, který zvolíte. Bez tohoto oprávnění může Android naplánované připnutí zpozdit o 10 minut i více, a proto je plánování vypnuté.</string>
     <string name="reminder_time_dialog_title">Nastavit čas</string>
     <string name="reminder_time_in_past">Tento čas už uplynul. Vyberte si jiný čas.</string>
 
@@ -71,8 +71,8 @@
     <string name="message_save_failed">Poznámku se nepodařilo uložit</string>
     <string name="message_update_failed">Nepodařilo se aktualizovat poznámku</string>
     <string name="message_delete_failed">Poznámku se nepodařilo smazat</string>
-    <string name="message_schedule_needs_permission">Poznámka byla uložena bez naplánování: oprávnění pro budíky a připomenutí je vypnuté</string>
-    <string name="message_schedule_time_passed">Poznámka byla uložena bez naplánování: daný čas již uplynul</string>
+    <string name="message_schedule_needs_permission">Poznámka byla uložena, ale její připnutí nebylo naplánováno, protože aplikace nemá povolené oprávnění \"Budíky a připomenutí\".</string>
+    <string name="message_schedule_time_passed">Poznámka byla uložena, ale její připnutí nebylo naplánováno, protože zvolený čas už uplynul.</string>
     <string name="message_export_failed">Nepodařilo se exportovat vaše poznámky</string>
     <string name="message_import_failed">Tento soubor se nepodařilo importovat</string>
     <string name="message_import_not_a_backup">Tento soubor není zálohou Noty</string>
@@ -127,7 +127,7 @@
     <string name="channel_service_name">Služba Noty</string>
     <string name="channel_service_description">Služba běžící na pozadí pro sledování poznámek</string>
     <string name="channel_scheduled_name">Naplánované poznámky</string>
-    <string name="channel_scheduled_description">Upozornění, když se naplánovaná poznámka připne</string>
+    <string name="channel_scheduled_description">Upozornění při připnutí naplánované poznámky</string>
 
     <!-- Foreground service notification -->
     <string name="service_notification_text">Udržuje vaše poznámky viditelné</string>
@@ -145,7 +145,7 @@
     <string name="cd_clear_search">Vymazat vyhledávání</string>
     <string name="cd_more_options">Další možnosti</string>
     <string name="cd_scheduled">Naplánováno</string>
-    <string name="cd_remove_schedule">Odstranit naplánování</string>
+    <string name="cd_remove_schedule">Zrušit naplánované připnutí</string>
     <string name="cd_pin_note">Připnout poznámku</string>
     <string name="cd_unpin_note">Odepnout poznámku</string>
 
